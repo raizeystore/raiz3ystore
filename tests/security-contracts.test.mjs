@@ -17,6 +17,33 @@ test("privileged Supabase secret stays out of browser-scoped clients", () => {
   assert.doesNotMatch(proxy, /SUPABASE_SECRET_KEY/);
 });
 
+test("email registration validates profile, password and policy consent on the server", () => {
+  const actions = read("app/auth/actions.ts");
+  const migration = read("supabase/migrations/20260822212707_record_auth_profile_and_policy_consent.sql");
+
+  assert.match(actions, /isStrongPassword\(password\)/);
+  assert.match(actions, /isValidPhone\(phone\)/);
+  assert.match(actions, /privacyAccepted/);
+  assert.match(actions, /termsAccepted/);
+  assert.match(actions, /privacy_accepted:\s*true/);
+  assert.match(actions, /terms_accepted:\s*true/);
+  assert.match(actions, /emailRedirectTo/);
+  assert.match(migration, /privacy_accepted_at/);
+  assert.match(migration, /terms_accepted_at/);
+});
+
+test("Google OAuth uses a server redirect and a PKCE callback before creating a session", () => {
+  const actions = read("app/auth/actions.ts");
+  const callback = read("app/auth/callback/route.ts");
+
+  assert.match(actions, /signInWithOAuth/);
+  assert.match(actions, /provider:\s*["']google["']/);
+  assert.match(actions, /\/auth\/callback\?next=/);
+  assert.match(callback, /exchangeCodeForSession/);
+  assert.match(callback, /startsWith\(["']\/complete-profile["']\)/);
+  assert.match(callback, /user_metadata/);
+});
+
 test("checkout does not trust a client-supplied price and uses validated idempotency", () => {
   const checkoutAction = read("app/checkout/actions.ts");
   const checkoutPage = read("app/checkout/[slug]/page.tsx");
@@ -78,7 +105,7 @@ test("sensitive routes use no-store and baseline security headers", () => {
   assert.match(config, /X-Content-Type-Options/);
   assert.match(config, /frame-ancestors 'none'/);
   assert.match(config, /private, no-store, max-age=0/);
-  for (const route of ["/account", "/orders/:path*", "/admin/:path*", "/checkout/:path*", "/auth/:path*"]) {
+  for (const route of ["/account", "/orders/:path*", "/admin/:path*", "/checkout/:path*", "/auth/:path*", "/register", "/complete-profile"]) {
     assert.ok(config.includes(route), `missing no-store route: ${route}`);
   }
 });

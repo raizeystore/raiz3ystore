@@ -33,42 +33,17 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async headers() {
     return [
-      {
-        source: "/(.*)",
-        headers: securityHeaders,
-      },
-      {
-        source: "/account",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/orders/:path*",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/admin/:path*",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/checkout/:path*",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/auth/:path*",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/login",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/forgot-password",
-        headers: noStoreHeader,
-      },
-      {
-        source: "/reset-password",
-        headers: noStoreHeader,
-      },
+      { source: "/(.*)", headers: securityHeaders },
+      { source: "/account", headers: noStoreHeader },
+      { source: "/orders/:path*", headers: noStoreHeader },
+      { source: "/admin/:path*", headers: noStoreHeader },
+      { source: "/checkout/:path*", headers: noStoreHeader },
+      { source: "/auth/:path*", headers: noStoreHeader },
+      { source: "/login", headers: noStoreHeader },
+      { source: "/register", headers: noStoreHeader },
+      { source: "/complete-profile", headers: noStoreHeader },
+      { source: "/forgot-password", headers: noStoreHeader },
+      { source: "/reset-password", headers: noStoreHeader },
     ];
   },
 };

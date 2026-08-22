@@ -1,6 +1,22 @@
-import Link from "next/link";
-import { login, signup } from "@/app/auth/actions";
-import { BrandLogo } from "@/src/components/brand-logo";
+import { AuthScene } from "@/src/components/auth/auth-scene";
+import { LoginForm } from "@/src/components/auth/login-form";
+
+const errorMessages: Record<string, string> = {
+  missing_credentials: "أدخل البريد الإلكتروني وكلمة المرور للمتابعة.",
+  invalid_credentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+  email_not_confirmed: "أكد بريدك الإلكتروني أولًا ثم حاول تسجيل الدخول مرة أخرى.",
+  auth_failed: "تعذر تسجيل الدخول الآن. حاول مرة أخرى بعد قليل.",
+  google_failed: "تعذر إكمال تسجيل الدخول عبر Google. حاول مرة أخرى.",
+  confirmation_failed: "رابط التأكيد غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.",
+  account_inactive: "هذا الحساب غير متاح حاليًا. تواصل مع دعم المتجر.",
+  session_required: "انتهت الجلسة. سجّل الدخول من جديد للمتابعة.",
+};
+
+const successMessages: Record<string, string> = {
+  check_email: "تم إنشاء الحساب. افتح بريدك الإلكتروني واضغط رابط التأكيد ثم سجّل الدخول.",
+  password_updated: "تم تحديث كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.",
+  login_required: "سجّل الدخول للمتابعة إلى حسابك وطلباتك.",
+};
 
 export default async function LoginPage({
   searchParams,
@@ -8,60 +24,32 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   const params = await searchParams;
+  const errorMessage = params.error ? errorMessages[params.error] ?? "تعذر تنفيذ العملية. حاول مرة أخرى." : null;
+  const successMessage = params.message ? successMessages[params.message] ?? null : null;
 
   return (
-    <main className="auth-shell">
-      <section className="auth-brand-panel" aria-labelledby="auth-brand-title">
-        <Link href="/" aria-label="العودة إلى الصفحة الرئيسية"><BrandLogo /></Link>
-
-        <div className="auth-brand-copy">
-          <span className="eyebrow"><span className="eyebrow-dot" />حساب واحد لكل طلباتك</span>
-          <h1 id="auth-brand-title">ارجع للعبك <span>بسرعة.</span></h1>
-          <p>سجّل دخولك لمتابعة الطلبات، بيانات الشحن، وحالة التنفيذ من مكان واحد بتجربة واضحة وآمنة.</p>
-          <div className="auth-trust-list">
-            <span className="auth-trust-item">جلسات آمنة عبر Supabase Auth</span>
-            <span className="auth-trust-item">حماية بيانات الحساب</span>
-            <span className="auth-trust-item">متابعة حالة الطلب من حسابك</span>
-          </div>
+    <AuthScene
+      title={<>مرحبًا <span>بعودتك</span></>}
+      subtitle="سجّل دخولك واستمتع بتجربة شحن آمنة وسريعة لألعابك المفضلة."
+      features={[
+        { title: "دخول آمن", text: "حماية متقدمة لبياناتك", icon: "◇" },
+        { title: "تتبّع طلباتك", text: "حالة الطلب لحظة بلحظة", icon: "▣" },
+        { title: "شحن سريع", text: "طلبات واضحة وسهلة", icon: "ϟ" },
+      ]}
+    >
+      <section className="auth-premium-card" aria-labelledby="login-title">
+        <div className="auth-premium-card-head">
+          <span className="card-kicker">RAIZEY ACCOUNT</span>
+          <h2 id="login-title">تسجيل الدخول</h2>
+          <p>أدخل بيانات حسابك للمتابعة.</p>
         </div>
 
-        <span className="trust-chip">RAIZEY STORE • Secure Game Top-up</span>
+        {successMessage && <div className="notice" role="status">{successMessage}</div>}
+        {errorMessage && <div className="notice notice-error" role="alert">{errorMessage}</div>}
+
+        <LoginForm />
+        <p className="auth-security-note">بيانات تسجيل الدخول لا تُشارك مع أي طرف، والجلسات تتم عبر Supabase Auth.</p>
       </section>
-
-      <section className="auth-form-panel" aria-labelledby="login-title">
-        <div className="auth-card">
-          <div className="auth-card-header">
-            <BrandLogo compact />
-            <h2 id="login-title">مرحبًا بعودتك</h2>
-            <p>أدخل بياناتك لتسجيل الدخول، أو أنشئ حساب جديد بنفس النموذج.</p>
-          </div>
-
-          {params.message === "check_email" && <div className="notice" role="status">تحقق من بريدك الإلكتروني لتأكيد الحساب.</div>}
-          {params.message === "password_updated" && <div className="notice" role="status">تم تحديث كلمة المرور. يمكنك تسجيل الدخول الآن.</div>}
-          {params.message === "login_required" && <div className="notice" role="status">سجّل الدخول أو أنشئ حسابًا للمتابعة إلى الشراء والطلبات.</div>}
-          {params.error && <div className="notice notice-error" role="alert">تعذر تنفيذ العملية. تحقق من البيانات أو صلاحية الرابط وحاول مرة أخرى.</div>}
-
-          <form className="auth-form">
-            <label className="field">
-              <span className="field-label">البريد الإلكتروني</span>
-              <input name="email" type="email" required autoComplete="email" inputMode="email" placeholder="name@example.com" />
-            </label>
-
-            <label className="field">
-              <span className="field-label">كلمة المرور</span>
-              <input name="password" type="password" required minLength={8} autoComplete="current-password" placeholder="8 أحرف على الأقل" />
-            </label>
-
-            <div className="form-meta"><span>بياناتك محمية</span><Link className="text-link" href="/forgot-password">نسيت كلمة المرور؟</Link></div>
-
-            <button className="btn btn-primary btn-full" formAction={login} type="submit">تسجيل الدخول</button>
-            <div className="auth-divider">أو</div>
-            <button className="btn btn-secondary btn-full" formAction={signup} type="submit">إنشاء حساب جديد</button>
-          </form>
-
-          <p className="auth-footnote">بمتابعتك، أنت تستخدم الحساب فقط لإدارة طلباتك وخدمات المتجر.</p>
-        </div>
-      </section>
-    </main>
+    </AuthScene>
   );
 }

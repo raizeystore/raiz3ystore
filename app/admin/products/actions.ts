@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/src/lib/auth/require-admin";
 import { createAdminClient } from "@/src/lib/supabase/admin";
+import type { TablesUpdate } from "@/src/types/database";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -31,7 +32,7 @@ export async function updateProductSettings(formData: FormData) {
   const playerIdRequired = formData.get("playerIdRequired") === "on";
   const playerNameRequired = formData.get("playerNameRequired") === "on";
 
-  if (!UUID_RE.test(productId) || !["manual", "usd_auto"].includes(pricingMode)) {
+  if (!UUID_RE.test(productId) || (pricingMode !== "manual" && pricingMode !== "usd_auto")) {
     redirect("/admin/products?error=invalid_product_settings");
   }
 
@@ -63,7 +64,7 @@ export async function updateProductSettings(formData: FormData) {
     player_name_label: playerNameLabel,
   };
 
-  const payload = pricingMode === "usd_auto"
+  const payload: TablesUpdate<"products"> = pricingMode === "usd_auto"
     ? {
         ...common,
         pricing_mode: "usd_auto",
@@ -77,7 +78,7 @@ export async function updateProductSettings(formData: FormData) {
         pricing_mode: "manual",
         base_price_usd: null,
         profit_margin_override: null,
-        price: manualPrice,
+        price: manualPrice ?? 0,
         currency: manualCurrency,
       };
 

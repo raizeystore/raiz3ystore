@@ -12,17 +12,24 @@ export default async function AccountPage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
 
-  if (!data?.claims?.sub) redirect("/login");
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("display_name, phone, role, is_active")
-    .eq("id", data.claims.sub)
+    .eq("id", user.id)
     .single();
 
-  const roleLabel = profile?.role === "admin" ? "إدارة المتجر" : "عميل";
+  if (!profile?.is_active) redirect("/login?error=account_inactive");
+  const metadata = user.user_metadata ?? {};
+  if (!profile.phone || metadata.privacy_accepted !== true || metadata.terms_accepted !== true) {
+    redirect("/complete-profile");
+  }
+
+  const roleLabel = profile.role === "admin" ? "إدارة المتجر" : "عميل";
 
   return (
     <main className="site-shell">
@@ -32,11 +39,9 @@ export default async function AccountPage({
           <nav className="nav-links" aria-label="تنقل الحساب">
             <Link href="/games">الألعاب</Link>
             <Link href="/orders">طلباتي</Link>
-            {profile?.role === "admin" && <Link href="/admin">الإدارة</Link>}
+            {profile.role === "admin" && <Link href="/admin">الإدارة</Link>}
           </nav>
-          <div className="nav-actions">
-            <Link className="btn btn-secondary" href="/">العودة للمتجر</Link>
-          </div>
+          <div className="nav-actions"><Link className="btn btn-secondary" href="/">العودة للمتجر</Link></div>
         </div>
       </header>
 
@@ -50,29 +55,17 @@ export default async function AccountPage({
             </div>
           </div>
 
-          {params.message === "profile_updated" && (
-            <div className="notice" role="status" style={{ marginBottom: 20 }}>تم تحديث بيانات الحساب بنجاح.</div>
+          {(params.message === "profile_updated" || params.message === "profile_completed" || params.message === "welcome") && (
+            <div className="notice" role="status" style={{ marginBottom: 20 }}>
+              {params.message === "profile_completed" ? "اكتملت بيانات حسابك بنجاح." : params.message === "welcome" ? "مرحبًا بك في RAIZEY STORE." : "تم تحديث بيانات الحساب بنجاح."}
+            </div>
           )}
-          {params.error && (
-            <div className="notice notice-error" role="alert" style={{ marginBottom: 20 }}>تعذر تحديث البيانات. تحقق من القيم وحاول مرة أخرى.</div>
-          )}
+          {params.error && <div className="notice notice-error" role="alert" style={{ marginBottom: 20 }}>تعذر تحديث البيانات. تحقق من القيم وحاول مرة أخرى.</div>}
 
           <div className="info-grid">
-            <article className="info-card">
-              <div className="icon-box">@</div>
-              <h3>البريد الإلكتروني</h3>
-              <p>{String(data.claims.email ?? "—")}</p>
-            </article>
-            <article className="info-card">
-              <div className="icon-box">R</div>
-              <h3>نوع الحساب</h3>
-              <p>{roleLabel}</p>
-            </article>
-            <article className="info-card">
-              <div className="icon-box">✓</div>
-              <h3>حالة الحساب</h3>
-              <p>{profile?.is_active === false ? "موقوف" : "نشط"}</p>
-            </article>
+            <article className="info-card"><div className="icon-box">@</div><h3>البريد الإلكتروني</h3><p>{user.email ?? "—"}</p></article>
+            <article className="info-card"><div className="icon-box">R</div><h3>نوع الحساب</h3><p>{roleLabel}</p></article>
+            <article className="info-card"><div className="icon-box">✓</div><h3>حالة الحساب</h3><p>نشط</p></article>
           </div>
 
           <div className="auth-card" style={{ marginTop: 24, maxWidth: 720 }}>
@@ -82,29 +75,18 @@ export default async function AccountPage({
             </div>
 
             <form className="auth-form" action={updateProfile}>
-              <label className="field">
-                <span className="field-label">الاسم الظاهر</span>
-                <input name="displayName" type="text" maxLength={80} defaultValue={profile?.display_name ?? ""} autoComplete="name" placeholder="اكتب اسمك" />
-              </label>
-              <label className="field">
-                <span className="field-label">رقم الهاتف</span>
-                <input name="phone" type="tel" maxLength={30} defaultValue={profile?.phone ?? ""} autoComplete="tel" inputMode="tel" placeholder="رقم الهاتف" />
-              </label>
+              <label className="field"><span className="field-label">الاسم الظاهر</span><input name="displayName" type="text" maxLength={80} defaultValue={profile.display_name ?? ""} autoComplete="name" placeholder="اكتب اسمك" /></label>
+              <label className="field"><span className="field-label">رقم الهاتف</span><input name="phone" type="tel" maxLength={30} defaultValue={profile.phone ?? ""} autoComplete="tel" inputMode="tel" placeholder="رقم الهاتف" /></label>
               <button className="btn btn-primary" type="submit">حفظ التغييرات</button>
             </form>
           </div>
 
           <div className="cta-band" style={{ marginTop: 24 }}>
-            <div>
-              <h2>{profile?.display_name ? `مرحبًا ${profile.display_name}` : "مرحبًا بك في RAIZEY"}</h2>
-              <p>تابع طلباتك والدفع والمراجعة من مركز الطلبات.</p>
-            </div>
+            <div><h2>{profile.display_name ? `مرحبًا ${profile.display_name}` : "مرحبًا بك في RAIZEY"}</h2><p>تابع طلباتك والدفع والمراجعة من مركز الطلبات.</p></div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               <Link className="btn btn-primary" href="/orders">طلباتي</Link>
-              {profile?.role === "admin" && <Link className="btn btn-secondary" href="/admin">لوحة الإدارة</Link>}
-              <form action={signOut}>
-                <button className="btn btn-secondary" type="submit">تسجيل الخروج</button>
-              </form>
+              {profile.role === "admin" && <Link className="btn btn-secondary" href="/admin">لوحة الإدارة</Link>}
+              <form action={signOut}><button className="btn btn-secondary" type="submit">تسجيل الخروج</button></form>
             </div>
           </div>
         </div>

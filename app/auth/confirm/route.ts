@@ -14,27 +14,42 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const flowId = searchParams.get("sb_flow_id");
   const next = getSafeNext(searchParams.get("next"));
-
-  const redirectTo = request.nextUrl.clone();
-  redirectTo.pathname = next;
-  redirectTo.search = "";
-
   const supabase = await createClient();
+
+  async function redirectAuthenticatedUser() {
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData.user;
+    if (!user) return NextResponse.redirect(new URL("/login?error=confirmation_failed", request.url));
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("phone, is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!profile?.is_active) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL("/login?error=account_inactive", request.url));
+    }
+
+    const metadata = user.user_metadata ?? {};
+    const hasPolicyConsent = metadata.privacy_accepted === true && metadata.terms_accepted === true;
+    if (!profile.phone || !hasPolicyConsent) {
+      return NextResponse.redirect(new URL("/complete-profile", request.url));
+    }
+
+    return NextResponse.redirect(new URL(next, request.url));
+  }
 
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    if (!error) return NextResponse.redirect(redirectTo);
+    if (!error) return redirectAuthenticatedUser();
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(
-      code,
-      flowId ? { flowId } : undefined,
-    );
-    if (!error) return NextResponse.redirect(redirectTo);
+    const { error } = await supabase.auth.exchangeCodeForSession(code, flowId ? { flowId } : undefined);
+    if (!error) return redirectAuthenticatedUser();
   }
 
-  redirectTo.pathname = "/login";
-  redirectTo.searchParams.set("error", "confirmation_failed");
-  return NextResponse.redirect(redirectTo);
+  return NextResponse.redirect(new URL("/login?error=confirmation_failed", request.url));
 }

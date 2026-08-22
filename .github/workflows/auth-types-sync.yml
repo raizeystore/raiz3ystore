@@ -1,0 +1,54 @@
+name: One-shot auth type sync
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync profile consent fields and remove this one-shot workflow
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+          const path = 'src/types/database.ts'
+          let source = fs.readFileSync(path, 'utf8')
+          if (!source.includes('privacy_accepted_at: string | null')) {
+            const start = source.indexOf('      profiles: {')
+            const end = source.indexOf('      store_settings: {', start)
+            if (start < 0 || end < 0) throw new Error('profiles type block not found')
+            let block = source.slice(start, end)
+            block = block.replace(
+              '          phone: string | null\n          role:',
+              '          phone: string | null\n          privacy_accepted_at: string | null\n          privacy_version: string | null\n          role:'
+            )
+            block = block.replace(
+              '          role: Database["public"]["Enums"]["user_role"]\n          updated_at: string',
+              '          role: Database["public"]["Enums"]["user_role"]\n          terms_accepted_at: string | null\n          terms_version: string | null\n          updated_at: string'
+            )
+            block = block.replace(
+              '          phone?: string | null\n          role?:',
+              '          phone?: string | null\n          privacy_accepted_at?: string | null\n          privacy_version?: string | null\n          role?:'
+            )
+            block = block.replace(
+              '          role?: Database["public"]["Enums"]["user_role"]\n          updated_at?: string',
+              '          role?: Database["public"]["Enums"]["user_role"]\n          terms_accepted_at?: string | null\n          terms_version?: string | null\n          updated_at?: string'
+            )
+            source = source.slice(0, start) + block + source.slice(end)
+            fs.writeFileSync(path, source)
+          }
+          fs.rmSync('.github/workflows/auth-types-sync.yml')
+          NODE
+      - name: Commit synced generated types
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/types/database.ts .github/workflows/auth-types-sync.yml
+          git commit -m "chore: sync auth database types"
+          git push
