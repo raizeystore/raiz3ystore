@@ -19,6 +19,7 @@ function number(formData: FormData, key: string) {
 
 function refreshAdmin() {
   revalidatePath("/admin");
+  revalidatePath("/admin/products");
   revalidatePath("/games");
   revalidatePath("/");
 }
@@ -48,6 +49,7 @@ export async function createProduct(formData: FormData) {
   const description = text(formData, "description", 1000);
   const price = number(formData, "price");
   const currency = (text(formData, "currency", 5) || "SDG").toUpperCase();
+  const useUsdAutoPricing = currency === "USD";
 
   if (!UUID_RE.test(gameId) || name.length < 2 || !SLUG_RE.test(slug) || !Number.isFinite(price) || price < 0) {
     redirect("/admin?error=invalid_product");
@@ -63,11 +65,17 @@ export async function createProduct(formData: FormData) {
     slug,
     sku: sku || null,
     description: description || null,
-    price,
-    currency,
+    price: useUsdAutoPricing ? 0 : price,
+    currency: useUsdAutoPricing ? "SDG" : currency,
+    pricing_mode: useUsdAutoPricing ? "usd_auto" : "manual",
+    base_price_usd: useUsdAutoPricing ? price : null,
     status: "active",
   });
-  if (error) redirect("/admin?error=product_create_failed");
+
+  if (error) {
+    const code = error.message.includes("exchange_rate_not_configured") ? "exchange_rate_required" : "product_create_failed";
+    redirect(`/admin?error=${code}`);
+  }
 
   refreshAdmin();
   revalidatePath(`/products/${slug}`);
@@ -123,6 +131,8 @@ export async function updateStoreSettings(formData: FormData) {
   if (error) redirect("/admin?error=settings_update_failed");
 
   refreshAdmin();
+  revalidatePath("/products/[slug]", "page");
+  revalidatePath("/checkout/[slug]", "page");
   redirect("/admin?message=settings_updated");
 }
 
