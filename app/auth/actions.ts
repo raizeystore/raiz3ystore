@@ -12,6 +12,11 @@ function getCredentials(formData: FormData) {
   };
 }
 
+async function getRequestOrigin() {
+  const headerStore = await headers();
+  return headerStore.get("origin") ?? null;
+}
+
 export async function login(formData: FormData) {
   const { email, password } = getCredentials(formData);
   if (!email || !password) redirect("/login?error=missing_credentials");
@@ -28,8 +33,15 @@ export async function signup(formData: FormData) {
   const { email, password } = getCredentials(formData);
   if (!email || password.length < 8) redirect("/login?error=invalid_signup");
 
+  const origin = await getRequestOrigin();
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: origin
+      ? { emailRedirectTo: `${origin}/auth/confirm?next=/account` }
+      : undefined,
+  });
 
   if (error) redirect("/login?error=signup_failed");
   revalidatePath("/", "layout");
@@ -40,8 +52,7 @@ export async function requestPasswordReset(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email) redirect("/forgot-password?error=invalid_email");
 
-  const headerStore = await headers();
-  const origin = headerStore.get("origin");
+  const origin = await getRequestOrigin();
   if (!origin) redirect("/forgot-password?error=request_failed");
 
   const supabase = await createClient();
