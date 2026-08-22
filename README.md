@@ -25,7 +25,7 @@
 - Audit logs للعمليات الحساسة.
 - CSP / security headers / no-store للصفحات الحساسة.
 - Generated Supabase TypeScript database types.
-- Sentry SDK wiring للمتصفح وNode.js وEdge؛ يظل معطلًا بأمان إلى أن تُضاف قيم DSN.
+- Sentry monitoring مفعّل للمتصفح وNode.js وEdge باستخدام DSN عام للمشروع، مع دعم override عبر Environment Variables.
 - Playwright E2E smoke suite للواجهة، صفحة الدخول، وحماية مسار الحساب.
 - GitHub Actions CI: security contract tests + ESLint + TypeScript + production build + E2E.
 - Committed `package-lock.json` لضمان builds قابلة لإعادة الإنتاج.
@@ -40,7 +40,7 @@ SUPABASE_SECRET_KEY=
 
 `SUPABASE_SECRET_KEY` **server-only** ولا يجب وضعها في أي متغير يبدأ بـ `NEXT_PUBLIC_`.
 
-## Optional Sentry environment variables
+## Optional Sentry environment overrides
 
 ```env
 NEXT_PUBLIC_SENTRY_DSN=
@@ -50,7 +50,7 @@ SENTRY_PROJECT=
 SENTRY_AUTH_TOKEN=
 ```
 
-Monitoring stays disabled when the DSN is blank. `SENTRY_AUTH_TOKEN` is build/server-only and must never be exposed to the browser.
+الـDSN العام مفعّل داخل الكود، لذلك `NEXT_PUBLIC_SENTRY_DSN` و`SENTRY_DSN` اختياريان كـoverride لكل بيئة. `SENTRY_AUTH_TOKEN` يظل build/server-only ويُستخدم فقط إذا فعّلنا رفع Source Maps، ولا يجب تعريضه للمتصفح.
 
 ## Quality checks
 
@@ -63,7 +63,7 @@ npm run build
 npm run test:e2e
 ```
 
-نفس الفحوصات تعمل تلقائيًا على GitHub Actions عند كل Push أو Pull Request إلى `main`.
+تم التحقق بنجاح من Security contracts وESLint وTypeScript وProduction Build وPlaywright E2E، ونفس الفحوصات تعمل تلقائيًا على GitHub Actions عند كل Push أو Pull Request إلى `main`.
 
 ## Architecture and AI rules
 
@@ -76,6 +76,6 @@ npm run test:e2e
 
 - إنشاء أول حساب Admin موثوق ورفع دوره يدويًا بعد التحقق من ملكيته.
 - إضافة بيانات المتجر الحقيقية: الألعاب، العروض، طرق الدفع والأسعار.
-- إضافة DSN الحقيقي إلى Vercel لتفعيل إرسال أحداث Sentry الفعلية.
+- اختيارياً: إعداد `SENTRY_AUTH_TOKEN` + بيانات المشروع لرفع Source Maps محسنة في Production.
 - AI receipt analysis / customer-support AI بعد اكتمال واختبار الـcore التجاري ببيانات فعلية.
 - توسيع E2E إلى دورة شراء كاملة بعد وجود مستخدم Admin وبيانات دفع/منتجات حقيقية.
