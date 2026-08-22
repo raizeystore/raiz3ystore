@@ -1,7 +1,7 @@
 ===== npm ci =====
 npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
 
-added 483 packages, and audited 484 packages in 14s
+added 483 packages, and audited 484 packages in 11s
 
 156 packages are looking for funding
   run `npm fund` for details
@@ -17,49 +17,49 @@ TAP version 13
 # Subtest: privileged Supabase secret stays out of browser-scoped clients
 ok 1 - privileged Supabase secret stays out of browser-scoped clients
   ---
-  duration_ms: 1.300944
+  duration_ms: 1.175483
   type: 'test'
   ...
 # Subtest: checkout does not trust a client-supplied price and uses validated idempotency
 ok 2 - checkout does not trust a client-supplied price and uses validated idempotency
   ---
-  duration_ms: 1.103074
+  duration_ms: 1.079859
   type: 'test'
   ...
 # Subtest: product-specific player requirements are rendered and revalidated server-side
 ok 3 - product-specific player requirements are rendered and revalidated server-side
   ---
-  duration_ms: 0.436286
+  duration_ms: 0.406573
   type: 'test'
   ...
 # Subtest: automatic USD pricing is enforced in PostgreSQL and reprices on store settings changes
 ok 4 - automatic USD pricing is enforced in PostgreSQL and reprices on store settings changes
   ---
-  duration_ms: 0.366837
+  duration_ms: 0.362557
   type: 'test'
   ...
 # Subtest: receipt upload enforces size, MIME allowlist, ownership and non-upsert
 ok 5 - receipt upload enforces size, MIME allowlist, ownership and non-upsert
   ---
-  duration_ms: 0.338964
+  duration_ms: 0.368005
   type: 'test'
   ...
 # Subtest: sensitive routes use no-store and baseline security headers
 ok 6 - sensitive routes use no-store and baseline security headers
   ---
-  duration_ms: 0.277219
+  duration_ms: 0.269877
   type: 'test'
   ...
 # Subtest: Sentry browser monitoring never references an auth token and default PII remains disabled
 ok 7 - Sentry browser monitoring never references an auth token and default PII remains disabled
   ---
-  duration_ms: 0.356918
+  duration_ms: 0.350478
   type: 'test'
   ...
 # Subtest: database types contain current checkout idempotency contract
 ok 8 - database types contain current checkout idempotency contract
   ---
-  duration_ms: 0.281868
+  duration_ms: 0.264539
   type: 'test'
   ...
 1..8
@@ -70,7 +70,7 @@ ok 8 - database types contain current checkout idempotency contract
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 69.066516
+# duration_ms 63.75043
 RESULT: PASSED (0)
 ===== lint =====
 
