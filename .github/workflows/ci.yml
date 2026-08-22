@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -32,50 +32,23 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Run verification with diagnostics
-        shell: bash
-        run: |
-          set +e
-          : > ci-diagnostics.txt
+      - name: Install dependencies
+        run: npm ci
 
-          run_check() {
-            local name="$1"
-            shift
-            echo "===== $name =====" >> ci-diagnostics.txt
-            "$@" >> ci-diagnostics.txt 2>&1
-            local code=$?
-            if [ $code -ne 0 ]; then
-              echo "RESULT: FAILED ($code)" >> ci-diagnostics.txt
-              echo "FAILED_STAGE=$name" >> "$GITHUB_ENV"
-              return $code
-            fi
-            echo "RESULT: PASSED" >> ci-diagnostics.txt
-            return 0
-          }
+      - name: Security contract tests
+        run: npm run test:contracts
 
-          run_check "npm ci" npm ci || exit $?
-          run_check "security contracts" npm run test:contracts || exit $?
-          run_check "lint" npm run lint || exit $?
-          run_check "typecheck" npm run typecheck || exit $?
-          run_check "build" npm run build || exit $?
-          run_check "playwright install" npx playwright install --with-deps chromium || exit $?
-          run_check "e2e" npm run test:e2e || exit $?
+      - name: Lint
+        run: npm run lint
 
-          echo "ALL_CHECKS_PASSED=true" >> "$GITHUB_ENV"
+      - name: Typecheck
+        run: npm run typecheck
 
-      - name: Commit diagnostic result
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
-        run: |
-          if [ -f ci-diagnostics.txt ]; then
-            tail -n 300 ci-diagnostics.txt > ci-diagnostics.tmp
-            mv ci-diagnostics.tmp ci-diagnostics.txt
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add ci-diagnostics.txt
-            git commit -m "ci: record verification diagnostics" || true
-            git push || true
-          fi
+      - name: Build
+        run: npm run build
 
-      - name: Fail when verification failed
-        if: failure()
-        run: exit 1
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E smoke tests
+        run: npm run test:e2e
