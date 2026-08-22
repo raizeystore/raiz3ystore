@@ -13,7 +13,7 @@ export async function progressOrder(formData: FormData) {
   const nextStatus = String(formData.get("nextStatus") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim().slice(0, 500);
 
-  if (!UUID_RE.test(orderId) || !["processing", "completed"].includes(nextStatus)) {
+  if (!UUID_RE.test(orderId) || (nextStatus !== "processing" && nextStatus !== "completed")) {
     redirect("/admin?error=invalid_order_transition");
   }
 
