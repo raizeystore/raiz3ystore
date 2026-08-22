@@ -17,13 +17,17 @@ test("privileged Supabase secret stays out of browser-scoped clients", () => {
   assert.doesNotMatch(proxy, /SUPABASE_SECRET_KEY/);
 });
 
-test("checkout does not trust a client-supplied price and uses idempotency", () => {
-  const checkout = read("app/checkout/actions.ts");
+test("checkout does not trust a client-supplied price and uses validated idempotency", () => {
+  const checkoutAction = read("app/checkout/actions.ts");
+  const checkoutPage = read("app/checkout/[slug]/page.tsx");
 
-  assert.doesNotMatch(checkout, /formData\.get\(["']price["']\)/);
-  assert.match(checkout, /crypto\.randomUUID\(\)/);
-  assert.match(checkout, /p_idempotency_key/);
-  assert.match(checkout, /create_checkout_order/);
+  assert.doesNotMatch(checkoutAction, /formData\.get\(["']price["']\)/);
+  assert.match(checkoutPage, /crypto\.randomUUID\(\)/);
+  assert.match(checkoutPage, /name=["']checkoutToken["']/);
+  assert.match(checkoutAction, /formData\.get\(["']checkoutToken["']\)/);
+  assert.match(checkoutAction, /UUID_RE\.test\(idempotencyKey\)/);
+  assert.match(checkoutAction, /p_idempotency_key:\s*idempotencyKey/);
+  assert.match(checkoutAction, /create_checkout_order/);
 });
 
 test("receipt upload enforces size, MIME allowlist, ownership and non-upsert", () => {
