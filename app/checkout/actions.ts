@@ -23,7 +23,7 @@ export async function createOrder(formData: FormData) {
 
   const checkoutPath = SLUG_RE.test(productSlug) ? `/checkout/${productSlug}` : "/games";
 
-  if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !UUID_RE.test(idempotencyKey) || !playerId) {
+  if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !UUID_RE.test(idempotencyKey)) {
     redirect(`${checkoutPath}?error=invalid_input`);
   }
 
@@ -55,8 +55,11 @@ export async function createOrder(formData: FormData) {
   const order = data?.[0];
 
   if (error || !order?.order_number) {
-    const isRateLimited = error?.message?.includes("checkout_rate_limited");
-    redirect(`${checkoutPath}?error=${isRateLimited ? "rate_limited" : "checkout_failed"}`);
+    let code = "checkout_failed";
+    if (error?.message?.includes("checkout_rate_limited")) code = "rate_limited";
+    if (error?.message?.includes("player_id_required")) code = "player_id_required";
+    if (error?.message?.includes("player_name_required")) code = "player_name_required";
+    redirect(`${checkoutPath}?error=${code}`);
   }
 
   revalidatePath("/orders");
