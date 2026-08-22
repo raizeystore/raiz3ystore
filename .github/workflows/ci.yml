@@ -31,6 +31,38 @@ jobs:
         with:
           node-version: 22
 
+      - name: Sync latest generated database type delta
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+          const path = 'src/types/database.ts'
+          let source = fs.readFileSync(path, 'utf8')
+
+          if (!source.includes('idempotency_key: string | null')) {
+            source = source.replace(
+              '          id: string\n          order_number: string',
+              '          id: string\n          idempotency_key: string | null\n          order_number: string'
+            )
+            source = source.replace(
+              '          id?: string\n          order_number: string',
+              '          id?: string\n          idempotency_key?: string | null\n          order_number: string'
+            )
+            source = source.replace(
+              '          id?: string\n          order_number?: string',
+              '          id?: string\n          idempotency_key?: string | null\n          order_number?: string'
+            )
+          }
+
+          if (!source.includes('p_idempotency_key: string')) {
+            source = source.replace(
+              '          p_customer_note: string\n          p_payment_method_id: string',
+              '          p_customer_note: string\n          p_idempotency_key: string\n          p_payment_method_id: string'
+            )
+          }
+
+          fs.writeFileSync(path, source)
+          NODE
+
       - name: Generate lockfile if missing
         run: |
           if [ ! -f package-lock.json ]; then
@@ -49,13 +81,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Commit generated lockfile
+      - name: Commit generated artifacts
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
         run: |
-          if ! git diff --quiet -- package-lock.json || [ -n "$(git status --porcelain package-lock.json)" ]; then
+          if [ -n "$(git status --porcelain package-lock.json src/types/database.ts)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "chore: add generated package lockfile"
+            git add package-lock.json src/types/database.ts
+            git commit -m "chore: sync lockfile and database types"
             git push
           fi
