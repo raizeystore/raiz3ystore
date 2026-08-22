@@ -8,7 +8,8 @@
 - Supabase Database / Auth / Storage
 - Vercel
 - GitHub + GitHub Actions
-- Sentry — planned integration
+- Sentry monitoring
+- Playwright E2E testing
 
 ## Implemented
 
@@ -24,7 +25,9 @@
 - Audit logs للعمليات الحساسة.
 - CSP / security headers / no-store للصفحات الحساسة.
 - Generated Supabase TypeScript database types.
-- GitHub Actions CI: security contract tests + ESLint + TypeScript + production build.
+- Sentry SDK wiring للمتصفح وNode.js وEdge؛ يظل معطلًا بأمان إلى أن تُضاف قيم DSN.
+- Playwright E2E smoke suite للواجهة، صفحة الدخول، وحماية مسار الحساب.
+- GitHub Actions CI: security contract tests + ESLint + TypeScript + production build + E2E.
 - Committed `package-lock.json` لضمان builds قابلة لإعادة الإنتاج.
 
 ## Required environment variables
@@ -37,6 +40,18 @@ SUPABASE_SECRET_KEY=
 
 `SUPABASE_SECRET_KEY` **server-only** ولا يجب وضعها في أي متغير يبدأ بـ `NEXT_PUBLIC_`.
 
+## Optional Sentry environment variables
+
+```env
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_DSN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+SENTRY_AUTH_TOKEN=
+```
+
+Monitoring stays disabled when the DSN is blank. `SENTRY_AUTH_TOKEN` is build/server-only and must never be exposed to the browser.
+
 ## Quality checks
 
 ```bash
@@ -45,6 +60,7 @@ npm run test:contracts
 npm run lint
 npm run typecheck
 npm run build
+npm run test:e2e
 ```
 
 نفس الفحوصات تعمل تلقائيًا على GitHub Actions عند كل Push أو Pull Request إلى `main`.
@@ -60,6 +76,6 @@ npm run build
 
 - إنشاء أول حساب Admin موثوق ورفع دوره يدويًا بعد التحقق من ملكيته.
 - إضافة بيانات المتجر الحقيقية: الألعاب، العروض، طرق الدفع والأسعار.
-- Sentry error monitoring.
-- AI receipt analysis / customer-support AI بعد اكتمال واختبار الـcore التجاري.
-- اختبارات E2E فعلية لدورة التسجيل → الطلب → الإيصال → المراجعة → التنفيذ.
+- إضافة DSN الحقيقي إلى Vercel لتفعيل إرسال أحداث Sentry الفعلية.
+- AI receipt analysis / customer-support AI بعد اكتمال واختبار الـcore التجاري ببيانات فعلية.
+- توسيع E2E إلى دورة شراء كاملة بعد وجود مستخدم Admin وبيانات دفع/منتجات حقيقية.
