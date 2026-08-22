@@ -15,6 +15,7 @@ function clean(value: FormDataEntryValue | null, maxLength: number) {
 export async function createOrder(formData: FormData) {
   const productId = clean(formData.get("productId"), 64);
   const paymentMethodId = clean(formData.get("paymentMethodId"), 64);
+  const idempotencyKey = clean(formData.get("checkoutToken"), 64);
   const productSlug = clean(formData.get("productSlug"), 120).toLowerCase();
   const playerId = clean(formData.get("playerId"), 120);
   const playerName = clean(formData.get("playerName"), 120);
@@ -22,7 +23,7 @@ export async function createOrder(formData: FormData) {
 
   const checkoutPath = SLUG_RE.test(productSlug) ? `/checkout/${productSlug}` : "/games";
 
-  if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !playerId) {
+  if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !UUID_RE.test(idempotencyKey) || !playerId) {
     redirect(`${checkoutPath}?error=invalid_input`);
   }
 
@@ -30,9 +31,7 @@ export async function createOrder(formData: FormData) {
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims?.sub;
 
-  if (!userId) {
-    redirect(`/login?message=login_required`);
-  }
+  if (!userId) redirect("/login?message=login_required");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -40,9 +39,7 @@ export async function createOrder(formData: FormData) {
     .eq("id", userId)
     .single();
 
-  if (!profile?.is_active) {
-    redirect(`${checkoutPath}?error=account_inactive`);
-  }
+  if (!profile?.is_active) redirect(`${checkoutPath}?error=account_inactive`);
 
   const admin = createAdminClient();
   const { data, error } = await admin.rpc("create_checkout_order", {
@@ -52,12 +49,14 @@ export async function createOrder(formData: FormData) {
     p_player_id: playerId,
     p_player_name: playerName,
     p_customer_note: customerNote,
+    p_idempotency_key: idempotencyKey,
   });
 
   const order = data?.[0];
 
   if (error || !order?.order_number) {
-    redirect(`${checkoutPath}?error=checkout_failed`);
+    const isRateLimited = error?.message?.includes("checkout_rate_limited");
+    redirect(`${checkoutPath}?error=${isRateLimited ? "rate_limited" : "checkout_failed"}`);
   }
 
   revalidatePath("/orders");
