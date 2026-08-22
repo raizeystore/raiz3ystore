@@ -522,7 +522,11 @@ export type Database = {
           id: string
           is_active: boolean
           phone: string | null
+          privacy_accepted_at: string | null
+          privacy_version: string | null
           role: Database["public"]["Enums"]["user_role"]
+          terms_accepted_at: string | null
+          terms_version: string | null
           updated_at: string
         }
         Insert: {
@@ -531,7 +535,11 @@ export type Database = {
           id: string
           is_active?: boolean
           phone?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
         }
         Update: {
