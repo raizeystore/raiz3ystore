@@ -50,13 +50,22 @@ export default async function OrderDetailPage({
 
   if (!userId) redirect("/login?message=login_required");
 
-  const { data: order } = await supabase
-    .from("orders")
-    .select("id, order_number, status, subtotal, total, currency, customer_note, admin_note, created_at")
-    .eq("order_number", orderNumber)
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data: viewerProfile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", userId)
+    .single();
 
+  const isAdmin = viewerProfile?.role === "admin" && viewerProfile.is_active;
+
+  let orderQuery = supabase
+    .from("orders")
+    .select("id, order_number, user_id, status, subtotal, total, currency, customer_note, admin_note, created_at")
+    .eq("order_number", orderNumber);
+
+  if (!isAdmin) orderQuery = orderQuery.eq("user_id", userId);
+
+  const { data: order } = await orderQuery.maybeSingle();
   if (!order) notFound();
 
   const [{ data: items }, { data: payment }] = await Promise.all([
@@ -85,7 +94,7 @@ export default async function OrderDetailPage({
     payment
       ? supabase
           .from("payment_receipts")
-          .select("id, original_filename, mime_type, status, review_reason, created_at")
+          .select("id, storage_path, original_filename, mime_type, status, review_reason, created_at")
           .eq("payment_id", payment.id)
           .order("created_at", { ascending: false })
           .limit(5)
@@ -93,7 +102,18 @@ export default async function OrderDetailPage({
   ]);
 
   const latestReceipt = receipts?.[0] ?? null;
-  const canUploadReceipt = payment && ["pending", "rejected"].includes(payment.status);
+  let receiptUrl: string | null = null;
+
+  if (latestReceipt?.storage_path) {
+    const { data: signed } = await supabase.storage
+      .from("payment-receipts")
+      .createSignedUrl(latestReceipt.storage_path, 300);
+    receiptUrl = signed?.signedUrl ?? null;
+  }
+
+  const canUploadReceipt = !isAdmin && payment && ["pending", "rejected"].includes(payment.status);
+  const backHref = isAdmin ? "/admin/orders" : "/orders";
+  const backLabel = isAdmin ? "تنفيذ الطلبات" : "كل الطلبات";
 
   return (
     <main className="site-shell">
@@ -101,7 +121,8 @@ export default async function OrderDetailPage({
         <div className="container navbar">
           <Link href="/" aria-label="RAIZEY STORE الرئيسية"><BrandLogo compact /></Link>
           <nav className="nav-links" aria-label="التنقل الرئيسي">
-            <Link href="/orders">طلباتي</Link>
+            <Link href={backHref}>{backLabel}</Link>
+            {isAdmin && <Link href="/admin">لوحة الإدارة</Link>}
             <Link href="/games">الألعاب</Link>
             <Link href="/account">حسابي</Link>
           </nav>
@@ -116,13 +137,18 @@ export default async function OrderDetailPage({
               <h1>{order.order_number}</h1>
               <p>تم إنشاء الطلب بتاريخ {new Date(order.created_at).toLocaleString("ar-SD")}.</p>
             </div>
-            <Link className="btn btn-secondary" href="/orders">كل الطلبات</Link>
+            <Link className="btn btn-secondary" href={backHref}>{backLabel}</Link>
           </div>
 
-          {query.message === "order_created" && (
+          {isAdmin && (
+            <div className="notice" role="status" style={{ marginBottom: 20 }}>
+              عرض إداري محمي — يمكنك فحص بيانات اللاعب والإيصال، لكن رفع الإيصال متاح لصاحب الطلب فقط.
+            </div>
+          )}
+          {query.message === "order_created" && !isAdmin && (
             <div className="notice" role="status">تم إنشاء طلبك بنجاح. أكمل التحويل ثم ارفع الإيصال من هذه الصفحة.</div>
           )}
-          {query.message === "receipt_submitted" && (
+          {query.message === "receipt_submitted" && !isAdmin && (
             <div className="notice" role="status">تم رفع الإيصال وتحويل الطلب إلى مراجعة الدفع.</div>
           )}
           {query.error && (
@@ -130,30 +156,15 @@ export default async function OrderDetailPage({
           )}
 
           <div className="info-grid">
-            <article className="info-card">
-              <div className="icon-box">#</div>
-              <h3>حالة الطلب</h3>
-              <p>{ORDER_STATUS[order.status] ?? order.status}</p>
-            </article>
-            <article className="info-card">
-              <div className="icon-box">$</div>
-              <h3>المبلغ</h3>
-              <p>{formatPrice(order.total, order.currency)}</p>
-            </article>
-            <article className="info-card">
-              <div className="icon-box">✓</div>
-              <h3>حالة الدفع</h3>
-              <p>{payment ? (PAYMENT_STATUS[payment.status] ?? payment.status) : "—"}</p>
-            </article>
+            <article className="info-card"><div className="icon-box">#</div><h3>حالة الطلب</h3><p>{ORDER_STATUS[order.status] ?? order.status}</p></article>
+            <article className="info-card"><div className="icon-box">$</div><h3>المبلغ</h3><p>{formatPrice(order.total, order.currency)}</p></article>
+            <article className="info-card"><div className="icon-box">✓</div><h3>حالة الدفع</h3><p>{payment ? (PAYMENT_STATUS[payment.status] ?? payment.status) : "—"}</p></article>
           </div>
 
           <div className="hero-grid" style={{ marginTop: 24, alignItems: "start" }}>
             <div style={{ display: "grid", gap: 16 }}>
               <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
-                <div className="auth-card-header">
-                  <h2>تفاصيل الشحن</h2>
-                  <p>راجع الـPlayer ID قبل تنفيذ الطلب.</p>
-                </div>
+                <div className="auth-card-header"><h2>تفاصيل الشحن</h2><p>راجع الـPlayer ID قبل تنفيذ الطلب.</p></div>
                 <div style={{ display: "grid", gap: 14 }}>
                   {(items ?? []).map((item) => (
                     <div className="info-card" key={item.id}>
@@ -168,26 +179,16 @@ export default async function OrderDetailPage({
 
               {paymentMethod && (
                 <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
-                  <div className="auth-card-header">
-                    <span className="card-kicker">طريقة الدفع</span>
-                    <h2>{paymentMethod.name}</h2>
-                    <p>{paymentMethod.instructions || "حوّل المبلغ الموضح ثم ارفع صورة الإيصال."}</p>
-                  </div>
+                  <div className="auth-card-header"><span className="card-kicker">طريقة الدفع</span><h2>{paymentMethod.name}</h2><p>{paymentMethod.instructions || "حوّل المبلغ الموضح ثم ارفع صورة الإيصال."}</p></div>
                   {paymentMethod.account_label && <p>{paymentMethod.account_label}</p>}
-                  {paymentMethod.account_identifier && (
-                    <p style={{ fontSize: 22, fontWeight: 900, color: "var(--brand-strong)" }}>{paymentMethod.account_identifier}</p>
-                  )}
+                  {paymentMethod.account_identifier && <p style={{ fontSize: 22, fontWeight: 900, color: "var(--brand-strong)" }}>{paymentMethod.account_identifier}</p>}
                 </article>
               )}
             </div>
 
             <div style={{ display: "grid", gap: 16 }}>
               <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
-                <div className="auth-card-header">
-                  <span className="card-kicker">إثبات الدفع</span>
-                  <h2>رفع الإيصال</h2>
-                  <p>PNG / JPG / WEBP / PDF، وبحد أقصى 5MB. الملفات تحفظ في Storage خاص وليست عامة.</p>
-                </div>
+                <div className="auth-card-header"><span className="card-kicker">إثبات الدفع</span><h2>{isAdmin ? "فحص الإيصال" : "رفع الإيصال"}</h2><p>PNG / JPG / WEBP / PDF، وبحد أقصى 5MB. الملفات تحفظ في Storage خاص وليست عامة.</p></div>
 
                 {latestReceipt && (
                   <div className={latestReceipt.status === "rejected" ? "notice notice-error" : "notice"}>
@@ -196,34 +197,26 @@ export default async function OrderDetailPage({
                   </div>
                 )}
 
+                {receiptUrl && (
+                  <a className="btn btn-secondary btn-full" href={receiptUrl} target="_blank" rel="noreferrer">
+                    فتح الإيصال لمدة 5 دقائق
+                  </a>
+                )}
+
                 {canUploadReceipt ? (
                   <form className="auth-form" action={uploadReceipt}>
                     <input type="hidden" name="paymentId" value={payment.id} />
                     <input type="hidden" name="orderNumber" value={order.order_number} />
-                    <label className="field">
-                      <span className="field-label">اختر ملف الإيصال *</span>
-                      <input
-                        type="file"
-                        name="receipt"
-                        accept="image/jpeg,image/png,image/webp,application/pdf"
-                        required
-                      />
-                    </label>
+                    <label className="field"><span className="field-label">اختر ملف الإيصال *</span><input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,application/pdf" required /></label>
                     <button className="btn btn-primary btn-full" type="submit">رفع الإيصال للمراجعة</button>
                   </form>
-                ) : (
-                  <p style={{ color: "var(--text-muted)" }}>
-                    رفع إيصال جديد غير متاح في حالة الدفع الحالية.
-                  </p>
-                )}
+                ) : !isAdmin ? (
+                  <p style={{ color: "var(--text-muted)" }}>رفع إيصال جديد غير متاح في حالة الدفع الحالية.</p>
+                ) : null}
               </article>
 
               {(order.customer_note || order.admin_note) && (
-                <article className="info-card">
-                  <h3>ملاحظات الطلب</h3>
-                  {order.customer_note && <p>ملاحظتك: {order.customer_note}</p>}
-                  {order.admin_note && <p style={{ marginTop: 8 }}>مراجعة الإدارة: {order.admin_note}</p>}
-                </article>
+                <article className="info-card"><h3>ملاحظات الطلب</h3>{order.customer_note && <p>ملاحظة العميل: {order.customer_note}</p>}{order.admin_note && <p style={{ marginTop: 8 }}>مراجعة الإدارة: {order.admin_note}</p>}</article>
               )}
             </div>
           </div>
