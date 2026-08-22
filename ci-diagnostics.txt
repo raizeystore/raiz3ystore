@@ -1,0 +1,206 @@
+===== npm ci =====
+npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 483 packages, and audited 484 packages in 14s
+
+156 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+RESULT: PASSED
+===== security contracts =====
+
+> raiz3ystore@0.1.0 test:contracts
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: privileged Supabase secret stays out of browser-scoped clients
+ok 1 - privileged Supabase secret stays out of browser-scoped clients
+  ---
+  duration_ms: 1.169069
+  type: 'test'
+  ...
+# Subtest: checkout does not trust a client-supplied price and uses idempotency
+not ok 2 - checkout does not trust a client-supplied price and uses idempotency
+  ---
+  duration_ms: 1.078562
+  type: 'test'
+  location: '/home/runner/work/raiz3ystore/raiz3ystore/tests/security-contracts.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /crypto\.randomUUID\(\)/. Input:
+    
+    '"use server";\n' +
+      '\n' +
+      'import { revalidatePath } from "next/cache";\n' +
+      'import { redirect } from "next/navigation";\n' +
+      'import { createAdminClient } from "@/src/lib/supabase/admin";\n' +
+      'import { createClient } from "@/src/lib/supabase/server";\n' +
+      '\n' +
+      'const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\n' +
+      'const SLUG_RE = /^[a-z0-9-]{1,120}$/;\n' +
+      '\n' +
+      'function clean(value: FormDataEntryValue | null, maxLength: number) {\n' +
+      '  return String(value ?? "").trim().slice(0, maxLength);\n' +
+      '}\n' +
+      '\n' +
+      'export async function createOrder(formData: FormData) {\n' +
+      '  const productId = clean(formData.get("productId"), 64);\n' +
+      '  const paymentMethodId = clean(formData.get("paymentMethodId"), 64);\n' +
+      '  const idempotencyKey = clean(formData.get("checkoutToken"), 64);\n' +
+      '  const productSlug = clean(formData.get("productSlug"), 120).toLowerCase();\n' +
+      '  const playerId = clean(formData.get("playerId"), 120);\n' +
+      '  const playerName = clean(formData.get("playerName"), 120);\n' +
+      '  const customerNote = clean(formData.get("customerNote"), 500);\n' +
+      '\n' +
+      '  const checkoutPath = SLUG_RE.test(productSlug) ? `/checkout/${productSlug}` : "/games";\n' +
+      '\n' +
+      '  if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !UUID_RE.test(idempotencyKey) || !playerId) {\n' +
+      '    redirect(`${checkoutPath}?error=invalid_input`);\n' +
+      '  }\n' +
+      '\n' +
+      '  const supabase = await createClient();\n' +
+      '  const { data: claimsData } = await supabase.auth.getClaims();\n' +
+      '  const userId = claimsData?.claims?.sub;\n' +
+      '\n' +
+      '  if (!userId) redirect("/login?message=login_required");\n' +
+      '\n' +
+      '  const { data: profile } = await supabase\n' +
+      '    .from("profiles")\n' +
+      '    .select("is_active")\n' +
+      '    .eq("id", userId)\n' +
+      '    .single();\n' +
+      '\n' +
+      '  if (!profile?.is_active) redirect(`${checkoutPath}?error=account_inactive`);\n' +
+      '\n' +
+      '  const admin = createAdminClient();\n' +
+      '  const { data, error } = await admin.rpc("create_checkout_order", {\n' +
+      '    p_user_id: userId,\n' +
+      '    p_product_id: productId,\n' +
+      '    p_payment_method_id: paymentMethodId,\n' +
+      '    p_player_id: playerId,\n' +
+      '    p_player_name: playerName,\n' +
+      '    p_customer_note: customerNote,\n' +
+      '    p_idempotency_key: idempotencyKey,\n' +
+      '  });\n' +
+      '\n' +
+      '  const order = data?.[0];\n' +
+      '\n' +
+      '  if (error || !order?.order_number) {\n' +
+      '    const isRateLimited = error?.message?.includes("checkout_rate_limited");\n' +
+      '    redirect(`${checkoutPath}?error=${isRateLimited ? "rate_limited" : "checkout_failed"}`);\n' +
+      '  }\n' +
+      '\n' +
+      '  revalidatePath("/orders");\n' +
+      '  revalidatePath("/account");\n' +
+      '  redirect(`/orders/${order.order_number}?message=order_created`);\n' +
+      '}\n'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    "use server";
+    
+    import { revalidatePath } from "next/cache";
+    import { redirect } from "next/navigation";
+    import { createAdminClient } from "@/src/lib/supabase/admin";
+    import { createClient } from "@/src/lib/supabase/server";
+    
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const SLUG_RE = /^[a-z0-9-]{1,120}$/;
+    
+    function clean(value: FormDataEntryValue | null, maxLength: number) {
+      return String(value ?? "").trim().slice(0, maxLength);
+    }
+    
+    export async function createOrder(formData: FormData) {
+      const productId = clean(formData.get("productId"), 64);
+      const paymentMethodId = clean(formData.get("paymentMethodId"), 64);
+      const idempotencyKey = clean(formData.get("checkoutToken"), 64);
+      const productSlug = clean(formData.get("productSlug"), 120).toLowerCase();
+      const playerId = clean(formData.get("playerId"), 120);
+      const playerName = clean(formData.get("playerName"), 120);
+      const customerNote = clean(formData.get("customerNote"), 500);
+    
+      const checkoutPath = SLUG_RE.test(productSlug) ? `/checkout/${productSlug}` : "/games";
+    
+      if (!UUID_RE.test(productId) || !UUID_RE.test(paymentMethodId) || !UUID_RE.test(idempotencyKey) || !playerId) {
+        redirect(`${checkoutPath}?error=invalid_input`);
+      }
+    
+      const supabase = await createClient();
+      const { data: claimsData } = await supabase.auth.getClaims();
+      const userId = claimsData?.claims?.sub;
+    
+      if (!userId) redirect("/login?message=login_required");
+    
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_active")
+        .eq("id", userId)
+        .single();
+    
+      if (!profile?.is_active) redirect(`${checkoutPath}?error=account_inactive`);
+    
+      const admin = createAdminClient();
+      const { data, error } = await admin.rpc("create_checkout_order", {
+        p_user_id: userId,
+        p_product_id: productId,
+        p_payment_method_id: paymentMethodId,
+        p_player_id: playerId,
+        p_player_name: playerName,
+        p_customer_note: customerNote,
+        p_idempotency_key: idempotencyKey,
+      });
+    
+      const order = data?.[0];
+    
+      if (error || !order?.order_number) {
+        const isRateLimited = error?.message?.includes("checkout_rate_limited");
+        redirect(`${checkoutPath}?error=${isRateLimited ? "rate_limited" : "checkout_failed"}`);
+      }
+    
+      revalidatePath("/orders");
+      revalidatePath("/account");
+      redirect(`/orders/${order.order_number}?message=order_created`);
+    }
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///home/runner/work/raiz3ystore/raiz3ystore/tests/security-contracts.test.mjs:24:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: receipt upload enforces size, MIME allowlist, ownership and non-upsert
+ok 3 - receipt upload enforces size, MIME allowlist, ownership and non-upsert
+  ---
+  duration_ms: 1.191452
+  type: 'test'
+  ...
+# Subtest: sensitive routes use no-store and baseline security headers
+ok 4 - sensitive routes use no-store and baseline security headers
+  ---
+  duration_ms: 0.309816
+  type: 'test'
+  ...
+# Subtest: database types contain current checkout idempotency contract
+ok 5 - database types contain current checkout idempotency contract
+  ---
+  duration_ms: 0.273371
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 4
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68.281758
+RESULT: FAILED (1)
