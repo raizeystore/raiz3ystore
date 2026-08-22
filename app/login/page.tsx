@@ -43,8 +43,11 @@ export default async function LoginPage({
           {params.message === "check_email" && (
             <div className="notice" role="status">تحقق من بريدك الإلكتروني لتأكيد الحساب.</div>
           )}
+          {params.message === "password_updated" && (
+            <div className="notice" role="status">تم تحديث كلمة المرور. يمكنك تسجيل الدخول الآن.</div>
+          )}
           {params.error && (
-            <div className="notice notice-error" role="alert">تعذر تنفيذ العملية. تحقق من البيانات وحاول مرة أخرى.</div>
+            <div className="notice notice-error" role="alert">تعذر تنفيذ العملية. تحقق من البيانات أو صلاحية الرابط وحاول مرة أخرى.</div>
           )}
 
           <form className="auth-form">
@@ -74,7 +77,7 @@ export default async function LoginPage({
 
             <div className="form-meta">
               <span>بياناتك محمية</span>
-              <span className="text-link" aria-disabled="true">استعادة كلمة المرور قريبًا</span>
+              <Link className="text-link" href="/forgot-password">نسيت كلمة المرور؟</Link>
             </div>
 
             <button className="btn btn-primary btn-full" formAction={login} type="submit">
