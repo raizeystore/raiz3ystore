@@ -1,0 +1,49 @@
+name: Sync Product Database Types
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch generated type delta
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+          const path = 'src/types/database.ts'
+          let source = fs.readFileSync(path, 'utf8')
+          if (source.includes('base_price_usd: number | null')) process.exit(0)
+
+          const start = source.indexOf('      products: {')
+          const end = source.indexOf('      profiles: {', start)
+          if (start < 0 || end < 0) throw new Error('products type block not found')
+
+          let block = source.slice(start, end)
+          block = block.replace('        Row: {\n', '        Row: {\n          base_price_usd: number | null\n')
+          block = block.replace('          name: string\n          price: number\n', '          name: string\n          player_id_label: string\n          player_id_required: boolean\n          player_name_label: string\n          player_name_required: boolean\n          price: number\n          pricing_mode: string\n          profit_margin_override: number | null\n')
+
+          block = block.replace('        Insert: {\n', '        Insert: {\n          base_price_usd?: number | null\n')
+          block = block.replace('          name: string\n          price: number\n', '          name: string\n          player_id_label?: string\n          player_id_required?: boolean\n          player_name_label?: string\n          player_name_required?: boolean\n          price: number\n          pricing_mode?: string\n          profit_margin_override?: number | null\n')
+
+          block = block.replace('        Update: {\n', '        Update: {\n          base_price_usd?: number | null\n')
+          block = block.replace('          name?: string\n          price?: number\n', '          name?: string\n          player_id_label?: string\n          player_id_required?: boolean\n          player_name_label?: string\n          player_name_required?: boolean\n          price?: number\n          pricing_mode?: string\n          profit_margin_override?: number | null\n')
+
+          source = source.slice(0, start) + block + source.slice(end)
+          fs.writeFileSync(path, source)
+          NODE
+      - name: Commit synced types
+        run: |
+          if [ -n "$(git status --porcelain src/types/database.ts)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/types/database.ts
+            git commit -m "chore: sync generated product database types"
+            git push
+          fi
