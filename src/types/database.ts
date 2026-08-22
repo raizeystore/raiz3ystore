@@ -443,13 +443,20 @@ export type Database = {
       }
       products: {
         Row: {
+          base_price_usd: number | null
           created_at: string
           currency: string
           description: string | null
           game_id: string
           id: string
           name: string
+          player_id_label: string
+          player_id_required: boolean
+          player_name_label: string
+          player_name_required: boolean
           price: number
+          pricing_mode: string
+          profit_margin_override: number | null
           sku: string | null
           slug: string
           sort_order: number
@@ -457,13 +464,20 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          base_price_usd?: number | null
           created_at?: string
           currency?: string
           description?: string | null
           game_id: string
           id?: string
           name: string
+          player_id_label?: string
+          player_id_required?: boolean
+          player_name_label?: string
+          player_name_required?: boolean
           price: number
+          pricing_mode?: string
+          profit_margin_override?: number | null
           sku?: string | null
           slug: string
           sort_order?: number
@@ -471,13 +485,20 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          base_price_usd?: number | null
           created_at?: string
           currency?: string
           description?: string | null
           game_id?: string
           id?: string
           name?: string
+          player_id_label?: string
+          player_id_required?: boolean
+          player_name_label?: string
+          player_name_required?: boolean
           price?: number
+          pricing_mode?: string
+          profit_margin_override?: number | null
           sku?: string | null
           slug?: string
           sort_order?: number
