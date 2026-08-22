@@ -30,13 +30,13 @@ export default function HomePage() {
           </Link>
 
           <nav className="nav-links" aria-label="التنقل الرئيسي">
-            <Link href="#games">الألعاب</Link>
+            <Link href="/games">الألعاب</Link>
             <Link href="#why-us">لماذا RAIZEY</Link>
             <Link href="#how-it-works">كيف تطلب</Link>
           </nav>
 
           <div className="nav-actions">
-            <Link className="btn btn-secondary" href="#games">استعرض الألعاب</Link>
+            <Link className="btn btn-secondary" href="/games">استعرض الألعاب</Link>
             <Link className="btn btn-primary" href="/login">دخول</Link>
           </div>
         </div>
@@ -51,7 +51,7 @@ export default function HomePage() {
               اشحن ألعابك وخدماتك الرقمية من مكان واحد، بتجربة سريعة وواضحة مصممة للموبايل أولًا وبمعايير أمان قوية.
             </p>
             <div className="hero-actions">
-              <Link className="btn btn-primary" href="#games">ابدأ الشحن الآن</Link>
+              <Link className="btn btn-primary" href="/games">ابدأ الشحن الآن</Link>
               <Link className="btn btn-secondary" href="/login">تسجيل الدخول</Link>
             </div>
             <div className="trust-row" aria-label="مزايا المتجر">
@@ -68,7 +68,7 @@ export default function HomePage() {
               <p>اختيارات شحن منظمة مع بيانات لاعب واضحة قبل تنفيذ الطلب.</p>
               <div className="price-line">
                 <div><small>ابتداءً من</small><br /><strong>—</strong></div>
-                <Link className="btn btn-primary" href="#games">استعرض</Link>
+                <Link className="btn btn-primary" href="/games">استعرض</Link>
               </div>
             </article>
 
@@ -88,16 +88,16 @@ export default function HomePage() {
               <span className="eyebrow">الألعاب والخدمات</span>
               <h2>الأكثر طلبًا</h2>
             </div>
-            <p>بداية منظمة لأهم الألعاب، ومع الوقت نضيف المنتجات والعروض الفعلية من لوحة الإدارة.</p>
+            <p>معاينة لأشهر الفئات. الكتالوج الفعلي والأسعار الحقيقية موجودة في صفحة الألعاب.</p>
           </div>
 
           <div className="games-grid">
             {games.map((game) => (
-              <article className="game-card" data-short={game.short} key={game.name}>
+              <Link className="game-card" data-short={game.short} href="/games" key={game.name}>
                 <span>RAIZEY GAME TOP-UP</span>
                 <h3>{game.name}</h3>
                 <p>{game.subtitle}</p>
-              </article>
+              </Link>
             ))}
           </div>
         </div>
