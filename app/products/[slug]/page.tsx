@@ -41,6 +41,7 @@ export default async function ProductPage({
           <nav className="nav-links" aria-label="التنقل الرئيسي">
             <Link href="/">الرئيسية</Link>
             <Link href="/games">الألعاب</Link>
+            <Link href="/orders">طلباتي</Link>
             <Link href="/account">حسابي</Link>
           </nav>
           <div className="nav-actions">
@@ -64,9 +65,9 @@ export default async function ProductPage({
 
             <div className="hero-actions">
               {isSignedIn ? (
-                <button className="btn btn-primary" type="button" disabled aria-disabled="true">الشراء سيتفعّل مع Checkout الآمن</button>
+                <Link className="btn btn-primary" href={`/checkout/${product.slug}`}>متابعة للشراء</Link>
               ) : (
-                <Link className="btn btn-primary" href="/login">سجّل الدخول للمتابعة</Link>
+                <Link className="btn btn-primary" href="/login?message=login_required">سجّل الدخول للمتابعة</Link>
               )}
               <Link className="btn btn-secondary" href={game?.slug ? `/games/${game.slug}` : "/games"}>العودة للعروض</Link>
             </div>
@@ -84,7 +85,7 @@ export default async function ProductPage({
             <div className="featured-card featured-card--float">
               <span className="card-kicker">حماية الطلب</span>
               <h3>السعر والتنفيذ من السيرفر</h3>
-              <p>عند تفعيل الشراء، السيرفر يعيد قراءة المنتج والسعر بدل الثقة بأي قيمة من العميل.</p>
+              <p>عند إنشاء الطلب، السيرفر يعيد قراءة المنتج والسعر وطريقة الدفع ولا يعتمد على قيمة مرسلة من المتصفح.</p>
             </div>
           </article>
         </div>
