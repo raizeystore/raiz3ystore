@@ -1,0 +1,92 @@
+===== npm ci =====
+npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 483 packages, and audited 484 packages in 14s
+
+156 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+RESULT: PASSED (0)
+===== contracts =====
+
+> raiz3ystore@0.1.0 test:contracts
+> node --test tests/*.test.mjs
+
+TAP version 13
+# Subtest: privileged Supabase secret stays out of browser-scoped clients
+ok 1 - privileged Supabase secret stays out of browser-scoped clients
+  ---
+  duration_ms: 1.300944
+  type: 'test'
+  ...
+# Subtest: checkout does not trust a client-supplied price and uses validated idempotency
+ok 2 - checkout does not trust a client-supplied price and uses validated idempotency
+  ---
+  duration_ms: 1.103074
+  type: 'test'
+  ...
+# Subtest: product-specific player requirements are rendered and revalidated server-side
+ok 3 - product-specific player requirements are rendered and revalidated server-side
+  ---
+  duration_ms: 0.436286
+  type: 'test'
+  ...
+# Subtest: automatic USD pricing is enforced in PostgreSQL and reprices on store settings changes
+ok 4 - automatic USD pricing is enforced in PostgreSQL and reprices on store settings changes
+  ---
+  duration_ms: 0.366837
+  type: 'test'
+  ...
+# Subtest: receipt upload enforces size, MIME allowlist, ownership and non-upsert
+ok 5 - receipt upload enforces size, MIME allowlist, ownership and non-upsert
+  ---
+  duration_ms: 0.338964
+  type: 'test'
+  ...
+# Subtest: sensitive routes use no-store and baseline security headers
+ok 6 - sensitive routes use no-store and baseline security headers
+  ---
+  duration_ms: 0.277219
+  type: 'test'
+  ...
+# Subtest: Sentry browser monitoring never references an auth token and default PII remains disabled
+ok 7 - Sentry browser monitoring never references an auth token and default PII remains disabled
+  ---
+  duration_ms: 0.356918
+  type: 'test'
+  ...
+# Subtest: database types contain current checkout idempotency contract
+ok 8 - database types contain current checkout idempotency contract
+  ---
+  duration_ms: 0.281868
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 69.066516
+RESULT: PASSED (0)
+===== lint =====
+
+> raiz3ystore@0.1.0 lint
+> eslint .
+
+RESULT: PASSED (0)
+===== typecheck =====
+
+> raiz3ystore@0.1.0 typecheck
+> tsc --noEmit
+
+app/admin/products/actions.ts(84,57): error TS2345: Argument of type '{ pricing_mode: string; base_price_usd: number | null; profit_margin_override: number | null; price: number; currency: string; player_id_required: boolean; player_name_required: boolean; player_id_label: string; player_name_label: string; } | { ...; }' is not assignable to parameter of type 'RejectExcessProperties<{ base_price_usd?: number | null | undefined; created_at?: string | undefined; currency?: string | undefined; description?: string | null | undefined; game_id?: string | undefined; ... 13 more ...; updated_at?: string | undefined; }, { ...; }>'.
+  Type '{ pricing_mode: string; base_price_usd: null; profit_margin_override: null; price: number | null; currency: string; player_id_required: boolean; player_name_required: boolean; player_id_label: string; player_name_label: string; }' is not assignable to type 'RejectExcessProperties<{ base_price_usd?: number | null | undefined; created_at?: string | undefined; currency?: string | undefined; description?: string | null | undefined; game_id?: string | undefined; ... 13 more ...; updated_at?: string | undefined; }, { ...; }>'.
+    Type '{ pricing_mode: string; base_price_usd: null; profit_margin_override: null; price: number | null; currency: string; player_id_required: boolean; player_name_required: boolean; player_id_label: string; player_name_label: string; }' is not assignable to type '{ base_price_usd?: number | null | undefined; created_at?: string | undefined; currency?: string | undefined; description?: string | null | undefined; game_id?: string | undefined; ... 13 more ...; updated_at?: string | undefined; }'.
+      Types of property 'price' are incompatible.
+        Type 'number | null' is not assignable to type 'number | undefined'.
+          Type 'null' is not assignable to type 'number | undefined'.
+RESULT: FAILED (2)
