@@ -29,6 +29,11 @@ export default async function AccountPage({
       <header className="site-header">
         <div className="container navbar">
           <Link href="/" aria-label="RAIZEY STORE الرئيسية"><BrandLogo compact /></Link>
+          <nav className="nav-links" aria-label="تنقل الحساب">
+            <Link href="/games">الألعاب</Link>
+            <Link href="/orders">طلباتي</Link>
+            {profile?.role === "admin" && <Link href="/admin">الإدارة</Link>}
+          </nav>
           <div className="nav-actions">
             <Link className="btn btn-secondary" href="/">العودة للمتجر</Link>
           </div>
@@ -79,29 +84,12 @@ export default async function AccountPage({
             <form className="auth-form" action={updateProfile}>
               <label className="field">
                 <span className="field-label">الاسم الظاهر</span>
-                <input
-                  name="displayName"
-                  type="text"
-                  maxLength={80}
-                  defaultValue={profile?.display_name ?? ""}
-                  autoComplete="name"
-                  placeholder="اكتب اسمك"
-                />
+                <input name="displayName" type="text" maxLength={80} defaultValue={profile?.display_name ?? ""} autoComplete="name" placeholder="اكتب اسمك" />
               </label>
-
               <label className="field">
                 <span className="field-label">رقم الهاتف</span>
-                <input
-                  name="phone"
-                  type="tel"
-                  maxLength={30}
-                  defaultValue={profile?.phone ?? ""}
-                  autoComplete="tel"
-                  inputMode="tel"
-                  placeholder="رقم الهاتف"
-                />
+                <input name="phone" type="tel" maxLength={30} defaultValue={profile?.phone ?? ""} autoComplete="tel" inputMode="tel" placeholder="رقم الهاتف" />
               </label>
-
               <button className="btn btn-primary" type="submit">حفظ التغييرات</button>
             </form>
           </div>
@@ -109,11 +97,15 @@ export default async function AccountPage({
           <div className="cta-band" style={{ marginTop: 24 }}>
             <div>
               <h2>{profile?.display_name ? `مرحبًا ${profile.display_name}` : "مرحبًا بك في RAIZEY"}</h2>
-              <p>مركز الطلبات والإشعارات سيظهر هنا تلقائيًا بعد تفعيل مرحلة الطلبات.</p>
+              <p>تابع طلباتك والدفع والمراجعة من مركز الطلبات.</p>
             </div>
-            <form action={signOut}>
-              <button className="btn btn-secondary" type="submit">تسجيل الخروج</button>
-            </form>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <Link className="btn btn-primary" href="/orders">طلباتي</Link>
+              {profile?.role === "admin" && <Link className="btn btn-secondary" href="/admin">لوحة الإدارة</Link>}
+              <form action={signOut}>
+                <button className="btn btn-secondary" type="submit">تسجيل الخروج</button>
+              </form>
+            </div>
           </div>
         </div>
       </section>
