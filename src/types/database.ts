@@ -230,6 +230,7 @@ export type Database = {
           currency: string
           customer_note: string | null
           id: string
+          idempotency_key: string | null
           order_number: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -243,6 +244,7 @@ export type Database = {
           currency?: string
           customer_note?: string | null
           id?: string
+          idempotency_key?: string | null
           order_number: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -256,6 +258,7 @@ export type Database = {
           currency?: string
           customer_note?: string | null
           id?: string
+          idempotency_key?: string | null
           order_number?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -591,6 +594,7 @@ export type Database = {
       create_checkout_order: {
         Args: {
           p_customer_note: string
+          p_idempotency_key: string
           p_payment_method_id: string
           p_player_id: string
           p_player_name: string
