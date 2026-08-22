@@ -1,45 +1,83 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { BrandLogo } from "@/src/components/brand-logo";
-import { createClient } from "@/src/lib/supabase/server";
+import { requireAdmin } from "@/src/lib/auth/require-admin";
+import { createAdminClient } from "@/src/lib/supabase/admin";
+import { createGame, createProduct, reviewPayment, updateStoreSettings } from "@/app/admin/actions";
 
-async function getCount(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  table: "profiles" | "games" | "products" | "orders" | "payments",
-) {
-  const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
-  return error ? null : count ?? 0;
+const controlStyle = {
+  width: "100%",
+  minHeight: 46,
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-md)",
+  padding: "10px 14px",
+  background: "#0d0d0e",
+  color: "var(--text)",
+} as const;
+
+function messageText(message?: string) {
+  const map: Record<string, string> = {
+    game_created: "تمت إضافة اللعبة بنجاح.",
+    product_created: "تمت إضافة المنتج بنجاح.",
+    settings_updated: "تم تحديث إعدادات التسعير.",
+    payment_confirmed: "تم تأكيد الدفع وتحديث الطلب.",
+    payment_rejected: "تم رفض الدفع ويمكن للعميل رفع إيصال جديد.",
+  };
+  return message ? map[message] : undefined;
 }
 
-export default async function AdminPage() {
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims?.sub;
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string; error?: string }>;
+}) {
+  const query = await searchParams;
+  const { profile } = await requireAdmin();
+  const admin = createAdminClient();
 
-  if (!userId) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, is_active, display_name")
-    .eq("id", userId)
-    .single();
-
-  if (!profile || profile.role !== "admin" || !profile.is_active) redirect("/account");
-
-  const [users, games, products, orders, payments] = await Promise.all([
-    getCount(supabase, "profiles"),
-    getCount(supabase, "games"),
-    getCount(supabase, "products"),
-    getCount(supabase, "orders"),
-    getCount(supabase, "payments"),
+  const [usersRes, gamesRes, productsRes, ordersRes, paymentsRes, gamesListRes, settingsRes, reviewRes] = await Promise.all([
+    admin.from("profiles").select("*", { count: "exact", head: true }),
+    admin.from("games").select("*", { count: "exact", head: true }),
+    admin.from("products").select("*", { count: "exact", head: true }),
+    admin.from("orders").select("*", { count: "exact", head: true }),
+    admin.from("payments").select("*", { count: "exact", head: true }),
+    admin.from("games").select("id, name, slug, status").order("sort_order", { ascending: true }).order("name"),
+    admin.from("store_settings").select("usd_to_sdg_rate, default_profit_margin, currency").eq("id", 1).maybeSingle(),
+    admin
+      .from("payments")
+      .select("id, order_id, amount, currency, status, created_at")
+      .eq("status", "under_review")
+      .order("created_at", { ascending: true })
+      .limit(20),
   ]);
 
+  const reviewPayments = reviewRes.data ?? [];
+  const orderIds = [...new Set(reviewPayments.map((payment) => payment.order_id))];
+  const paymentIds = reviewPayments.map((payment) => payment.id);
+
+  const [reviewOrdersRes, receiptsRes] = await Promise.all([
+    orderIds.length
+      ? admin.from("orders").select("id, order_number, user_id, status").in("id", orderIds)
+      : Promise.resolve({ data: [] }),
+    paymentIds.length
+      ? admin
+          .from("payment_receipts")
+          .select("id, payment_id, original_filename, mime_type, status, created_at")
+          .in("payment_id", paymentIds)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const reviewOrders = reviewOrdersRes.data ?? [];
+  const receipts = receiptsRes.data ?? [];
+  const settings = settingsRes.data;
+  const success = messageText(query.message);
+
   const stats = [
-    { label: "المستخدمون", value: users },
-    { label: "الألعاب", value: games },
-    { label: "المنتجات", value: products },
-    { label: "الطلبات", value: orders },
-    { label: "المدفوعات", value: payments },
+    { label: "المستخدمون", value: usersRes.count ?? 0 },
+    { label: "الألعاب", value: gamesRes.count ?? 0 },
+    { label: "المنتجات", value: productsRes.count ?? 0 },
+    { label: "الطلبات", value: ordersRes.count ?? 0 },
+    { label: "المدفوعات", value: paymentsRes.count ?? 0 },
   ];
 
   return (
@@ -49,6 +87,7 @@ export default async function AdminPage() {
           <Link href="/" aria-label="RAIZEY STORE الرئيسية"><BrandLogo compact /></Link>
           <nav className="nav-links" aria-label="تنقل الإدارة">
             <Link href="/admin">نظرة عامة</Link>
+            <Link href="/orders">الطلبات</Link>
             <Link href="/games">واجهة المتجر</Link>
             <Link href="/account">حسابي</Link>
           </nav>
@@ -61,26 +100,118 @@ export default async function AdminPage() {
             <div>
               <span className="eyebrow"><span className="eyebrow-dot" />ADMIN CONTROL</span>
               <h1>لوحة إدارة RAIZEY</h1>
-              <p>{profile.display_name ? `مرحبًا ${profile.display_name}. ` : ""}هذه النسخة للقراءة والمراقبة فقط إلى أن نفعّل مسار الكتابة الموثوق من السيرفر.</p>
+              <p>{profile.display_name ? `مرحبًا ${profile.display_name}. ` : ""}كل عمليات الكتابة تمر عبر Server Actions بعد التحقق من صلاحية الإدارة.</p>
             </div>
           </div>
+
+          {success && <div className="notice" role="status">{success}</div>}
+          {query.error && (
+            <div className="notice notice-error" role="alert">تعذر تنفيذ العملية الإدارية. تحقق من البيانات وحاول مرة أخرى.</div>
+          )}
 
           <div className="games-grid">
             {stats.map((stat) => (
               <article className="game-card" data-short="R" key={stat.label}>
                 <span>RAIZEY METRIC</span>
-                <h3>{stat.value === null ? "—" : stat.value.toLocaleString("ar")}</h3>
+                <h3>{stat.value.toLocaleString("ar")}</h3>
                 <p>{stat.label}</p>
               </article>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="cta-band" style={{ marginTop: 28 }}>
+      <section className="section section-muted">
+        <div className="container">
+          <div className="section-heading">
             <div>
-              <h2>الإدارة الكتابية مقفولة حاليًا</h2>
-              <p>إضافة الألعاب والمنتجات وتغيير الأسعار وحالات الطلبات ستعمل من Server Actions فقط، وليس مباشرة من المتصفح.</p>
+              <span className="eyebrow">PAYMENT REVIEW</span>
+              <h2>إيصالات تنتظر القرار</h2>
             </div>
-            <Link className="btn btn-secondary" href="/games">عرض الكتالوج</Link>
+            <p>القبول أو الرفض يحدث داخل معاملة قاعدة بيانات واحدة ويحدّث الدفع والطلب والإيصال وسجل التدقيق معًا.</p>
+          </div>
+
+          {!reviewPayments.length ? (
+            <div className="cta-band"><div><h2>ما في دفعات قيد المراجعة</h2><p>أي إيصال جديد سيظهر هنا تلقائيًا.</p></div></div>
+          ) : (
+            <div style={{ display: "grid", gap: 16 }}>
+              {reviewPayments.map((payment) => {
+                const order = reviewOrders.find((item) => item.id === payment.order_id);
+                const receipt = receipts.find((item) => item.payment_id === payment.id);
+                return (
+                  <article className="auth-card" style={{ width: "100%", maxWidth: "none" }} key={payment.id}>
+                    <div className="auth-card-header">
+                      <span className="card-kicker">{order?.order_number ?? "ORDER"}</span>
+                      <h2>{new Intl.NumberFormat("ar-SD").format(payment.amount)} {payment.currency}</h2>
+                      <p>الإيصال: {receipt?.original_filename ?? "—"} • {receipt?.status ?? "pending"}</p>
+                    </div>
+                    <form className="auth-form" action={reviewPayment}>
+                      <input type="hidden" name="paymentId" value={payment.id} />
+                      <label className="field">
+                        <span className="field-label">ملاحظة المراجعة</span>
+                        <textarea name="reason" maxLength={500} rows={3} style={controlStyle} placeholder="سبب الرفض أو ملاحظة داخلية اختيارية" />
+                      </label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                        <button className="btn btn-primary" type="submit" name="decision" value="confirm">تأكيد الدفع</button>
+                        <button className="btn btn-secondary" type="submit" name="decision" value="reject">رفض الإيصال</button>
+                        {order?.order_number && <Link className="btn btn-secondary" href={`/orders/${order.order_number}`}>فتح الطلب</Link>}
+                      </div>
+                    </form>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <div className="section-heading">
+            <div><span className="eyebrow">CATALOG</span><h2>إدارة الكتالوج</h2></div>
+            <p>إضافة الألعاب والمنتجات من السيرفر فقط. السعر الذي ينشئ به العميل الطلب يعاد قراءته من قاعدة البيانات.</p>
+          </div>
+
+          <div className="info-grid">
+            <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
+              <div className="auth-card-header"><h2>إضافة لعبة</h2><p>Slug إنجليزي صغير مثل pubg-mobile.</p></div>
+              <form className="auth-form" action={createGame}>
+                <label className="field"><span className="field-label">اسم اللعبة</span><input name="name" required maxLength={120} /></label>
+                <label className="field"><span className="field-label">Slug</span><input name="slug" required maxLength={100} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" dir="ltr" /></label>
+                <label className="field"><span className="field-label">الوصف</span><textarea name="description" rows={4} maxLength={1000} style={controlStyle} /></label>
+                <button className="btn btn-primary" type="submit">إضافة اللعبة</button>
+              </form>
+            </article>
+
+            <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
+              <div className="auth-card-header"><h2>إضافة منتج</h2><p>العرض والسعر الحالي المرتبط باللعبة.</p></div>
+              <form className="auth-form" action={createProduct}>
+                <label className="field"><span className="field-label">اللعبة</span>
+                  <select name="gameId" required defaultValue="" style={controlStyle}>
+                    <option value="" disabled>اختر اللعبة</option>
+                    {(gamesListRes.data ?? []).map((game) => <option key={game.id} value={game.id}>{game.name}</option>)}
+                  </select>
+                </label>
+                <label className="field"><span className="field-label">اسم العرض</span><input name="name" required maxLength={120} /></label>
+                <label className="field"><span className="field-label">Slug</span><input name="slug" required maxLength={100} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" dir="ltr" /></label>
+                <label className="field"><span className="field-label">SKU اختياري</span><input name="sku" maxLength={80} dir="ltr" /></label>
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+                  <label className="field"><span className="field-label">السعر</span><input name="price" type="number" min="0" step="0.01" required inputMode="decimal" /></label>
+                  <label className="field"><span className="field-label">العملة</span><input name="currency" defaultValue="SDG" maxLength={5} required dir="ltr" /></label>
+                </div>
+                <label className="field"><span className="field-label">الوصف</span><textarea name="description" rows={4} maxLength={1000} style={controlStyle} /></label>
+                <button className="btn btn-primary" type="submit">إضافة المنتج</button>
+              </form>
+            </article>
+
+            <article className="auth-card" style={{ width: "100%", maxWidth: "none" }}>
+              <div className="auth-card-header"><h2>التسعير العام</h2><p>إعدادات سعر الدولار ونسبة الربح لا تغيّر الأسعار الحالية تلقائيًا بعد؛ ستكون أساس محرك التسعير القادم.</p></div>
+              <form className="auth-form" action={updateStoreSettings}>
+                <label className="field"><span className="field-label">1 USD = كم SDG</span><input name="usdToSdgRate" type="number" min="0" step="0.0001" required defaultValue={settings?.usd_to_sdg_rate ?? 0} inputMode="decimal" /></label>
+                <label className="field"><span className="field-label">هامش الربح %</span><input name="profitMarginPercent" type="number" min="0" max="100" step="0.01" required defaultValue={(settings?.default_profit_margin ?? 0) * 100} inputMode="decimal" /></label>
+                <button className="btn btn-primary" type="submit">حفظ إعدادات التسعير</button>
+              </form>
+            </article>
           </div>
         </div>
       </section>
