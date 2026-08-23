@@ -1,0 +1,59 @@
+name: Final Auth Verification
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      SUPABASE_SECRET_KEY: sb_secret_ci_placeholder
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Final verify
+        shell: bash
+        run: |
+          set +e
+          : > auth-final-verification.txt
+          overall=0
+          run_check() {
+            local name="$1"
+            shift
+            echo "===== $name =====" >> auth-final-verification.txt
+            "$@" >> auth-final-verification.txt 2>&1
+            local code=$?
+            echo "RESULT: $([ $code -eq 0 ] && echo PASSED || echo FAILED) ($code)" >> auth-final-verification.txt
+            if [ $code -ne 0 ]; then overall=$code; fi
+          }
+          run_check "npm ci" npm ci
+          if [ $overall -eq 0 ]; then run_check "contracts" npm run test:contracts; fi
+          if [ $overall -eq 0 ]; then run_check "lint" npm run lint; fi
+          if [ $overall -eq 0 ]; then run_check "typecheck" npm run typecheck; fi
+          if [ $overall -eq 0 ]; then run_check "build" npm run build; fi
+          if [ $overall -eq 0 ]; then run_check "playwright install" npx playwright install --with-deps chromium; fi
+          if [ $overall -eq 0 ]; then run_check "e2e" npm run test:e2e; fi
+          echo "OVERALL=$overall" >> auth-final-verification.txt
+          exit 0
+      - name: Commit report and remove one-shot workflow
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/auth-final-verify.yml
+          git add auth-final-verification.txt
+          git commit -m "ci: record final auth verification results" || true
+          git push || true
