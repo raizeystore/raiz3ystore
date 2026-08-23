@@ -27,36 +27,37 @@ export function RegisterForm() {
   return (
     <form className="auth-form auth-register-form" action={signup}>
       <div className="auth-form-grid">
-        <label className="field">
-          <span className="field-label">الاسم الكامل</span>
+        <div className="field">
+          <label className="field-label" htmlFor="register-name">الاسم الكامل</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">◎</span>
-            <input name="displayName" type="text" required minLength={2} maxLength={120} autoComplete="name" placeholder="اكتب اسمك الكامل" />
+            <input id="register-name" name="displayName" type="text" required minLength={2} maxLength={120} autoComplete="name" placeholder="اكتب اسمك الكامل" />
           </span>
-        </label>
+        </div>
 
-        <label className="field">
-          <span className="field-label">البريد الإلكتروني</span>
+        <div className="field">
+          <label className="field-label" htmlFor="register-email">البريد الإلكتروني</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">@</span>
-            <input name="email" type="email" required autoComplete="email" inputMode="email" placeholder="name@example.com" />
+            <input id="register-email" name="email" type="email" required autoComplete="email" inputMode="email" placeholder="name@example.com" />
           </span>
-        </label>
+        </div>
 
-        <label className="field auth-grid-span">
-          <span className="field-label">رقم واتساب</span>
+        <div className="field auth-grid-span">
+          <label className="field-label" htmlFor="register-phone">رقم واتساب</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">☎</span>
-            <input name="phone" type="tel" required inputMode="tel" autoComplete="tel" maxLength={24} placeholder="+249XXXXXXXXX" dir="ltr" />
+            <input id="register-phone" name="phone" type="tel" required inputMode="tel" autoComplete="tel" maxLength={24} placeholder="+249XXXXXXXXX" dir="ltr" />
           </span>
           <small className="field-help">اكتب الرقم مع رمز الدولة ليُستخدم في متابعة الطلب عند الحاجة.</small>
-        </label>
+        </div>
 
-        <label className="field">
-          <span className="field-label">كلمة المرور</span>
+        <div className="field">
+          <label className="field-label" htmlFor="register-password">كلمة المرور</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">●</span>
             <input
+              id="register-password"
               name="password"
               type={showPassword ? "text" : "password"}
               required
@@ -66,17 +67,25 @@ export function RegisterForm() {
               onChange={(event) => setPassword(event.target.value)}
               placeholder="10 أحرف على الأقل"
             />
-            <button type="button" className="password-toggle" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}>
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+              aria-controls="register-password"
+              aria-pressed={showPassword}
+            >
               {showPassword ? "إخفاء" : "إظهار"}
             </button>
           </span>
-        </label>
+        </div>
 
-        <label className="field">
-          <span className="field-label">تأكيد كلمة المرور</span>
+        <div className="field">
+          <label className="field-label" htmlFor="register-confirm-password">تأكيد كلمة المرور</label>
           <span className={`auth-input-shell ${passwordsMatch ? "" : "auth-input-shell--error"}`.trim()}>
             <span className="auth-input-icon" aria-hidden="true">●</span>
             <input
+              id="register-confirm-password"
               name="confirmPassword"
               type={showConfirm ? "text" : "password"}
               required
@@ -85,13 +94,22 @@ export function RegisterForm() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="أعد كتابة كلمة المرور"
+              aria-invalid={!passwordsMatch}
+              aria-describedby={!passwordsMatch ? "register-password-match-error" : undefined}
             />
-            <button type="button" className="password-toggle" onClick={() => setShowConfirm((value) => !value)} aria-label={showConfirm ? "إخفاء تأكيد كلمة المرور" : "إظهار تأكيد كلمة المرور"}>
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowConfirm((value) => !value)}
+              aria-label={showConfirm ? "إخفاء تأكيد كلمة المرور" : "إظهار تأكيد كلمة المرور"}
+              aria-controls="register-confirm-password"
+              aria-pressed={showConfirm}
+            >
               {showConfirm ? "إخفاء" : "إظهار"}
             </button>
           </span>
-          {!passwordsMatch && <small className="field-error" role="alert">كلمتا المرور غير متطابقتين.</small>}
-        </label>
+          {!passwordsMatch && <small id="register-password-match-error" className="field-error" role="alert">كلمتا المرور غير متطابقتين.</small>}
+        </div>
       </div>
 
       <div className="password-strength" data-score={score} aria-live="polite">
