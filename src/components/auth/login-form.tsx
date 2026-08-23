@@ -11,11 +11,12 @@ export function LoginForm() {
   return (
     <div className="auth-form-stack">
       <form className="auth-form" action={login}>
-        <label className="field">
-          <span className="field-label">البريد الإلكتروني</span>
+        <div className="field">
+          <label className="field-label" htmlFor="login-email">البريد الإلكتروني</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">@</span>
             <input
+              id="login-email"
               name="email"
               type="email"
               required
@@ -24,13 +25,14 @@ export function LoginForm() {
               placeholder="name@example.com"
             />
           </span>
-        </label>
+        </div>
 
-        <label className="field">
-          <span className="field-label">كلمة المرور</span>
+        <div className="field">
+          <label className="field-label" htmlFor="login-password">كلمة المرور</label>
           <span className="auth-input-shell">
             <span className="auth-input-icon" aria-hidden="true">●</span>
             <input
+              id="login-password"
               name="password"
               type={showPassword ? "text" : "password"}
               required
@@ -43,12 +45,13 @@ export function LoginForm() {
               className="password-toggle"
               onClick={() => setShowPassword((value) => !value)}
               aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+              aria-controls="login-password"
               aria-pressed={showPassword}
             >
               {showPassword ? "إخفاء" : "إظهار"}
             </button>
           </span>
-        </label>
+        </div>
 
         <div className="form-meta">
           <span className="secure-copy">دخول محمي ومشفّر</span>
