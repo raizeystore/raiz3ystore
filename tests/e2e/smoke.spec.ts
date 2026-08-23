@@ -94,7 +94,8 @@ test("register page has no horizontal overflow on small screens", async ({ page 
 
 test("register password meter reacts without submitting real auth requests", async ({ page }) => {
   await page.goto("/register");
-  await page.getByLabel("كلمة المرور", { exact: true }).fill("StrongPassword9!");
+  // Strong, policy-valid sample: avoids the intentionally blocked common-password patterns.
+  await page.getByLabel("كلمة المرور", { exact: true }).fill("FalconRiver9!X");
   await expect(page.getByText("قوية جدًا")).toBeVisible();
 });
 
