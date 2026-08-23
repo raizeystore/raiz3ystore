@@ -1,27 +1,53 @@
+import type { CSSProperties } from "react";
+
 type BrandLogoProps = {
-  compact?: boolean;
+  /** Visual scale of the lockup. */
+  size?: "sm" | "md" | "lg";
+  /** Renders the wordmark next to the glyph. */
+  withWordmark?: boolean;
   className?: string;
+  style?: CSSProperties;
 };
 
-export function BrandLogo({ compact = false, className = "" }: BrandLogoProps) {
+/**
+ * RAIZEY STORE brand lockup.
+ *
+ * The mark is a single angular "R" built from straight cuts: a vertical stem,
+ * a notched bowl and a detached diagonal leg, matching the approved identity.
+ * Rendered as inline SVG so it stays sharp at every density and can inherit
+ * brand colour from CSS.
+ */
+export function BrandLogo({
+  size = "md",
+  withWordmark = true,
+  className,
+  style,
+}: BrandLogoProps) {
+  const classes = ["brand-lockup", `brand-lockup--${size}`, className]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <span
-      className={`brand-lockup ${compact ? "brand-lockup--compact" : ""} ${className}`.trim()}
-      role="img"
-      aria-label="RAIZEY STORE"
-    >
+    <span className={classes} style={style} role="img" aria-label="RAIZEY STORE">
       <span className="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 72 58" focusable="false">
-          <path d="M7 8h37c12 0 20 7 20 17 0 9-6 15-15 17l13 12H46L28 38v-9h16c4 0 7-2 7-6s-3-6-7-6H19l-12-9Z" />
-          <path d="M7 22h16l22 32H29L7 31v-9Z" />
+        <svg viewBox="0 0 120 100" focusable="false" aria-hidden="true">
+          {/* Vertical stem */}
+          <path d="M4 4h26v92H4z" />
+          {/* Upper bowl with the angular notch */}
+          <path d="M30 4h52l26 25v22l-20 15H30V64h44l8-6V33l-11-9H30z" />
+          {/* Detached diagonal leg */}
+          <path d="M62 72h30l24 24H86z" />
         </svg>
       </span>
-      {!compact && (
-        <span className="brand-wordmark">
+
+      {withWordmark ? (
+        <span className="brand-wordmark" aria-hidden="true">
           <strong>RAIZEY</strong>
           <small>STORE</small>
         </span>
-      )}
+      ) : null}
     </span>
   );
 }
+
+export default BrandLogo;
