@@ -1,5 +1,6 @@
 import { AuthScene } from "@/src/components/auth/auth-scene";
 import { LoginForm } from "@/src/components/auth/login-form";
+import { BoltIcon, OrdersIcon, ShieldCheckIcon } from "@/src/components/auth/auth-icons";
 
 const errorMessages: Record<string, string> = {
   missing_credentials: "أدخل البريد الإلكتروني وكلمة المرور للمتابعة.",
@@ -32,23 +33,22 @@ export default async function LoginPage({
       title={<>مرحبًا <span>بعودتك</span></>}
       subtitle="سجّل دخولك واستمتع بتجربة شحن آمنة وسريعة لألعابك المفضلة."
       features={[
-        { title: "دخول آمن", text: "حماية متقدمة لبياناتك", icon: "◇" },
-        { title: "تتبّع طلباتك", text: "حالة الطلب لحظة بلحظة", icon: "▣" },
-        { title: "شحن سريع", text: "طلبات واضحة وسهلة", icon: "ϟ" },
+        { title: "دخول آمن", text: "حماية متقدمة لبياناتك", icon: <ShieldCheckIcon /> },
+        { title: "تتبّع طلباتك", text: "تابع حالة طلباتك لحظة بلحظة", icon: <OrdersIcon /> },
+        { title: "شحن فوري", text: "تنفيذ واضح وسريع للطلبات", icon: <BoltIcon /> },
       ]}
     >
-      <section className="auth-premium-card" aria-labelledby="login-title">
+      <section className="auth-premium-card auth-premium-card--login" aria-labelledby="login-title">
         <div className="auth-premium-card-head">
-          <span className="card-kicker">RAIZEY ACCOUNT</span>
           <h2 id="login-title">تسجيل الدخول</h2>
-          <p>أدخل بيانات حسابك للمتابعة.</p>
+          <p>أدخل بياناتك للمتابعة إلى حسابك.</p>
         </div>
 
         {successMessage && <div className="notice" role="status">{successMessage}</div>}
         {errorMessage && <div className="notice notice-error" role="alert">{errorMessage}</div>}
 
         <LoginForm />
-        <p className="auth-security-note">بيانات تسجيل الدخول لا تُشارك مع أي طرف، والجلسات تتم عبر Supabase Auth.</p>
+        <p className="auth-security-note">بياناتك محمية بتقنيات تشفير متقدمة ولا نشارك بيانات تسجيل الدخول مع أي طرف.</p>
       </section>
     </AuthScene>
   );

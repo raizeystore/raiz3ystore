@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./auth-ui.css";
+import "./auth-visual-v2.css";
 
 export const metadata: Metadata = {
   title: {

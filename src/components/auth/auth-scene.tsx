@@ -6,27 +6,20 @@ type AuthSceneProps = {
   title: ReactNode;
   subtitle: string;
   children: ReactNode;
-  features?: Array<{ title: string; text: string; icon: string }>;
+  features?: Array<{ title: string; text: string; icon: ReactNode }>;
 };
 
 export function AuthScene({ title, subtitle, children, features = [] }: AuthSceneProps) {
   return (
     <main className="auth-stage">
-      <div className="auth-cinematic-bg" aria-hidden="true">
-        <div className="auth-game-mosaic">
-          <span data-label="BATTLE" />
-          <span data-label="RACING" />
-          <span data-label="SPORTS" />
-          <span data-label="ARENA" />
-          <span data-label="MOBILE" />
-        </div>
-      </div>
+      <div className="auth-cinematic-bg" aria-hidden="true" />
 
       <div className="auth-stage-content">
         <header className="auth-stage-header">
           <Link href="/" className="auth-brand-link" aria-label="العودة إلى RAIZEY STORE">
-            <BrandLogo />
+            <BrandLogo className="auth-brand-lockup" />
           </Link>
+
           <h1>{title}</h1>
           <p>{subtitle}</p>
 

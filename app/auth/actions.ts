@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { PRIVACY_VERSION, TERMS_VERSION } from "@/src/lib/auth/policies";
 import { createClient } from "@/src/lib/supabase/server";
 
@@ -15,11 +16,14 @@ function text(formData: FormData, key: string, max = 500) {
 
 function normalizePhone(value: string) {
   const cleaned = value.replace(/[\s()\-]/g, "");
-  return cleaned.startsWith("00") ? `+${cleaned.slice(2)}` : cleaned;
+  const candidate = cleaned.startsWith("00") ? `+${cleaned.slice(2)}` : cleaned;
+  const parsed = parsePhoneNumberFromString(candidate);
+  return parsed?.isValid() ? parsed.number : candidate;
 }
 
 function isValidPhone(value: string) {
-  return /^\+?[0-9]{8,15}$/.test(value);
+  const parsed = parsePhoneNumberFromString(value);
+  return Boolean(parsed?.isValid());
 }
 
 function isStrongPassword(password: string) {

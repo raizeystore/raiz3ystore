@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { login, signInWithGoogle } from "@/app/auth/actions";
 import { GoogleIcon } from "@/src/components/auth/google-icon";
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon, UserPlusIcon } from "@/src/components/auth/auth-icons";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +15,7 @@ export function LoginForm() {
         <div className="field">
           <label className="field-label" htmlFor="login-email">البريد الإلكتروني</label>
           <span className="auth-input-shell">
-            <span className="auth-input-icon" aria-hidden="true">@</span>
+            <span className="auth-input-icon" aria-hidden="true"><MailIcon /></span>
             <input
               id="login-email"
               name="email"
@@ -30,7 +31,7 @@ export function LoginForm() {
         <div className="field">
           <label className="field-label" htmlFor="login-password">كلمة المرور</label>
           <span className="auth-input-shell">
-            <span className="auth-input-icon" aria-hidden="true">●</span>
+            <span className="auth-input-icon" aria-hidden="true"><LockIcon /></span>
             <input
               id="login-password"
               name="password"
@@ -42,24 +43,30 @@ export function LoginForm() {
             />
             <button
               type="button"
-              className="password-toggle"
+              className="password-toggle password-toggle--icon"
               onClick={() => setShowPassword((value) => !value)}
               aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
-              aria-controls="login-password"
               aria-pressed={showPassword}
+              aria-controls="login-password"
+              title={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
             >
-              {showPassword ? "إخفاء" : "إظهار"}
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </span>
         </div>
 
-        <div className="form-meta">
+        <div className="form-meta form-meta--login">
           <span className="secure-copy">دخول محمي ومشفّر</span>
           <Link className="text-link" href="/forgot-password">نسيت كلمة المرور؟</Link>
         </div>
 
         <button className="btn btn-primary btn-full auth-submit" type="submit">تسجيل الدخول</button>
       </form>
+
+      <Link className="auth-secondary-action" href="/register">
+        <UserPlusIcon />
+        <span>إنشاء حساب جديد</span>
+      </Link>
 
       <div className="auth-divider">أو</div>
 
@@ -70,11 +77,6 @@ export function LoginForm() {
           <span>المتابعة عبر Google</span>
         </button>
       </form>
-
-      <div className="auth-switch">
-        <span>ليس لديك حساب؟</span>
-        <Link href="/register">إنشاء حساب جديد</Link>
-      </div>
     </div>
   );
 }
