@@ -9,33 +9,49 @@ type AuthSceneProps = {
   features?: Array<{ title: string; text: string; icon: ReactNode }>;
 };
 
+/**
+ * Shared shell for every auth screen: cinematic background, brand lockup,
+ * hero copy and an optional feature row.
+ *
+ * The card itself is always supplied by the caller through `children` — this
+ * component must never render a card wrapper, otherwise pages end up with a
+ * card nested inside a card.
+ */
 export function AuthScene({ title, subtitle, children, features = [] }: AuthSceneProps) {
+  const hasFeatures = features.length > 0;
+
   return (
     <main className="auth-stage">
-      <div className="auth-cinematic-bg" aria-hidden="true" />
+      {/* Background is a decorative, replaceable image slot plus CSS grading. */}
+      <div className="auth-cinematic-bg" aria-hidden="true">
+        <div className="auth-cinematic-image" />
+        <div className="auth-cinematic-grade" />
+      </div>
 
       <div className="auth-stage-content">
         <header className="auth-stage-header">
           <Link href="/" className="auth-brand-link" aria-label="العودة إلى RAIZEY STORE">
-            <BrandLogo className="auth-brand-lockup" />
+            <BrandLogo size="lg" className="auth-brand-lockup" />
           </Link>
 
-          <h1>{title}</h1>
-          <p>{subtitle}</p>
+          <h1 className="auth-stage-title">{title}</h1>
+          <p className="auth-stage-subtitle">{subtitle}</p>
 
-          {features.length > 0 && (
-            <div className="auth-feature-row" aria-label="مزايا الحساب">
+          {hasFeatures ? (
+            <ul className="auth-feature-row" aria-label="مزايا الحساب">
               {features.map((feature) => (
-                <div className="auth-feature" key={feature.title}>
-                  <span className="auth-feature-icon" aria-hidden="true">{feature.icon}</span>
-                  <span>
+                <li className="auth-feature" key={feature.title}>
+                  <span className="auth-feature-icon" aria-hidden="true">
+                    {feature.icon}
+                  </span>
+                  <span className="auth-feature-copy">
                     <strong>{feature.title}</strong>
                     <small>{feature.text}</small>
                   </span>
-                </div>
+                </li>
               ))}
-            </div>
-          )}
+            </ul>
+          ) : null}
         </header>
 
         {children}
@@ -43,3 +59,5 @@ export function AuthScene({ title, subtitle, children, features = [] }: AuthScen
     </main>
   );
 }
+
+export default AuthScene;

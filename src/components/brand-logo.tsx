@@ -5,6 +5,12 @@ type BrandLogoProps = {
   size?: "sm" | "md" | "lg";
   /** Renders the wordmark next to the glyph. */
   withWordmark?: boolean;
+  /**
+   * Navbar / header variant: smaller mark, tighter wordmark.
+   * Equivalent to `size="sm"` and kept as a separate prop because it is the
+   * shared header treatment used across the store.
+   */
+  compact?: boolean;
   className?: string;
   style?: CSSProperties;
 };
@@ -12,31 +18,38 @@ type BrandLogoProps = {
 /**
  * RAIZEY STORE brand lockup.
  *
- * The mark is a single angular "R" built from straight cuts: a vertical stem,
+ * The mark is a single angular "R" built from straight cuts: an italic stem,
  * a notched bowl and a detached diagonal leg, matching the approved identity.
  * Rendered as inline SVG so it stays sharp at every density and can inherit
  * brand colour from CSS.
  */
 export function BrandLogo({
-  size = "md",
+  size,
   withWordmark = true,
+  compact = false,
   className,
   style,
 }: BrandLogoProps) {
-  const classes = ["brand-lockup", `brand-lockup--${size}`, className]
+  const resolvedSize = size ?? (compact ? "sm" : "md");
+  const classes = [
+    "brand-lockup",
+    `brand-lockup--${resolvedSize}`,
+    compact ? "brand-lockup--compact" : null,
+    className,
+  ]
     .filter(Boolean)
     .join(" ");
 
   return (
     <span className={classes} style={style} role="img" aria-label="RAIZEY STORE">
       <span className="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 120 100" focusable="false" aria-hidden="true">
-          {/* Vertical stem */}
-          <path d="M4 4h26v92H4z" />
-          {/* Upper bowl with the angular notch */}
-          <path d="M30 4h52l26 25v22l-20 15H30V64h44l8-6V33l-11-9H30z" />
+        <svg viewBox="0 0 124 104" focusable="false" aria-hidden="true">
+          {/* Italic stem */}
+          <path d="M14 0h30l-6 104H8L14 0Z" />
+          {/* Notched bowl */}
+          <path d="M40 0h44l24 24v17l-19 15H38l1.4-24h35l6-5v-8l-10-8H38.6L40 0Z" />
           {/* Detached diagonal leg */}
-          <path d="M62 72h30l24 24H86z" />
+          <path d="M62 62h29l28 42H88L62 62Z" />
         </svg>
       </span>
 

@@ -14,6 +14,10 @@ export function ShieldCheckIcon(props: IconProps) {
   return <IconBase {...props}><path d="M12 3 19 6v5c0 4.7-2.8 8.3-7 10-4.2-1.7-7-5.3-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></IconBase>;
 }
 
+export function ShieldIcon(props: IconProps) {
+  return <IconBase {...props}><path d="M12 3 19 6v5c0 4.7-2.8 8.3-7 10-4.2-1.7-7-5.3-7-10V6l7-3Z"/></IconBase>;
+}
+
 export function OrdersIcon(props: IconProps) {
   return <IconBase {...props}><rect x="5" y="4" width="14" height="16" rx="3"/><path d="M9 4.5V3h6v1.5M9 10h6M9 14h4"/></IconBase>;
 }

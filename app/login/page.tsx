@@ -22,34 +22,33 @@ const successMessages: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
   const params = await searchParams;
-  const errorMessage = params.error ? errorMessages[params.error] ?? "تعذر تنفيذ العملية. حاول مرة أخرى." : null;
+  const errorMessage = params.error
+    ? errorMessages[params.error] ?? "تعذر تنفيذ العملية. تحقق من البيانات أو حاول مرة أخرى."
+    : null;
   const successMessage = params.message ? successMessages[params.message] ?? null : null;
 
   return (
     <AuthScene
-      title={<>مرحبًا <span>بعودتك</span></>}
+      title={
+        <>
+          مرحباً <span>بعودتك</span>
+        </>
+      }
       subtitle="سجّل دخولك واستمتع بتجربة شحن آمنة وسريعة لألعابك المفضلة."
       features={[
         { title: "دخول آمن", text: "حماية متقدمة لبياناتك", icon: <ShieldCheckIcon /> },
-        { title: "تتبّع طلباتك", text: "تابع حالة طلباتك لحظة بلحظة", icon: <OrdersIcon /> },
-        { title: "شحن فوري", text: "تنفيذ واضح وسريع للطلبات", icon: <BoltIcon /> },
+        { title: "تتبع طلباتك", text: "تابع حالة طلباتك لحظة بلحظة", icon: <OrdersIcon /> },
+        { title: "شحن فوري", text: "تنفيذ سريع وآمن", icon: <BoltIcon /> },
       ]}
     >
-      <section className="auth-premium-card auth-premium-card--login" aria-labelledby="login-title">
-        <div className="auth-premium-card-head">
-          <h2 id="login-title">تسجيل الدخول</h2>
-          <p>أدخل بياناتك للمتابعة إلى حسابك.</p>
-        </div>
-
-        {successMessage && <div className="notice" role="status">{successMessage}</div>}
-        {errorMessage && <div className="notice notice-error" role="alert">{errorMessage}</div>}
-
-        <LoginForm />
-        <p className="auth-security-note">بياناتك محمية بتقنيات تشفير متقدمة ولا نشارك بيانات تسجيل الدخول مع أي طرف.</p>
-      </section>
+      <LoginForm
+        next={params.next}
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+      />
     </AuthScene>
   );
 }

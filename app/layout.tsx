@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import "./auth-ui.css";
-import "./auth-visual-v2.css";
 
 const cairo = Cairo({
   subsets: ["arabic", "latin"],

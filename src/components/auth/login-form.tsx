@@ -2,43 +2,53 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { signInWithEmail, signInWithGoogle } from "@/../app/auth/actions";
+import { login, signInWithGoogle } from "@/app/auth/actions";
+import { GoogleIcon } from "@/src/components/auth/google-icon";
 import {
   AlertIcon,
   EyeIcon,
   EyeOffIcon,
-  GoogleIcon,
   LockIcon,
   MailIcon,
-  ShieldIcon,
   UserPlusIcon,
-} from "./auth-icons";
+} from "@/src/components/auth/auth-icons";
 
 type LoginFormProps = {
   next?: string;
-  initialError?: string;
+  errorMessage?: string | null;
+  successMessage?: string | null;
 };
 
-export function LoginForm({ next, initialError }: LoginFormProps) {
+/**
+ * The single, final login card. The page passes resolved Arabic copy in —
+ * it must not wrap this component in another card.
+ */
+export function LoginForm({ next, errorMessage, successMessage }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="auth-premium-card auth-premium-card--login">
+    <section className="auth-premium-card auth-premium-card--login" aria-labelledby="login-title">
       <header className="auth-premium-card-head">
-        <h2>تسجيل الدخول</h2>
+        <h2 id="login-title">تسجيل الدخول</h2>
         <p>أدخل بياناتك للمتابعة إلى حسابك</p>
       </header>
 
-      {initialError ? (
+      {successMessage ? (
+        <p className="notice notice-success" role="status">
+          <span>{successMessage}</span>
+        </p>
+      ) : null}
+
+      {errorMessage ? (
         <p className="notice notice-error" role="alert">
           <span className="notice-icon" aria-hidden="true">
             <AlertIcon />
           </span>
-          <span>{initialError}</span>
+          <span>{errorMessage}</span>
         </p>
       ) : null}
 
-      <form className="auth-form-stack" action={signInWithEmail} noValidate>
+      <form className="auth-form-stack" action={login}>
         {next ? <input type="hidden" name="next" value={next} /> : null}
 
         <div className="field">
@@ -80,10 +90,11 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
             />
             <button
               type="button"
-              className="password-toggle password-toggle--icon"
+              className="password-toggle"
               onClick={() => setShowPassword((value) => !value)}
               aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               aria-pressed={showPassword}
+              aria-controls="login-password"
             >
               {showPassword ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -102,7 +113,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
       </form>
 
       <Link className="auth-secondary-action" href="/register">
-        <UserPlusIcon />
+        <UserPlusIcon aria-hidden="true" />
         <span>إنشاء حساب جديد</span>
       </Link>
 
@@ -120,11 +131,11 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
 
       <p className="auth-security-note">
         <span className="auth-security-note-icon" aria-hidden="true">
-          <ShieldIcon />
+          <LockIcon />
         </span>
         <span>بياناتك محمية بتقنيات تشفير متقدمة</span>
       </p>
-    </div>
+    </section>
   );
 }
 
