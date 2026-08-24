@@ -5,16 +5,16 @@ import { BoltIcon, OrdersIcon, ShieldCheckIcon } from "@/src/components/auth/aut
 const errorMessages: Record<string, string> = {
   missing_credentials: "أدخل البريد الإلكتروني وكلمة المرور للمتابعة.",
   invalid_credentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-  email_not_confirmed: "أكد بريدك الإلكتروني أولًا ثم حاول تسجيل الدخول مرة أخرى.",
+  email_not_confirmed: "أكد بريدك الإلكتروني أولًا باستخدام رمز التحقق المرسل إليك.",
   auth_failed: "تعذر تسجيل الدخول الآن. حاول مرة أخرى بعد قليل.",
   google_failed: "تعذر إكمال تسجيل الدخول عبر Google. حاول مرة أخرى.",
-  confirmation_failed: "رابط التأكيد غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.",
+  confirmation_failed: "تعذر التحقق من البريد. اطلب رمز تحقق جديدًا وحاول مرة أخرى.",
+  verification_expired: "انتهت جلسة التحقق. ابدأ طلبًا جديدًا ليصلك رمز جديد.",
   account_inactive: "هذا الحساب غير متاح حاليًا. تواصل مع دعم المتجر.",
   session_required: "انتهت الجلسة. سجّل الدخول من جديد للمتابعة.",
 };
 
 const successMessages: Record<string, string> = {
-  check_email: "تم إنشاء الحساب. افتح بريدك الإلكتروني واضغط رابط التأكيد ثم سجّل الدخول.",
   password_updated: "تم تحديث كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.",
   login_required: "سجّل الدخول للمتابعة إلى حسابك وطلباتك.",
 };
@@ -22,34 +22,33 @@ const successMessages: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
   const params = await searchParams;
-  const errorMessage = params.error ? errorMessages[params.error] ?? "تعذر تنفيذ العملية. حاول مرة أخرى." : null;
+  const errorMessage = params.error
+    ? errorMessages[params.error] ?? "تعذر تنفيذ العملية. تحقق من البيانات أو حاول مرة أخرى."
+    : null;
   const successMessage = params.message ? successMessages[params.message] ?? null : null;
 
   return (
     <AuthScene
-      title={<>مرحبًا <span>بعودتك</span></>}
+      title={
+        <>
+          مرحباً <span>بعودتك</span>
+        </>
+      }
       subtitle="سجّل دخولك واستمتع بتجربة شحن آمنة وسريعة لألعابك المفضلة."
       features={[
         { title: "دخول آمن", text: "حماية متقدمة لبياناتك", icon: <ShieldCheckIcon /> },
-        { title: "تتبّع طلباتك", text: "تابع حالة طلباتك لحظة بلحظة", icon: <OrdersIcon /> },
-        { title: "شحن فوري", text: "تنفيذ واضح وسريع للطلبات", icon: <BoltIcon /> },
+        { title: "تتبع طلباتك", text: "تابع حالة طلباتك لحظة بلحظة", icon: <OrdersIcon /> },
+        { title: "شحن فوري", text: "تنفيذ سريع وآمن", icon: <BoltIcon /> },
       ]}
     >
-      <section className="auth-premium-card auth-premium-card--login" aria-labelledby="login-title">
-        <div className="auth-premium-card-head">
-          <h2 id="login-title">تسجيل الدخول</h2>
-          <p>أدخل بياناتك للمتابعة إلى حسابك.</p>
-        </div>
-
-        {successMessage && <div className="notice" role="status">{successMessage}</div>}
-        {errorMessage && <div className="notice notice-error" role="alert">{errorMessage}</div>}
-
-        <LoginForm />
-        <p className="auth-security-note">بياناتك محمية بتقنيات تشفير متقدمة ولا نشارك بيانات تسجيل الدخول مع أي طرف.</p>
-      </section>
+      <LoginForm
+        next={params.next}
+        errorMessage={errorMessage}
+        successMessage={successMessage}
+      />
     </AuthScene>
   );
 }

@@ -27,9 +27,60 @@ test("email registration validates profile, password and policy consent on the s
   assert.match(actions, /termsAccepted/);
   assert.match(actions, /privacy_accepted:\s*true/);
   assert.match(actions, /terms_accepted:\s*true/);
-  assert.match(actions, /emailRedirectTo/);
+  assert.match(actions, /setPendingVerification\(email,\s*["']signup["']\)/);
+  assert.doesNotMatch(actions, /signUp\([\s\S]*emailRedirectTo/);
   assert.match(migration, /privacy_accepted_at/);
   assert.match(migration, /terms_accepted_at/);
+});
+
+test("email confirmation and password recovery use native six-digit Supabase OTP", () => {
+  const actions = read("app/auth/actions.ts");
+  const verifyPage = read("app/verify-code/page.tsx");
+  const otpDocs = read("docs/SUPABASE_EMAIL_OTP.md");
+
+  assert.match(actions, /OTP_RE\s*=\s*\/\^\\d\{6\}\$\//);
+  assert.match(actions, /verifyOtp\(/);
+  assert.match(actions, /type:\s*otpType/);
+  assert.match(actions, /resetPasswordForEmail\(email\)/);
+  assert.match(actions, /auth\.resend\(\{\s*type:\s*["']signup["']/);
+  assert.match(actions, /httpOnly:\s*true/);
+  assert.match(actions, /sameSite:\s*["']lax["']/);
+  assert.match(verifyPage, /autoComplete=["']one-time-code["']/);
+  assert.match(verifyPage, /pattern=["']\[0-9\]\{6\}["']/);
+  assert.match(otpDocs, /\{\{ \.Token \}\}/);
+  assert.doesNotMatch(otpDocs, /href=["'][^"']*ConfirmationURL/);
+});
+
+test("signed-in password changes require Supabase reauthentication OTP", () => {
+  const actions = read("app/account/security/actions.ts");
+  const passwordForm = read("src/components/auth/account-password-form.tsx");
+
+  assert.match(actions, /auth\.reauthenticate\(\)/);
+  assert.match(actions, /OTP_RE\s*=\s*\/\^\\d\{6\}\$\//);
+  assert.match(actions, /updateUser\(\{\s*password,\s*nonce\s*\}\)/);
+  assert.match(actions, /auth\.signOut\(\)/);
+  assert.match(passwordForm, /autoComplete=["']one-time-code["']/);
+  assert.match(passwordForm, /pattern=["']\[0-9\]\{6\}["']/);
+  assert.match(passwordForm, /name=["']confirmPassword["']/);
+});
+
+test("secure email change requires current and new email verification stages", () => {
+  const actions = read("app/account/security/actions.ts");
+  const emailPage = read("app/account/security/email/page.tsx");
+  const otpDocs = read("docs/SUPABASE_EMAIL_OTP.md");
+
+  assert.match(actions, /updateUser\(\{\s*email:\s*newEmail\s*\}\)/);
+  assert.match(actions, /EMAIL_CHANGE_STAGE/);
+  assert.match(actions, /stage !== ["']current["']/);
+  assert.match(actions, /stage !== ["']new["']/);
+  assert.match(actions, /email:\s*state\.oldEmail[\s\S]*type:\s*["']email_change["']/);
+  assert.match(actions, /email:\s*state\.newEmail[\s\S]*type:\s*["']email_change["']/);
+  assert.match(actions, /httpOnly:\s*true/);
+  assert.match(actions, /sameSite:\s*["']lax["']/);
+  assert.match(actions, /secure:\s*process\.env\.NODE_ENV === ["']production["']/);
+  assert.match(emailPage, /isCurrent \? ["']تأكيد البريد الحالي["'] : ["']تأكيد البريد الجديد["']/);
+  assert.match(emailPage, /pattern=["']\[0-9\]\{6\}["']/);
+  assert.match(otpDocs, /Secure Email Change must remain enabled/);
 });
 
 test("Google OAuth uses a server redirect and a PKCE callback before creating a session", () => {
@@ -105,7 +156,20 @@ test("sensitive routes use no-store and baseline security headers", () => {
   assert.match(config, /X-Content-Type-Options/);
   assert.match(config, /frame-ancestors 'none'/);
   assert.match(config, /private, no-store, max-age=0/);
-  for (const route of ["/account", "/orders/:path*", "/admin/:path*", "/checkout/:path*", "/auth/:path*", "/register", "/complete-profile"]) {
+  for (const route of [
+    "/account",
+    "/account/:path*",
+    "/orders/:path*",
+    "/admin/:path*",
+    "/checkout/:path*",
+    "/auth/:path*",
+    "/login",
+    "/register",
+    "/complete-profile",
+    "/forgot-password",
+    "/verify-code",
+    "/reset-password",
+  ]) {
     assert.ok(config.includes(route), `missing no-store route: ${route}`);
   }
 });

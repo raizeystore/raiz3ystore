@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CircleCheck, Mail, Settings, UserRound } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
 import { updateProfile } from "@/app/account/actions";
 import { BrandLogo } from "@/src/components/brand-logo";
+import { IconBox } from "@/src/components/ui/icon-box";
 import { createClient } from "@/src/lib/supabase/server";
 
 export default async function AccountPage({
@@ -30,6 +32,16 @@ export default async function AccountPage({
   }
 
   const roleLabel = profile.role === "admin" ? "إدارة المتجر" : "عميل";
+  const message =
+    params.message === "profile_completed"
+      ? "اكتملت بيانات حسابك بنجاح."
+      : params.message === "welcome"
+        ? "مرحبًا بك في RAIZEY STORE."
+        : params.message === "email_updated"
+          ? "تم تغيير البريد الإلكتروني وتأكيده بنجاح."
+          : params.message === "profile_updated"
+            ? "تم تحديث بيانات الحساب بنجاح."
+            : null;
 
   return (
     <main className="site-shell">
@@ -39,6 +51,7 @@ export default async function AccountPage({
           <nav className="nav-links" aria-label="تنقل الحساب">
             <Link href="/games">الألعاب</Link>
             <Link href="/orders">طلباتي</Link>
+            <Link href="/account/security">الأمان</Link>
             {profile.role === "admin" && <Link href="/admin">الإدارة</Link>}
           </nav>
           <div className="nav-actions"><Link className="btn btn-secondary" href="/">العودة للمتجر</Link></div>
@@ -55,17 +68,25 @@ export default async function AccountPage({
             </div>
           </div>
 
-          {(params.message === "profile_updated" || params.message === "profile_completed" || params.message === "welcome") && (
-            <div className="notice" role="status" style={{ marginBottom: 20 }}>
-              {params.message === "profile_completed" ? "اكتملت بيانات حسابك بنجاح." : params.message === "welcome" ? "مرحبًا بك في RAIZEY STORE." : "تم تحديث بيانات الحساب بنجاح."}
-            </div>
-          )}
-          {params.error && <div className="notice notice-error" role="alert" style={{ marginBottom: 20 }}>تعذر تحديث البيانات. تحقق من القيم وحاول مرة أخرى.</div>}
+          {message ? <div className="notice" role="status" style={{ marginBottom: 20 }}>{message}</div> : null}
+          {params.error ? <div className="notice notice-error" role="alert" style={{ marginBottom: 20 }}>تعذر تحديث البيانات. تحقق من القيم وحاول مرة أخرى.</div> : null}
 
           <div className="info-grid">
-            <article className="info-card"><div className="icon-box">@</div><h3>البريد الإلكتروني</h3><p>{user.email ?? "—"}</p></article>
-            <article className="info-card"><div className="icon-box">R</div><h3>نوع الحساب</h3><p>{roleLabel}</p></article>
-            <article className="info-card"><div className="icon-box">✓</div><h3>حالة الحساب</h3><p>نشط</p></article>
+            <article className="info-card">
+              <IconBox icon={Mail} />
+              <h3>البريد الإلكتروني</h3>
+              <p dir="ltr" style={{ overflowWrap: "anywhere" }}>{user.email ?? "—"}</p>
+            </article>
+            <article className="info-card">
+              <IconBox icon={UserRound} />
+              <h3>نوع الحساب</h3>
+              <p>{roleLabel}</p>
+            </article>
+            <article className="info-card">
+              <IconBox icon={CircleCheck} tone="success" />
+              <h3>حالة الحساب</h3>
+              <p>نشط ومحمي</p>
+            </article>
           </div>
 
           <div className="auth-card" style={{ marginTop: 24, maxWidth: 720 }}>
@@ -81,10 +102,19 @@ export default async function AccountPage({
             </form>
           </div>
 
+          <div className="auth-card" style={{ marginTop: 24, maxWidth: 720 }}>
+            <div className="auth-card-header">
+              <h2>أمان الحساب</h2>
+              <p>تغيير البريد أو كلمة المرور محمي بكود تحقق من 6 أرقام. افتح مركز الأمان لإدارة بيانات الدخول الحساسة.</p>
+            </div>
+            <Link className="btn btn-primary" href="/account/security"><Settings size={18} strokeWidth={2} aria-hidden="true" />فتح مركز الأمان</Link>
+          </div>
+
           <div className="cta-band" style={{ marginTop: 24 }}>
             <div><h2>{profile.display_name ? `مرحبًا ${profile.display_name}` : "مرحبًا بك في RAIZEY"}</h2><p>تابع طلباتك والدفع والمراجعة من مركز الطلبات.</p></div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               <Link className="btn btn-primary" href="/orders">طلباتي</Link>
+              <Link className="btn btn-secondary" href="/account/security">الأمان</Link>
               {profile.role === "admin" && <Link className="btn btn-secondary" href="/admin">لوحة الإدارة</Link>}
               <form action={signOut}><button className="btn btn-secondary" type="submit">تسجيل الخروج</button></form>
             </div>

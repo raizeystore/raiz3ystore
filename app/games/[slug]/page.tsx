@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Package } from "lucide-react";
 import { BrandLogo } from "@/src/components/brand-logo";
+import { IconBox } from "@/src/components/ui/icon-box";
 import { createClient } from "@/src/lib/supabase/server";
 
 function formatPrice(value: number, currency: string) {
@@ -67,7 +69,7 @@ export default async function GamePage({
             <div className="info-grid">
               {products.map((product) => (
                 <article className="info-card" key={product.id}>
-                  <div className="icon-box">R</div>
+                  <IconBox icon={Package} />
                   <h3>{product.name}</h3>
                   <p>{product.description || "عرض شحن متاح من RAIZEY STORE."}</p>
                   <div className="price-line">

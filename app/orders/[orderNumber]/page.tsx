@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { CircleCheck, ClipboardList, Clock3, Receipt, TriangleAlert, type LucideIcon } from "lucide-react";
 import { uploadReceipt } from "@/app/orders/actions";
 import { BrandLogo } from "@/src/components/brand-logo";
+import { IconBox } from "@/src/components/ui/icon-box";
 import { createClient } from "@/src/lib/supabase/server";
 
 const ORDER_STATUS: Record<string, string> = {
@@ -30,6 +32,17 @@ const RECEIPT_STATUS: Record<string, string> = {
   rejected: "مرفوض",
   manual_review: "مراجعة يدوية",
 };
+
+type PaymentVisual = {
+  icon: LucideIcon;
+  tone: "brand" | "success" | "warning" | "danger";
+};
+
+function paymentVisual(status?: string): PaymentVisual {
+  if (status === "confirmed" || status === "refunded") return { icon: CircleCheck, tone: "success" };
+  if (status === "rejected") return { icon: TriangleAlert, tone: "danger" };
+  return { icon: Clock3, tone: "warning" };
+}
 
 function formatPrice(value: number, currency: string) {
   return `${new Intl.NumberFormat("ar-SD", { maximumFractionDigits: 2 }).format(value)} ${currency}`;
@@ -114,6 +127,7 @@ export default async function OrderDetailPage({
   const canUploadReceipt = !isAdmin && payment && ["pending", "rejected"].includes(payment.status);
   const backHref = isAdmin ? "/admin/orders" : "/orders";
   const backLabel = isAdmin ? "تنفيذ الطلبات" : "كل الطلبات";
+  const paymentState = paymentVisual(payment?.status);
 
   return (
     <main className="site-shell">
@@ -156,9 +170,9 @@ export default async function OrderDetailPage({
           )}
 
           <div className="info-grid">
-            <article className="info-card"><div className="icon-box">#</div><h3>حالة الطلب</h3><p>{ORDER_STATUS[order.status] ?? order.status}</p></article>
-            <article className="info-card"><div className="icon-box">$</div><h3>المبلغ</h3><p>{formatPrice(order.total, order.currency)}</p></article>
-            <article className="info-card"><div className="icon-box">✓</div><h3>حالة الدفع</h3><p>{payment ? (PAYMENT_STATUS[payment.status] ?? payment.status) : "—"}</p></article>
+            <article className="info-card"><IconBox icon={ClipboardList} /><h3>حالة الطلب</h3><p>{ORDER_STATUS[order.status] ?? order.status}</p></article>
+            <article className="info-card"><IconBox icon={Receipt} /><h3>المبلغ</h3><p>{formatPrice(order.total, order.currency)}</p></article>
+            <article className="info-card"><IconBox icon={paymentState.icon} tone={paymentState.tone} /><h3>حالة الدفع</h3><p>{payment ? (PAYMENT_STATUS[payment.status] ?? payment.status) : "—"}</p></article>
           </div>
 
           <div className="hero-grid" style={{ marginTop: 24, alignItems: "start" }}>

@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { WalletCards } from "lucide-react";
 import { createOrder } from "@/app/checkout/actions";
 import { BrandLogo } from "@/src/components/brand-logo";
+import { IconBox } from "@/src/components/ui/icon-box";
 import { createClient } from "@/src/lib/supabase/server";
 
 const controlStyle = {
@@ -170,7 +172,7 @@ export default async function CheckoutPage({
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
               {(paymentMethods ?? []).map((method) => (
                 <article className="info-card" key={method.id}>
-                  <div className="icon-box">$</div>
+                  <IconBox icon={WalletCards} />
                   <h3>{method.name}</h3>
                   {method.account_label && <p>{method.account_label}</p>}
                   {method.account_identifier && <p style={{ color: "var(--text)" }}>{method.account_identifier}</p>}
