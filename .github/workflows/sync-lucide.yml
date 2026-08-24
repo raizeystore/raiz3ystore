@@ -1,0 +1,39 @@
+name: Sync Lucide dependency
+
+on:
+  push:
+    branches:
+      - recovery/v0-auth-redesign-icons
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/v0-auth-redesign-icons
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Lucide React
+        run: npm install lucide-react@1.33.0 --save-exact
+
+      - name: Commit dependency files and remove temporary workflow
+        shell: bash
+        run: |
+          rm -f .github/workflows/sync-lucide.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json .github/workflows/sync-lucide.yml
+          git commit -m "build: install lucide-react"
+          git push origin HEAD:recovery/v0-auth-redesign-icons
