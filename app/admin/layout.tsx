@@ -26,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           <strong style={{ color: "var(--brand-strong)", marginInlineEnd: 6 }}>ADMIN</strong>
           <Link className="text-link" href="/admin">الرئيسية</Link>
+          <Link className="text-link" href="/admin/catalog">إدارة الكتالوج</Link>
           <Link className="text-link" href="/admin/products">المنتجات والتسعير</Link>
           <Link className="text-link" href="/admin/orders">تنفيذ الطلبات</Link>
           <Link className="text-link" href="/account">حسابي</Link>
