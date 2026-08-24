@@ -34,7 +34,8 @@ export function AdminNav() {
       <div className="admin-nav-track">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isExact = "exact" in item && item.exact === true;
+          const active = isExact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.href}
