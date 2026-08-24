@@ -3,9 +3,25 @@ import { expect, test } from "@playwright/test";
 test("home page renders the mobile-first storefront entry points", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: /قوة اللعب/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: "ابدأ الشحن الآن" })).toHaveAttribute("href", "/games");
+  await expect(page.getByRole("heading", { name: "ابدأ من القسم الصحيح" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "تصفح الكتالوج" })).toHaveAttribute("href", "#catalog");
   await expect(page.getByRole("link", { name: "دخول", exact: true })).toHaveAttribute("href", "/login");
+  await expect(page.getByText("خيارات من الكتالوج الفعلي", { exact: true })).toBeVisible();
+  await expect(page.getByText(/PUBG MOBILE|FREE FIRE|CALL OF DUTY/)).toHaveCount(0);
+});
+
+test("home page has no horizontal overflow at the target 393px width", async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 852 });
+  await page.goto("/");
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test("anonymous visitors cannot access Catalog V2 administration", async ({ page }) => {
+  await page.goto("/admin/catalog/categories");
+  await expect(page).toHaveURL(/\/login/);
 });
 
 test("login page matches the premium gaming sign-in experience", async ({ page }) => {
