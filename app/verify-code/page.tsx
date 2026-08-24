@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { resendEmailCode, verifyEmailCode } from "@/app/auth/actions";
+import { getOtpResendCooldownSeconds, verifyEmailCode } from "@/app/auth/actions";
 import { AuthScene } from "@/src/components/auth/auth-scene";
 import { AlertIcon, MailIcon } from "@/src/components/auth/auth-icons";
+import { ResendCodeButton } from "@/src/components/auth/resend-code-button";
 
 const PENDING_EMAIL_COOKIE = "raizey_pending_email";
 const PENDING_PURPOSE_COOKIE = "raizey_pending_purpose";
@@ -19,22 +20,23 @@ function maskEmail(email: string) {
 }
 
 const errorMessages: Record<string, string> = {
-  invalid_code: "رمز التحقق غير صحيح. تأكد من الأرقام الستة وحاول مرة أخرى.",
-  expired_code: "انتهت صلاحية رمز التحقق. اطلب رمزًا جديدًا ثم حاول مرة أخرى.",
-  rate_limit: "تم إرسال عدد كبير من الرموز. انتظر قليلًا قبل طلب رمز جديد.",
-  resend_failed: "تعذر إعادة إرسال الرمز الآن. حاول مرة أخرى بعد قليل.",
+  invalid_code: "رمز التحقق غير صحيح تحقق من الأرقام الستة وحاول مرة أخرى",
+  expired_code: "انتهت صلاحية رمز التحقق اطلب رمزًا جديدًا ثم حاول مرة أخرى",
+  rate_limit: "تم إرسال عدد كبير من الرموز انتظر حتى يصبح الإرسال متاحًا",
+  resend_wait: "يمكنك طلب رمز جديد بعد انتهاء العداد",
+  resend_failed: "تعذر إعادة إرسال الرمز الآن حاول مرة أخرى بعد قليل",
 };
 
 const messageTexts: Record<string, string> = {
-  sent: "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني.",
-  resent: "تمت إعادة إرسال رمز التحقق بنجاح.",
-  confirmation_required: "حسابك موجود لكنه يحتاج لتأكيد البريد. أدخل الرمز المرسل إليك.",
+  sent: "تم إرسال رمز التحقق إلى بريدك الإلكتروني",
+  resent: "تمت إعادة إرسال رمز التحقق",
+  confirmation_required: "حسابك يحتاج إلى تأكيد البريد أدخل الرمز المرسل إليك",
 };
 
 export default async function VerifyCodePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; wait?: string }>;
 }) {
   const params = await searchParams;
   const cookieStore = await cookies();
@@ -45,7 +47,11 @@ export default async function VerifyCodePage({
   if (!email || !purpose) redirect("/login?error=verification_expired");
 
   const isRecovery = purpose === "recovery";
-  const errorMessage = params.error ? errorMessages[params.error] ?? "تعذر التحقق من الرمز. حاول مرة أخرى." : null;
+  const serverCooldown = await getOtpResendCooldownSeconds();
+  const queryWait = Number(params.wait ?? "0");
+  const safeQueryWait = Number.isFinite(queryWait) ? Math.max(0, Math.min(60, Math.ceil(queryWait))) : 0;
+  const initialSeconds = Math.max(serverCooldown, safeQueryWait);
+  const errorMessage = params.error ? errorMessages[params.error] ?? "تعذر التحقق من الرمز حاول مرة أخرى" : null;
   const message = params.message ? messageTexts[params.message] ?? null : null;
 
   return (
@@ -59,8 +65,8 @@ export default async function VerifyCodePage({
       }
       subtitle={
         isRecovery
-          ? "أدخل رمز الأمان المكوّن من 6 أرقام قبل تعيين كلمة مرور جديدة."
-          : "أدخل رمز التحقق المكوّن من 6 أرقام لإكمال إنشاء حسابك بأمان."
+          ? "أدخل رمز الأمان المكون من 6 أرقام قبل تعيين كلمة مرور جديدة"
+          : "أدخل رمز التحقق المكون من 6 أرقام لإكمال إنشاء حسابك بأمان"
       }
     >
       <section className="auth-premium-card auth-premium-card--login" aria-labelledby="verify-code-title">
@@ -99,18 +105,16 @@ export default async function VerifyCodePage({
                 style={{ textAlign: "center", letterSpacing: "0.45em", fontSize: "1.35rem", fontWeight: 800 }}
               />
             </div>
-            <small id="verification-code-help">الرمز يتكون من 6 أرقام ويُستخدم مرة واحدة فقط.</small>
+            <small id="verification-code-help">الرمز مكون من 6 أرقام ويستخدم مرة واحدة فقط</small>
           </div>
 
           <button className="btn btn-primary btn-full auth-submit" type="submit">تأكيد الرمز</button>
         </form>
 
-        <form action={resendEmailCode} style={{ marginTop: 14 }}>
-          <button className="btn btn-secondary btn-full" type="submit">إعادة إرسال الرمز</button>
-        </form>
+        <ResendCodeButton initialSeconds={initialSeconds} />
 
         <p className="auth-switch">
-          <span>{isRecovery ? "تذكرت كلمة المرور؟" : "استخدمت بريدًا آخر؟"}</span>
+          <span>{isRecovery ? "تذكرت كلمة المرور" : "استخدمت بريدًا آخر"}</span>
           <Link className="text-link" href={isRecovery ? "/login" : "/register"}>
             {isRecovery ? "تسجيل الدخول" : "العودة للتسجيل"}
           </Link>

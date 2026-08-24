@@ -4,9 +4,9 @@ import { AuthScene } from "@/src/components/auth/auth-scene";
 import { AlertIcon, MailIcon } from "@/src/components/auth/auth-icons";
 
 const errorMessages: Record<string, string> = {
-  invalid_email: "أدخل بريدًا إلكترونيًا صالحًا للمتابعة.",
-  rate_limit: "تم إرسال عدد كبير من الطلبات. انتظر قليلًا ثم حاول مرة أخرى.",
-  request_failed: "تعذر إرسال رمز الاسترجاع الآن. حاول مرة أخرى بعد قليل.",
+  invalid_email: "أدخل بريدًا إلكترونيًا صالحًا للمتابعة",
+  rate_limit: "تم إرسال عدد كبير من الطلبات انتظر قليلًا ثم حاول مرة أخرى",
+  request_failed: "تعذر إرسال رمز الاسترجاع الآن حاول مرة أخرى بعد قليل",
 };
 
 export default async function ForgotPasswordPage({
@@ -20,13 +20,13 @@ export default async function ForgotPasswordPage({
   return (
     <AuthScene
       title={<>استعد <span>حسابك</span></>}
-      subtitle="أدخل بريدك الإلكتروني وسنرسل لك رمز أمان من 6 أرقام لإعادة تعيين كلمة المرور."
+      subtitle="أدخل بريدك الإلكتروني وسنرسل لك رمز أمان من 6 أرقام لإعادة تعيين كلمة المرور"
     >
       <section className="auth-premium-card auth-premium-card--login" aria-labelledby="forgot-title">
         <div className="auth-card-heading">
           <span className="auth-feature-icon" aria-hidden="true"><MailIcon /></span>
-          <h2 id="forgot-title">نسيت كلمة المرور؟</h2>
-          <p>لن نرسل رابطًا. ستصلك رسالة تحتوي على رمز تحقق مكوّن من 6 أرقام.</p>
+          <h2 id="forgot-title">نسيت كلمة المرور</h2>
+          <p>لن نرسل رابطًا وستصلك رسالة تحتوي على رمز تحقق مكون من 6 أرقام</p>
         </div>
 
         {errorMessage ? (
@@ -58,7 +58,7 @@ export default async function ForgotPasswordPage({
         </form>
 
         <p className="auth-switch">
-          <span>تذكرت كلمة المرور؟</span>
+          <span>تذكرت كلمة المرور</span>
           <Link className="text-link" href="/login">العودة لتسجيل الدخول</Link>
         </p>
       </section>

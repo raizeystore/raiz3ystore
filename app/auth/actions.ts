@@ -13,7 +13,9 @@ const OTP_RE = /^\d{6}$/;
 const SAFE_NEXT_RE = /^\/(?!\/)/;
 const PENDING_EMAIL_COOKIE = "raizey_pending_email";
 const PENDING_PURPOSE_COOKIE = "raizey_pending_purpose";
+const PENDING_SENT_AT_COOKIE = "raizey_otp_sent_at";
 const PENDING_MAX_AGE = 15 * 60;
+const OTP_RESEND_COOLDOWN_SECONDS = 60;
 
 type VerificationPurpose = "signup" | "recovery";
 
@@ -53,18 +55,24 @@ function verificationPath(purpose: VerificationPurpose, query = "") {
   return `/verify-code?purpose=${purpose}${query ? `&${query}` : ""}`;
 }
 
-async function setPendingVerification(email: string, purpose: VerificationPurpose) {
-  const cookieStore = await cookies();
-  const secure = process.env.NODE_ENV === "production";
-  const options = {
+function pendingCookieOptions(maxAge = PENDING_MAX_AGE) {
+  return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure,
+    secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: PENDING_MAX_AGE,
+    maxAge,
   };
+}
+
+async function setPendingVerification(email: string, purpose: VerificationPurpose, markSent = false) {
+  const cookieStore = await cookies();
+  const options = pendingCookieOptions();
   cookieStore.set(PENDING_EMAIL_COOKIE, email, options);
   cookieStore.set(PENDING_PURPOSE_COOKIE, purpose, options);
+  if (markSent) {
+    cookieStore.set(PENDING_SENT_AT_COOKIE, String(Date.now()), options);
+  }
 }
 
 async function readPendingVerification() {
@@ -76,12 +84,26 @@ async function readPendingVerification() {
   return { email, purpose };
 }
 
+async function readOtpResendCooldownSeconds() {
+  const cookieStore = await cookies();
+  const rawSentAt = cookieStore.get(PENDING_SENT_AT_COOKIE)?.value;
+  const sentAt = Number(rawSentAt);
+  if (!Number.isFinite(sentAt) || sentAt <= 0) return 0;
+
+  const elapsedSeconds = Math.floor((Date.now() - sentAt) / 1000);
+  return Math.max(0, OTP_RESEND_COOLDOWN_SECONDS - elapsedSeconds);
+}
+
+export async function getOtpResendCooldownSeconds() {
+  return readOtpResendCooldownSeconds();
+}
+
 async function clearPendingVerification() {
   const cookieStore = await cookies();
-  const secure = process.env.NODE_ENV === "production";
-  const options = { httpOnly: true, sameSite: "lax" as const, secure, path: "/", maxAge: 0 };
+  const options = pendingCookieOptions(0);
   cookieStore.set(PENDING_EMAIL_COOKIE, "", options);
   cookieStore.set(PENDING_PURPOSE_COOKIE, "", options);
+  cookieStore.set(PENDING_SENT_AT_COOKIE, "", options);
 }
 
 async function getRequestOrigin() {
@@ -197,7 +219,7 @@ export async function signup(formData: FormData) {
   revalidatePath("/", "layout");
   if (data.session) redirect("/account?message=welcome");
 
-  await setPendingVerification(email, "signup");
+  await setPendingVerification(email, "signup", true);
   redirect(verificationPath("signup", "message=sent"));
 }
 
@@ -235,6 +257,11 @@ export async function resendEmailCode() {
   const pending = await readPendingVerification();
   if (!pending) redirect("/login?error=verification_expired");
 
+  const waitSeconds = await readOtpResendCooldownSeconds();
+  if (waitSeconds > 0) {
+    redirect(verificationPath(pending.purpose, `error=resend_wait&wait=${waitSeconds}`));
+  }
+
   const supabase = await createClient();
   const result = pending.purpose === "signup"
     ? await supabase.auth.resend({ type: "signup", email: pending.email })
@@ -246,7 +273,7 @@ export async function resendEmailCode() {
     redirect(verificationPath(pending.purpose, `error=${reason}`));
   }
 
-  await setPendingVerification(pending.email, pending.purpose);
+  await setPendingVerification(pending.email, pending.purpose, true);
   redirect(verificationPath(pending.purpose, "message=resent"));
 }
 
@@ -307,7 +334,7 @@ export async function requestPasswordReset(formData: FormData) {
     redirect("/forgot-password?error=request_failed");
   }
 
-  await setPendingVerification(email, "recovery");
+  await setPendingVerification(email, "recovery", true);
   redirect(verificationPath("recovery", "message=sent"));
 }
 
