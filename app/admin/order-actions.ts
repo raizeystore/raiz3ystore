@@ -14,7 +14,7 @@ export async function progressOrder(formData: FormData) {
   const note = String(formData.get("note") ?? "").trim().slice(0, 500);
 
   if (!UUID_RE.test(orderId) || (nextStatus !== "processing" && nextStatus !== "completed")) {
-    redirect("/admin?error=invalid_order_transition");
+    redirect("/admin/orders?error=invalid_order_transition");
   }
 
   const admin = createAdminClient();
@@ -26,10 +26,11 @@ export async function progressOrder(formData: FormData) {
   });
 
   const result = data?.[0];
-  if (error || !result?.order_number) redirect("/admin?error=order_progress_failed");
+  if (error || !result?.order_number) redirect("/admin/orders?error=order_progress_failed");
 
   revalidatePath("/admin");
+  revalidatePath("/admin/orders");
   revalidatePath("/orders");
   revalidatePath(`/orders/${result.order_number}`);
-  redirect(`/admin?message=order_${nextStatus}`);
+  redirect(`/admin/orders?message=order_${nextStatus}`);
 }

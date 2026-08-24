@@ -19,7 +19,11 @@ function number(formData: FormData, key: string) {
 
 function refreshAdmin() {
   revalidatePath("/admin");
+  revalidatePath("/admin/catalog");
   revalidatePath("/admin/products");
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/finance");
   revalidatePath("/games");
   revalidatePath("/");
 }
@@ -30,14 +34,14 @@ export async function createGame(formData: FormData) {
   const slug = text(formData, "slug", 100).toLowerCase();
   const description = text(formData, "description", 1000);
 
-  if (name.length < 2 || !SLUG_RE.test(slug)) redirect("/admin?error=invalid_game");
+  if (name.length < 2 || !SLUG_RE.test(slug)) redirect("/admin/catalog?error=invalid_game");
 
   const admin = createAdminClient();
   const { error } = await admin.from("games").insert({ name, slug, description: description || null, status: "active" });
-  if (error) redirect("/admin?error=game_create_failed");
+  if (error) redirect("/admin/catalog?error=game_create_failed");
 
   refreshAdmin();
-  redirect("/admin?message=game_created");
+  redirect("/admin/catalog?message=game_created");
 }
 
 export async function createProduct(formData: FormData) {
@@ -52,12 +56,12 @@ export async function createProduct(formData: FormData) {
   const useUsdAutoPricing = currency === "USD";
 
   if (!UUID_RE.test(gameId) || name.length < 2 || !SLUG_RE.test(slug) || !Number.isFinite(price) || price < 0) {
-    redirect("/admin?error=invalid_product");
+    redirect("/admin/catalog?error=invalid_product");
   }
 
   const admin = createAdminClient();
   const { data: game } = await admin.from("games").select("id").eq("id", gameId).maybeSingle();
-  if (!game) redirect("/admin?error=game_not_found");
+  if (!game) redirect("/admin/catalog?error=game_not_found");
 
   const { error } = await admin.from("products").insert({
     game_id: gameId,
@@ -74,12 +78,12 @@ export async function createProduct(formData: FormData) {
 
   if (error) {
     const code = error.message.includes("exchange_rate_not_configured") ? "exchange_rate_required" : "product_create_failed";
-    redirect(`/admin?error=${code}`);
+    redirect(`/admin/catalog?error=${code}`);
   }
 
   refreshAdmin();
   revalidatePath(`/products/${slug}`);
-  redirect("/admin?message=product_created");
+  redirect("/admin/catalog?message=product_created");
 }
 
 export async function createPaymentMethod(formData: FormData) {
@@ -91,7 +95,7 @@ export async function createPaymentMethod(formData: FormData) {
   const instructions = text(formData, "paymentInstructions", 1000);
 
   if (name.length < 2 || !CODE_RE.test(code) || !accountIdentifier) {
-    redirect("/admin?error=invalid_payment_method");
+    redirect("/admin/settings?error=invalid_payment_method");
   }
 
   const admin = createAdminClient();
@@ -104,10 +108,10 @@ export async function createPaymentMethod(formData: FormData) {
     status: "active",
   });
 
-  if (error) redirect("/admin?error=payment_method_create_failed");
-  revalidatePath("/admin");
+  if (error) redirect("/admin/settings?error=payment_method_create_failed");
+  refreshAdmin();
   revalidatePath("/checkout/[slug]", "page");
-  redirect("/admin?message=payment_method_created");
+  redirect("/admin/settings?message=payment_method_created");
 }
 
 export async function updateStoreSettings(formData: FormData) {
@@ -116,7 +120,7 @@ export async function updateStoreSettings(formData: FormData) {
   const profitMarginPercent = number(formData, "profitMarginPercent");
 
   if (!Number.isFinite(usdToSdgRate) || usdToSdgRate < 0 || !Number.isFinite(profitMarginPercent) || profitMarginPercent < 0 || profitMarginPercent > 100) {
-    redirect("/admin?error=invalid_settings");
+    redirect("/admin/settings?error=invalid_settings");
   }
 
   const admin = createAdminClient();
@@ -128,12 +132,12 @@ export async function updateStoreSettings(formData: FormData) {
     updated_by: userId,
     updated_at: new Date().toISOString(),
   });
-  if (error) redirect("/admin?error=settings_update_failed");
+  if (error) redirect("/admin/settings?error=settings_update_failed");
 
   refreshAdmin();
   revalidatePath("/products/[slug]", "page");
   revalidatePath("/checkout/[slug]", "page");
-  redirect("/admin?message=settings_updated");
+  redirect("/admin/settings?message=settings_updated");
 }
 
 export async function reviewPayment(formData: FormData) {
@@ -142,7 +146,7 @@ export async function reviewPayment(formData: FormData) {
   const decision = text(formData, "decision", 16);
   const reason = text(formData, "reason", 500);
 
-  if (!UUID_RE.test(paymentId) || !["confirm", "reject"].includes(decision)) redirect("/admin?error=invalid_review");
+  if (!UUID_RE.test(paymentId) || !["confirm", "reject"].includes(decision)) redirect("/admin/orders?error=invalid_review");
 
   const admin = createAdminClient();
   const { data, error } = await admin.rpc("admin_review_payment", {
@@ -153,10 +157,10 @@ export async function reviewPayment(formData: FormData) {
   });
 
   const result = data?.[0];
-  if (error || !result?.order_number) redirect("/admin?error=review_failed");
+  if (error || !result?.order_number) redirect("/admin/orders?error=review_failed");
 
-  revalidatePath("/admin");
+  refreshAdmin();
   revalidatePath("/orders");
   revalidatePath(`/orders/${result.order_number}`);
-  redirect(`/admin?message=payment_${decision === "confirm" ? "confirmed" : "rejected"}`);
+  redirect(`/admin/orders?message=payment_${decision === "confirm" ? "confirmed" : "rejected"}`);
 }
