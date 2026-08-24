@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CircleCheck, Mail, Settings, UserRound } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
 import { updateProfile } from "@/app/account/actions";
 import { BrandLogo } from "@/src/components/brand-logo";
-import { MailIcon, ShieldCheckIcon, UserIcon } from "@/src/components/auth/auth-icons";
+import { IconBox } from "@/src/components/ui/icon-box";
 import { createClient } from "@/src/lib/supabase/server";
 
 export default async function AccountPage({
@@ -72,17 +73,17 @@ export default async function AccountPage({
 
           <div className="info-grid">
             <article className="info-card">
-              <div className="icon-box" aria-hidden="true"><MailIcon /></div>
+              <IconBox icon={Mail} />
               <h3>البريد الإلكتروني</h3>
               <p dir="ltr" style={{ overflowWrap: "anywhere" }}>{user.email ?? "—"}</p>
             </article>
             <article className="info-card">
-              <div className="icon-box" aria-hidden="true"><UserIcon /></div>
+              <IconBox icon={UserRound} />
               <h3>نوع الحساب</h3>
               <p>{roleLabel}</p>
             </article>
             <article className="info-card">
-              <div className="icon-box" aria-hidden="true"><ShieldCheckIcon /></div>
+              <IconBox icon={CircleCheck} tone="success" />
               <h3>حالة الحساب</h3>
               <p>نشط ومحمي</p>
             </article>
@@ -106,7 +107,7 @@ export default async function AccountPage({
               <h2>أمان الحساب</h2>
               <p>تغيير البريد أو كلمة المرور محمي بكود تحقق من 6 أرقام. افتح مركز الأمان لإدارة بيانات الدخول الحساسة.</p>
             </div>
-            <Link className="btn btn-primary" href="/account/security">فتح مركز الأمان</Link>
+            <Link className="btn btn-primary" href="/account/security"><Settings size={18} strokeWidth={2} aria-hidden="true" />فتح مركز الأمان</Link>
           </div>
 
           <div className="cta-band" style={{ marginTop: 24 }}>
