@@ -21,7 +21,7 @@ export function StoreHeader() {
           <Link className="store-icon-link" href="/orders" aria-label="طلباتي">
             <ShoppingBag aria-hidden="true" size={19} strokeWidth={2} />
           </Link>
-          <Link className="btn btn-primary store-login-link" href="/login">
+          <Link className="btn btn-primary store-login-link" href="/login" aria-label="دخول">
             <UserRound aria-hidden="true" size={18} strokeWidth={2} />
             <span>دخول</span>
           </Link>
