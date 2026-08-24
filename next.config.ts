@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
       { source: "/register", headers: noStoreHeader },
       { source: "/complete-profile", headers: noStoreHeader },
       { source: "/forgot-password", headers: noStoreHeader },
+      { source: "/verify-code", headers: noStoreHeader },
       { source: "/reset-password", headers: noStoreHeader },
     ];
   },
