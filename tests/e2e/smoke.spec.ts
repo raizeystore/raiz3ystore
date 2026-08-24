@@ -118,7 +118,7 @@ test("signup verification screen accepts exactly six numeric digits", async ({ p
 
   await page.goto("/verify-code");
   await expect(page.getByRole("heading", { name: /أكد بريدك/ })).toBeVisible();
-  const code = page.getByLabel("رمز التحقق");
+  const code = page.getByRole("textbox", { name: "رمز التحقق", exact: true });
   await expect(code).toHaveAttribute("inputmode", "numeric");
   await expect(code).toHaveAttribute("maxlength", "6");
   await expect(code).toHaveAttribute("autocomplete", "one-time-code");
