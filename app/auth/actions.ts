@@ -1,14 +1,21 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { PRIVACY_VERSION, TERMS_VERSION } from "@/src/lib/auth/policies";
 import { createClient } from "@/src/lib/supabase/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const OTP_RE = /^\d{6}$/;
 const SAFE_NEXT_RE = /^\/(?!\/)/;
+const PENDING_EMAIL_COOKIE = "raizey_pending_email";
+const PENDING_PURPOSE_COOKIE = "raizey_pending_purpose";
+const PENDING_MAX_AGE = 15 * 60;
+
+type VerificationPurpose = "signup" | "recovery";
 
 function text(formData: FormData, key: string, max = 500) {
   return String(formData.get(key) ?? "").trim().slice(0, max);
@@ -36,6 +43,45 @@ function isStrongPassword(password: string) {
 function safeNext(value: string | null, fallback = "/account") {
   if (!value || !SAFE_NEXT_RE.test(value)) return fallback;
   return value;
+}
+
+function isVerificationPurpose(value: string | undefined): value is VerificationPurpose {
+  return value === "signup" || value === "recovery";
+}
+
+function verificationPath(purpose: VerificationPurpose, query = "") {
+  return `/verify-code?purpose=${purpose}${query ? `&${query}` : ""}`;
+}
+
+async function setPendingVerification(email: string, purpose: VerificationPurpose) {
+  const cookieStore = await cookies();
+  const secure = process.env.NODE_ENV === "production";
+  const options = {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure,
+    path: "/",
+    maxAge: PENDING_MAX_AGE,
+  };
+  cookieStore.set(PENDING_EMAIL_COOKIE, email, options);
+  cookieStore.set(PENDING_PURPOSE_COOKIE, purpose, options);
+}
+
+async function readPendingVerification() {
+  const cookieStore = await cookies();
+  const email = cookieStore.get(PENDING_EMAIL_COOKIE)?.value?.toLowerCase();
+  const purposeValue = cookieStore.get(PENDING_PURPOSE_COOKIE)?.value;
+  const purpose = isVerificationPurpose(purposeValue) ? purposeValue : null;
+  if (!email || !EMAIL_RE.test(email) || !purpose) return null;
+  return { email, purpose };
+}
+
+async function clearPendingVerification() {
+  const cookieStore = await cookies();
+  const secure = process.env.NODE_ENV === "production";
+  const options = { httpOnly: true, sameSite: "lax" as const, secure, path: "/", maxAge: 0 };
+  cookieStore.set(PENDING_EMAIL_COOKIE, "", options);
+  cookieStore.set(PENDING_PURPOSE_COOKIE, "", options);
 }
 
 async function getRequestOrigin() {
@@ -84,7 +130,10 @@ export async function login(formData: FormData) {
 
   if (error) {
     const code = authErrorCode(error);
-    if (code === "email_not_confirmed") redirect("/login?error=email_not_confirmed");
+    if (code === "email_not_confirmed") {
+      await setPendingVerification(email, "signup");
+      redirect(verificationPath("signup", "message=confirmation_required"));
+    }
     if (code === "invalid_credentials") redirect("/login?error=invalid_credentials");
     redirect("/login?error=auth_failed");
   }
@@ -123,7 +172,6 @@ export async function signup(formData: FormData) {
   if (!isStrongPassword(password)) redirect("/register?error=weak_password");
   if (!privacyAccepted || !termsAccepted) redirect("/register?error=consent_required");
 
-  const origin = await getRequestOrigin();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -137,7 +185,6 @@ export async function signup(formData: FormData) {
         privacy_version: PRIVACY_VERSION,
         terms_version: TERMS_VERSION,
       },
-      ...(origin ? { emailRedirectTo: `${origin}/auth/confirm?next=/account` } : {}),
     },
   });
 
@@ -149,7 +196,58 @@ export async function signup(formData: FormData) {
 
   revalidatePath("/", "layout");
   if (data.session) redirect("/account?message=welcome");
-  redirect("/login?message=check_email");
+
+  await setPendingVerification(email, "signup");
+  redirect(verificationPath("signup", "message=sent"));
+}
+
+export async function verifyEmailCode(formData: FormData) {
+  const code = text(formData, "code", 6).replace(/\D/g, "");
+  const pending = await readPendingVerification();
+  if (!pending) redirect("/login?error=verification_expired");
+  if (!OTP_RE.test(code)) redirect(verificationPath(pending.purpose, "error=invalid_code"));
+
+  const supabase = await createClient();
+  const otpType: EmailOtpType = pending.purpose;
+  const { error } = await supabase.auth.verifyOtp({
+    email: pending.email,
+    token: code,
+    type: otpType,
+  });
+
+  if (error) {
+    const errorCode = authErrorCode(error);
+    const reason = errorCode === "otp_expired" || errorCode === "otp_disabled" ? "expired_code" : "invalid_code";
+    redirect(verificationPath(pending.purpose, `error=${reason}`));
+  }
+
+  await clearPendingVerification();
+  revalidatePath("/", "layout");
+
+  if (pending.purpose === "recovery") {
+    redirect("/reset-password?message=code_verified");
+  }
+
+  redirect("/account?message=email_verified");
+}
+
+export async function resendEmailCode() {
+  const pending = await readPendingVerification();
+  if (!pending) redirect("/login?error=verification_expired");
+
+  const supabase = await createClient();
+  const result = pending.purpose === "signup"
+    ? await supabase.auth.resend({ type: "signup", email: pending.email })
+    : await supabase.auth.resetPasswordForEmail(pending.email);
+
+  if (result.error) {
+    const code = authErrorCode(result.error);
+    const reason = code === "over_email_send_rate_limit" ? "rate_limit" : "resend_failed";
+    redirect(verificationPath(pending.purpose, `error=${reason}`));
+  }
+
+  await setPendingVerification(pending.email, pending.purpose);
+  redirect(verificationPath(pending.purpose, "message=resent"));
 }
 
 export async function signInWithGoogle(formData: FormData) {
@@ -200,16 +298,17 @@ export async function requestPasswordReset(formData: FormData) {
   const email = text(formData, "email", 254).toLowerCase();
   if (!EMAIL_RE.test(email)) redirect("/forgot-password?error=invalid_email");
 
-  const origin = await getRequestOrigin();
-  if (!origin) redirect("/forgot-password?error=request_failed");
-
   const supabase = await createClient();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/confirm?next=/reset-password`,
-  });
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
 
-  if (error) redirect("/forgot-password?error=request_failed");
-  redirect("/forgot-password?message=check_email");
+  if (error) {
+    const code = authErrorCode(error);
+    if (code === "over_email_send_rate_limit") redirect("/forgot-password?error=rate_limit");
+    redirect("/forgot-password?error=request_failed");
+  }
+
+  await setPendingVerification(email, "recovery");
+  redirect(verificationPath("recovery", "message=sent"));
 }
 
 export async function updatePassword(formData: FormData) {
