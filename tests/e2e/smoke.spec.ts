@@ -11,19 +11,16 @@ test("home page renders the mobile-first storefront entry points", async ({ page
 test("login page matches the premium gaming sign-in experience", async ({ page }) => {
   await page.goto("/login");
 
-  // Hero: full brand lockup, welcome heading and the three approved benefits.
   await expect(page.getByRole("img", { name: "RAIZEY STORE" })).toBeVisible();
   await expect(page.getByRole("heading", { name: /مرحباً بعودتك/ })).toBeVisible();
   await expect(page.getByText("دخول آمن", { exact: true })).toBeVisible();
   await expect(page.getByText("تتبع طلباتك", { exact: true })).toBeVisible();
   await expect(page.getByText("شحن فوري", { exact: true })).toBeVisible();
 
-  // Exactly one sign-in card, one heading and one security footnote.
   await expect(page.locator(".auth-premium-card")).toHaveCount(1);
   await expect(page.getByRole("heading", { name: "تسجيل الدخول", level: 2 })).toHaveCount(1);
   await expect(page.locator(".auth-security-note")).toHaveCount(1);
 
-  // Credentials + visibility toggle.
   await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
   const password = page.getByLabel("كلمة المرور", { exact: true });
   await expect(password).toHaveAttribute("type", "password");
@@ -34,11 +31,7 @@ test("login page matches the premium gaming sign-in experience", async ({ page }
   await page.getByRole("button", { name: "إخفاء كلمة المرور" }).click();
   await expect(password).toHaveAttribute("type", "password");
 
-  // Calls to action.
-  await expect(page.getByRole("link", { name: "نسيت كلمة المرور؟" })).toHaveAttribute(
-    "href",
-    "/forgot-password"
-  );
+  await expect(page.getByRole("link", { name: "نسيت كلمة المرور؟" })).toHaveAttribute("href", "/forgot-password");
   await expect(page.getByRole("button", { name: "تسجيل الدخول" })).toBeVisible();
   await expect(page.getByRole("link", { name: "إنشاء حساب جديد" })).toHaveAttribute("href", "/register");
   await expect(page.getByRole("button", { name: "المتابعة عبر Google" })).toBeVisible();
@@ -77,8 +70,6 @@ test("WhatsApp selector defaults to Sudan and switches country calling code", as
   await country.selectOption("EG");
   await expect(country).toHaveValue("EG");
   await expect(page.getByText("+20", { exact: true })).toBeVisible();
-
-  // The number input must stay LTR even though the page is RTL.
   await expect(page.getByLabel("رقم واتساب")).toHaveAttribute("dir", "ltr");
 });
 
@@ -94,9 +85,67 @@ test("register page has no horizontal overflow on small screens", async ({ page 
 
 test("register password meter reacts without submitting real auth requests", async ({ page }) => {
   await page.goto("/register");
-  // Strong, policy-valid sample: avoids the intentionally blocked common-password patterns.
   await page.getByLabel("كلمة المرور", { exact: true }).fill("FalconRiver9!X");
   await expect(page.getByText("قوية جدًا")).toBeVisible();
+});
+
+test("forgot password requests a six-digit code instead of a reset link", async ({ page }) => {
+  await page.goto("/forgot-password");
+
+  await expect(page.getByRole("heading", { name: /استعد حسابك/ })).toBeVisible();
+  await expect(page.getByText(/لن نرسل رابطًا/)).toBeVisible();
+  await expect(page.getByLabel("البريد الإلكتروني")).toBeVisible();
+  await expect(page.getByRole("button", { name: "إرسال رمز التحقق" })).toBeVisible();
+});
+
+test("signup verification screen accepts exactly six numeric digits", async ({ page, context }) => {
+  await context.addCookies([
+    {
+      name: "raizey_pending_email",
+      value: "user@example.com",
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+    {
+      name: "raizey_pending_purpose",
+      value: "signup",
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+
+  await page.goto("/verify-code");
+  await expect(page.getByRole("heading", { name: /أكد بريدك/ })).toBeVisible();
+  const code = page.getByLabel("رمز التحقق");
+  await expect(code).toHaveAttribute("inputmode", "numeric");
+  await expect(code).toHaveAttribute("maxlength", "6");
+  await expect(code).toHaveAttribute("autocomplete", "one-time-code");
+  await expect(page.getByRole("button", { name: "إعادة إرسال الرمز" })).toBeVisible();
+});
+
+test("recovery verification screen leads with identity verification copy", async ({ page, context }) => {
+  await context.addCookies([
+    {
+      name: "raizey_pending_email",
+      value: "user@example.com",
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+    {
+      name: "raizey_pending_purpose",
+      value: "recovery",
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      sameSite: "Lax",
+    },
+  ]);
+
+  await page.goto("/verify-code");
+  await expect(page.getByRole("heading", { name: /تحقق من هويتك/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "تأكيد الرمز" })).toBeVisible();
 });
 
 test("privacy and store terms are reachable before account creation", async ({ page }) => {
@@ -109,6 +158,5 @@ test("privacy and store terms are reachable before account creation", async ({ p
 
 test("protected account route sends anonymous visitors to login", async ({ page }) => {
   await page.goto("/account");
-
   await expect(page).toHaveURL(/\/login/);
 });
