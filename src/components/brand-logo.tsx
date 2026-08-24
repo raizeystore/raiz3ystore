@@ -74,6 +74,8 @@ export function BrandLogo({
         direction: "ltr",
         lineHeight: 0,
         maxWidth: "100%",
+        flexShrink: 0,
+        filter: "none",
         ...style,
       }}
     >
