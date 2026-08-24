@@ -1,55 +1,67 @@
 import Link from "next/link";
 import { requestPasswordReset } from "@/app/auth/actions";
-import { BrandLogo } from "@/src/components/brand-logo";
+import { AuthScene } from "@/src/components/auth/auth-scene";
+import { AlertIcon, MailIcon } from "@/src/components/auth/auth-icons";
+
+const errorMessages: Record<string, string> = {
+  invalid_email: "أدخل بريدًا إلكترونيًا صالحًا للمتابعة.",
+  rate_limit: "تم إرسال عدد كبير من الطلبات. انتظر قليلًا ثم حاول مرة أخرى.",
+  request_failed: "تعذر إرسال رمز الاسترجاع الآن. حاول مرة أخرى بعد قليل.",
+};
 
 export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const params = await searchParams;
+  const errorMessage = params.error ? errorMessages[params.error] ?? errorMessages.request_failed : null;
 
   return (
-    <main className="auth-shell auth-shell--single">
-      <section className="auth-form-panel" aria-labelledby="forgot-title">
-        <div className="auth-card">
-          <div className="auth-card-header">
-            <Link href="/" aria-label="العودة إلى الصفحة الرئيسية">
-              <BrandLogo compact />
-            </Link>
-            <span className="eyebrow"><span className="eyebrow-dot" />استرجاع آمن للحساب</span>
-            <h1 id="forgot-title">نسيت كلمة المرور؟</h1>
-            <p>أدخل بريدك الإلكتروني وسنرسل لك رابطًا آمنًا لإعادة تعيين كلمة المرور.</p>
-          </div>
+    <AuthScene
+      title={<>استعد <span>حسابك</span></>}
+      subtitle="أدخل بريدك الإلكتروني وسنرسل لك رمز أمان من 6 أرقام لإعادة تعيين كلمة المرور."
+    >
+      <section className="auth-premium-card auth-premium-card--login" aria-labelledby="forgot-title">
+        <div className="auth-card-heading">
+          <span className="auth-feature-icon" aria-hidden="true"><MailIcon /></span>
+          <h2 id="forgot-title">نسيت كلمة المرور؟</h2>
+          <p>لن نرسل رابطًا. ستصلك رسالة تحتوي على رمز تحقق مكوّن من 6 أرقام.</p>
+        </div>
 
-          {params.message === "check_email" && (
-            <div className="notice" role="status">إذا كان البريد مسجلًا، ستصلك رسالة الاسترجاع خلال لحظات.</div>
-          )}
-          {params.error && (
-            <div className="notice notice-error" role="alert">تعذر إرسال طلب الاسترجاع الآن. حاول مرة أخرى.</div>
-          )}
+        {errorMessage ? (
+          <p className="notice notice-error" role="alert">
+            <span className="notice-icon" aria-hidden="true"><AlertIcon /></span>
+            <span>{errorMessage}</span>
+          </p>
+        ) : null}
 
-          <form className="auth-form" action={requestPasswordReset}>
-            <label className="field">
-              <span className="field-label">البريد الإلكتروني</span>
+        <form className="auth-form-stack" action={requestPasswordReset}>
+          <div className="field">
+            <label className="field-label" htmlFor="recovery-email">البريد الإلكتروني</label>
+            <div className="auth-input-shell">
+              <span className="auth-input-icon" aria-hidden="true"><MailIcon /></span>
               <input
+                id="recovery-email"
                 name="email"
                 type="email"
                 required
                 autoComplete="email"
                 inputMode="email"
+                dir="ltr"
                 placeholder="name@example.com"
               />
-            </label>
+            </div>
+          </div>
 
-            <button className="btn btn-primary btn-full" type="submit">إرسال رابط الاسترجاع</button>
-          </form>
+          <button className="btn btn-primary btn-full auth-submit" type="submit">إرسال رمز التحقق</button>
+        </form>
 
-          <p className="auth-footnote">
-            تذكرت كلمة المرور؟ <Link className="text-link" href="/login">العودة لتسجيل الدخول</Link>
-          </p>
-        </div>
+        <p className="auth-switch">
+          <span>تذكرت كلمة المرور؟</span>
+          <Link className="text-link" href="/login">العودة لتسجيل الدخول</Link>
+        </p>
       </section>
-    </main>
+    </AuthScene>
   );
 }
