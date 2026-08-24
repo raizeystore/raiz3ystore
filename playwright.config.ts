@@ -23,7 +23,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run start",
+    command: "SENTRY_DSN='' NEXT_PUBLIC_SENTRY_DSN='' npm run start -- -H 127.0.0.1",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

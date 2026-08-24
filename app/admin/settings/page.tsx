@@ -1,4 +1,5 @@
-import { CircleDollarSign, Landmark, Settings2 } from "lucide-react";
+import Link from "next/link";
+import { CircleDollarSign, Images, Landmark, Settings2 } from "lucide-react";
 import { requireAdmin } from "@/src/lib/auth/require-admin";
 import { createAdminClient } from "@/src/lib/supabase/admin";
 import { createPaymentMethod, updateStoreSettings } from "@/app/admin/actions";
@@ -45,6 +46,11 @@ export default async function AdminSettingsPage({
             <p>إعدادات التسعير ووسائل الدفع الموجودة حاليًا في النظام مع فصلها عن الصفحة الرئيسية للإدارة</p>
           </div>
         </div>
+
+        <nav className="settings-section-nav" aria-label="أقسام الإعدادات">
+          <Link href="/admin/settings"><Settings2 aria-hidden="true" size={17} /> عام وتسعير</Link>
+          <Link href="/admin/settings/banners"><Images aria-hidden="true" size={17} /> البنرات</Link>
+        </nav>
 
         {success && <div className="notice" role="status">{success}</div>}
         {query.error && <div className="notice notice-error" role="alert">تعذر حفظ الإعدادات تحقق من القيم وحاول مرة أخرى</div>}

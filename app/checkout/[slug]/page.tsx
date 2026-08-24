@@ -49,6 +49,7 @@ export default async function CheckoutPage({
       .select("id, game_id, name, slug, description, price, currency, pricing_mode, player_id_required, player_name_required, player_id_label, player_name_label")
       .eq("slug", slug)
       .eq("status", "active")
+      .is("subcategory_id", null)
       .maybeSingle(),
     supabase.from("profiles").select("display_name, is_active").eq("id", userId).single(),
     supabase
@@ -58,7 +59,7 @@ export default async function CheckoutPage({
       .order("sort_order", { ascending: true }),
   ]);
 
-  if (!product) notFound();
+  if (!product?.game_id) notFound();
   if (!profile?.is_active) redirect("/account?error=account_inactive");
 
   const { data: game } = await supabase.from("games").select("name, slug").eq("id", product.game_id).maybeSingle();

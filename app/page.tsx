@@ -1,128 +1,186 @@
+import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Gamepad2, LifeBuoy, Send, UserRound, Zap } from "lucide-react";
-import { BrandLogo } from "@/src/components/brand-logo";
-import { IconBox } from "@/src/components/ui/icon-box";
+import {
+  BadgeCheck,
+  Boxes,
+  ChevronLeft,
+  ClipboardCheck,
+  Gauge,
+  Headphones,
+  Layers3,
+  MousePointerClick,
+  ShieldCheck,
+} from "lucide-react";
+import { BannerSlider } from "@/src/components/storefront/banner-slider";
+import { StoreFooter } from "@/src/components/storefront/store-footer";
+import { StoreHeader } from "@/src/components/storefront/store-header";
+import { getStorefrontHome } from "@/src/lib/catalog/storefront";
 
-const games = [
-  { short: "PUBG", name: "PUBG MOBILE", subtitle: "شحن شدات بسرعة وأمان" },
-  { short: "FF", name: "FREE FIRE", subtitle: "جواهر وباقات بأسعار واضحة" },
-  { short: "COD", name: "CALL OF DUTY", subtitle: "نقاط CP وخيارات شحن مرنة" },
-  { short: "EF", name: "eFOOTBALL", subtitle: "منتجات وخدمات للاعبين" },
-];
+export const revalidate = 60;
 
 const benefits = [
-  { icon: Zap, title: "تنفيذ سريع", text: "تجربة طلب واضحة ومتابعة للحالة من لحظة الإرسال وحتى اكتمال التنفيذ." },
-  { icon: BadgeCheck, title: "أسعار موثوقة", text: "التسعير يُدار من النظام ولا يعتمد على قيم يرسلها المتصفح أو العميل." },
-  { icon: LifeBuoy, title: "دعم عند الحاجة", text: "قنوات دعم واضحة للطلبات والاستفسارات ومراجعة التحويلات يدويًا عند الحاجة." },
+  {
+    icon: ShieldCheck,
+    title: "تسعير من المصدر",
+    text: "الأسعار والخيارات تُقرأ من قاعدة البيانات، ويُعاد التحقق منها خادميًا قبل أي عملية مالية.",
+  },
+  {
+    icon: Gauge,
+    title: "مصمم للموبايل",
+    text: "تدرج واضح من القسم إلى الباقة ثم الخيار، بدون قوائم مختلطة أو خطوات مبهمة.",
+  },
+  {
+    icon: Headphones,
+    title: "دعم عند الحاجة",
+    text: "حالة الطلب واضحة، والحالات غير المؤكدة تنتقل للمراجعة بدل قبول دفع غير موثوق.",
+  },
 ];
 
 const steps = [
-  { number: "1", icon: Gamepad2, title: "اختر لعبتك", text: "ادخل على اللعبة أو الخدمة وحدد العرض المناسب لك." },
-  { number: "2", icon: UserRound, title: "أدخل بياناتك", text: "أدخل معرف اللاعب والبيانات المطلوبة لكل منتج بصورة واضحة." },
-  { number: "3", icon: Send, title: "أرسل الطلب", text: "اختر طريقة الدفع وأكمل الطلب ثم تابع حالته من حسابك." },
+  {
+    icon: Layers3,
+    title: "اختر القسم والباقة",
+    text: "ابدأ بالقسم، ثم افتح الباقة المطلوبة بدون خلطها مع المنتجات النهائية.",
+  },
+  {
+    icon: MousePointerClick,
+    title: "حدد الخيار وبياناتك",
+    text: "اختر الحجم أو الخدمة وأدخل فقط البيانات التي يحتاجها هذا المنتج.",
+  },
+  {
+    icon: ClipboardCheck,
+    title: "راجع وأكمل بأمان",
+    text: "راجع السعر والبيانات في Checkout مستقل قبل إنشاء الطلب أو بدء الدفع.",
+  },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { banners, categories, popularProducts } = await getStorefrontHome();
+
   return (
     <main className="site-shell">
-      <header className="site-header">
-        <div className="container navbar">
-          <Link href="/" aria-label="العودة إلى الرئيسية">
-            <BrandLogo />
-          </Link>
+      <StoreHeader />
+      <BannerSlider banners={banners} />
 
-          <nav className="nav-links" aria-label="التنقل الرئيسي">
-            <Link href="/games">الألعاب</Link>
-            <Link href="#why-us">لماذا RAIZEY</Link>
-            <Link href="#how-it-works">كيف تطلب</Link>
-          </nav>
-
-          <div className="nav-actions">
-            <Link className="btn btn-secondary" href="/games">استعرض الألعاب</Link>
-            <Link className="btn btn-primary" href="/login">دخول</Link>
-          </div>
-        </div>
-      </header>
-
-      <section className="hero">
-        <div className="container hero-grid">
-          <div>
-            <span className="eyebrow"><span className="eyebrow-dot" />متجر شحن ألعاب رقمي</span>
-            <h1>قوة اللعب <span>في إيدك.</span></h1>
-            <p className="hero-copy">
-              اشحن ألعابك وخدماتك الرقمية من مكان واحد، بتجربة سريعة وواضحة مصممة للموبايل أولًا وبمعايير أمان قوية.
-            </p>
-            <div className="hero-actions">
-              <Link className="btn btn-primary" href="/games">ابدأ الشحن الآن</Link>
-              <Link className="btn btn-secondary" href="/login">تسجيل الدخول</Link>
-            </div>
-            <div className="trust-row" aria-label="مزايا المتجر">
-              <span className="trust-chip">حماية للحساب</span>
-              <span className="trust-chip">متابعة حالة الطلب</span>
-              <span className="trust-chip">دعم عند الحاجة</span>
-            </div>
-          </div>
-
-          <div className="hero-panel" aria-label="معاينة عروض المتجر">
-            <article className="featured-card featured-card--main">
-              <span className="card-kicker">عرض مميز</span>
-              <h3>PUBG MOBILE</h3>
-              <p>اختيارات شحن منظمة مع بيانات لاعب واضحة قبل تنفيذ الطلب.</p>
-              <div className="price-line">
-                <div><small>ابتداءً من</small><br /><strong>—</strong></div>
-                <Link className="btn btn-primary" href="/games">استعرض</Link>
-              </div>
-            </article>
-
-            <article className="featured-card featured-card--float">
-              <span className="card-kicker">طلبك تحت السيطرة</span>
-              <h3>متابعة واضحة للحالة</h3>
-              <p>من الدفع والمراجعة إلى التنفيذ والاكتمال.</p>
-            </article>
-          </div>
+      <section className="trust-strip" aria-label="ضمانات تجربة RAIZEY">
+        <div className="container trust-strip-grid">
+          <span><BadgeCheck aria-hidden="true" size={18} /> خيارات من الكتالوج الفعلي</span>
+          <span><ShieldCheck aria-hidden="true" size={18} /> تحقق خادمي من السعر</span>
+          <span><Gauge aria-hidden="true" size={18} /> تجربة سريعة وواضحة</span>
         </div>
       </section>
 
-      <section className="section section-muted" id="games">
+      {popularProducts.length > 0 && (
+        <section className="section" id="most-purchased">
+          <div className="container">
+            <div className="section-heading">
+              <div>
+                <span className="eyebrow">من الطلبات المكتملة</span>
+                <h2>الأكثر شراءً</h2>
+              </div>
+              <p>ترتيب حقيقي محسوب من كميات الطلبات المكتملة فقط، بدون اختيار يدوي أو منتجات عشوائية.</p>
+            </div>
+            <div className="product-card-grid">
+              {popularProducts.map((product, index) => (
+                <Link className="store-product-card" href={`/products/${product.slug}`} key={product.id}>
+                  <div className="store-product-media">
+                    {product.imageUrl ? (
+                      <Image src={product.imageUrl} alt="" fill sizes="(max-width: 640px) 50vw, 280px" />
+                    ) : (
+                      <Boxes aria-hidden="true" size={36} />
+                    )}
+                    <span>#{index + 1}</span>
+                  </div>
+                  <small>{product.subcategoryName || "RAIZEY STORE"}</small>
+                  <h3>{product.name}</h3>
+                  <span className="store-card-action">اختيار المنتج <ChevronLeft aria-hidden="true" size={17} /></span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="section section-muted catalog-home" id="catalog">
         <div className="container">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">الألعاب والخدمات</span>
-              <h2>الأكثر طلبًا</h2>
+              <span className="eyebrow"><span className="eyebrow-dot" /> كتالوج RAIZEY</span>
+              <h2>ابدأ من القسم الصحيح</h2>
             </div>
-            <p>معاينة لأشهر الفئات. الكتالوج الفعلي والأسعار الحقيقية موجودة في صفحة الألعاب.</p>
+            <p>الأقسام حاويات واضحة، وتحت كل قسم تظهر الباقات المرتبطة به فقط.</p>
           </div>
 
-          <div className="games-grid">
-            {games.map((game) => (
-              <Link className="game-card" data-short={game.short} href="/games" key={game.name}>
-                <span>RAIZEY GAME TOP-UP</span>
-                <h3>{game.name}</h3>
-                <p>{game.subtitle}</p>
-              </Link>
-            ))}
-          </div>
+          {categories.length === 0 ? (
+            <div className="store-empty-state">
+              <Boxes aria-hidden="true" size={32} />
+              <div>
+                <h3>الكتالوج قيد التجهيز</h3>
+                <p>لا توجد أقسام منشورة حاليًا. ستظهر الأقسام والباقات تلقائيًا بعد نشرها من لوحة الإدارة.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="category-section-list">
+              {categories.map((category) => (
+                <section className="category-section" aria-labelledby={`category-${category.id}`} key={category.id}>
+                  <div className="category-section-head">
+                    <div>
+                      <span>SECTION</span>
+                      <h3 id={`category-${category.id}`}>{category.name}</h3>
+                      {category.description && <p>{category.description}</p>}
+                    </div>
+                    <Link className="btn btn-secondary" href={`/categories/${category.slug}`}>
+                      عرض القسم <ChevronLeft aria-hidden="true" size={17} />
+                    </Link>
+                  </div>
+
+                  {category.subcategories.length === 0 ? (
+                    <div className="category-inline-empty">لا توجد باقات منشورة داخل هذا القسم حتى الآن.</div>
+                  ) : (
+                    <div className="subcategory-grid">
+                      {category.subcategories.map((subcategory) => (
+                        <Link className="subcategory-card" href={`/catalog/${subcategory.slug}`} key={subcategory.id}>
+                          <div className="subcategory-media">
+                            {subcategory.imageUrl ? (
+                              <Image src={subcategory.imageUrl} alt="" fill sizes="(max-width: 640px) 50vw, 280px" />
+                            ) : (
+                              <Layers3 aria-hidden="true" size={32} />
+                            )}
+                          </div>
+                          <div>
+                            <span>{category.name}</span>
+                            <h4>{subcategory.name}</h4>
+                            <p>{subcategory.description || "استعرض المنتجات والخيارات المتاحة داخل هذه الباقة."}</p>
+                          </div>
+                          <ChevronLeft className="subcategory-arrow" aria-hidden="true" size={19} />
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       <section className="section" id="why-us">
         <div className="container">
           <div className="section-heading">
-            <div>
-              <span className="eyebrow">ليش تختارنا؟</span>
-              <h2>تجربة مصممة للثقة والسرعة</h2>
-            </div>
-            <p>التصميم والوظائف مبنية حول الطلب الحقيقي: أقل خطوات، أقل ارتباك، ومعلومات أوضح.</p>
+            <div><span className="eyebrow">RAIZEY STANDARD</span><h2>هدوء في الواجهة. صرامة في الخلفية.</h2></div>
+            <p>تجربة شراء بسيطة لا تعني اختصار قواعد الأمان أو الاعتماد على بيانات المتصفح.</p>
           </div>
-
           <div className="info-grid">
-            {benefits.map((item) => (
-              <article className="info-card" key={item.title}>
-                <IconBox icon={item.icon} />
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </article>
-            ))}
+            {benefits.map((benefit) => {
+              const Icon = benefit.icon;
+              return (
+                <article className="info-card" key={benefit.title}>
+                  <span className="premium-icon-box"><Icon aria-hidden="true" size={22} /></span>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.text}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -130,22 +188,16 @@ export default function HomePage() {
       <section className="section section-muted" id="how-it-works">
         <div className="container">
           <div className="section-heading">
-            <div>
-              <span className="eyebrow">كيف تطلب؟</span>
-              <h2>ثلاث خطوات واضحة</h2>
-            </div>
-            <p>الشراء حيكون بسيط حتى من شاشة موبايل صغيرة، مع تحقق واضح من البيانات قبل الإرسال.</p>
+            <div><span className="eyebrow">HOW IT WORKS</span><h2>من الاختيار إلى المراجعة</h2></div>
+            <p>كل خطوة لها غرض واحد واضح، خصوصًا على شاشة بعرض 393px.</p>
           </div>
-
           <div className="steps-grid">
-            {steps.map((step) => {
-              const StepIcon = step.icon;
+            {steps.map((step, index) => {
+              const Icon = step.icon;
               return (
-                <article className="step-card" key={step.number}>
-                  <div className="step-number" aria-hidden="true">
-                    <StepIcon size={20} strokeWidth={2} />
-                  </div>
-                  <span className="card-kicker">الخطوة {step.number}</span>
+                <article className="step-card" key={step.title}>
+                  <div className="step-number"><Icon aria-hidden="true" size={20} /></div>
+                  <span className="card-kicker">0{index + 1}</span>
                   <h3>{step.title}</h3>
                   <p>{step.text}</p>
                 </article>
@@ -156,21 +208,15 @@ export default function HomePage() {
       </section>
 
       <section className="section">
-        <div className="container cta-band">
-          <div>
-            <h2>جاهز تبدأ؟</h2>
-            <p>أنشئ حسابك وخلي طلباتك ومتابعتها في مكان واحد.</p>
+        <div className="container cta-band premium-cta">
+          <div><span className="card-kicker">YOUR NEXT TOP-UP</span><h2>جاهز تختار خدمتك؟</h2><p>ابدأ بالكتالوج، أو ادخل إلى حسابك لمتابعة طلباتك الحالية.</p></div>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" href="#catalog">تصفح الكتالوج</Link>
+            <Link className="btn btn-secondary" href="/account">فتح حسابي</Link>
           </div>
-          <Link className="btn btn-primary" href="/login">دخول أو إنشاء حساب</Link>
         </div>
       </section>
-
-      <footer className="site-footer">
-        <div className="container footer-row">
-          <BrandLogo variant="footer" />
-          <span>© 2026 RAIZEY STORE — جميع الحقوق محفوظة.</span>
-        </div>
-      </footer>
+      <StoreFooter />
     </main>
   );
 }

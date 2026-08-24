@@ -67,7 +67,7 @@ export default async function AdminProductsPage({
             {products.map((product) => (
               <article className="admin-form-card" style={{ width: "100%", maxWidth: "none" }} key={product.id}>
                 <div className="admin-panel-head">
-                  <div><h2>{product.name}</h2><p>{gameName.get(product.game_id) ?? "GAME"} · السعر الحالي {formatPrice(product.price, product.currency)}</p></div>
+                  <div><h2>{product.name}</h2><p>{product.game_id ? (gameName.get(product.game_id) ?? "GAME") : "CATALOG V2"} · السعر الحالي {formatPrice(product.price, product.currency)}</p></div>
                   <span className={`admin-status${product.status === "active" ? " is-success" : ""}`}>{product.status}</span>
                 </div>
 

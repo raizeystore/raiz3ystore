@@ -31,6 +31,15 @@ const noStoreHeader = [{ key: "Cache-Control", value: "private, no-store, max-ag
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/**",
+      },
+    ],
+  },
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

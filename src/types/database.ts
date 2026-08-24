@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
@@ -49,6 +51,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      banners: {
+        Row: {
+          button_text: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          mobile_image_url: string | null
+          sort_order: number
+          starts_at: string | null
+          status: Database["public"]["Enums"]["product_status"]
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          button_text?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          mobile_image_url?: string | null
+          sort_order?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["product_status"]
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          button_text?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          mobile_image_url?: string | null
+          sort_order?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["product_status"]
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       games: {
         Row: {
@@ -127,6 +213,7 @@ export type Database = {
       order_items: {
         Row: {
           created_at: string
+          customer_inputs: Json
           id: string
           line_total: number | null
           order_id: string
@@ -135,10 +222,15 @@ export type Database = {
           product_id: string
           product_name: string
           quantity: number
+          suboption_id: string | null
+          suboption_name: string | null
           unit_price: number
+          variant_id: string | null
+          variant_name: string | null
         }
         Insert: {
           created_at?: string
+          customer_inputs?: Json
           id?: string
           line_total?: number | null
           order_id: string
@@ -147,10 +239,15 @@ export type Database = {
           product_id: string
           product_name: string
           quantity?: number
+          suboption_id?: string | null
+          suboption_name?: string | null
           unit_price: number
+          variant_id?: string | null
+          variant_name?: string | null
         }
         Update: {
           created_at?: string
+          customer_inputs?: Json
           id?: string
           line_total?: number | null
           order_id?: string
@@ -159,7 +256,11 @@ export type Database = {
           product_id?: string
           product_name?: string
           quantity?: number
+          suboption_id?: string | null
+          suboption_name?: string | null
           unit_price?: number
+          variant_id?: string | null
+          variant_name?: string | null
         }
         Relationships: [
           {
@@ -174,6 +275,20 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_suboption_id_fkey"
+            columns: ["suboption_id"]
+            isOneToOne: false
+            referencedRelation: "product_suboptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
             referencedColumns: ["id"]
           },
         ]
@@ -441,14 +556,156 @@ export type Database = {
           },
         ]
       }
+      product_input_fields: {
+        Row: {
+          created_at: string
+          field_key: string
+          id: string
+          input_type: string
+          is_required: boolean
+          label: string
+          max_length: number | null
+          min_length: number | null
+          placeholder: string | null
+          product_id: string
+          sort_order: number
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          field_key: string
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          label: string
+          max_length?: number | null
+          min_length?: number | null
+          placeholder?: string | null
+          product_id: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          field_key?: string
+          id?: string
+          input_type?: string
+          is_required?: boolean
+          label?: string
+          max_length?: number | null
+          min_length?: number | null
+          placeholder?: string | null
+          product_id?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_input_fields_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_suboptions: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          price_usd: number
+          sort_order: number
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          price_usd: number
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          price_usd?: number
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_suboptions_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          price_usd: number
+          product_id: string
+          sku: string | null
+          sort_order: number
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          price_usd: number
+          product_id: string
+          sku?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          price_usd?: number
+          product_id?: string
+          sku?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           base_price_usd: number | null
           created_at: string
           currency: string
           description: string | null
-          game_id: string
+          game_id: string | null
           id: string
+          image_url: string | null
           name: string
           player_id_label: string
           player_id_required: boolean
@@ -461,6 +718,8 @@ export type Database = {
           slug: string
           sort_order: number
           status: Database["public"]["Enums"]["product_status"]
+          subcategory_id: string | null
+          suboptions_required: boolean
           updated_at: string
         }
         Insert: {
@@ -468,8 +727,9 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
-          game_id: string
+          game_id?: string | null
           id?: string
+          image_url?: string | null
           name: string
           player_id_label?: string
           player_id_required?: boolean
@@ -482,6 +742,8 @@ export type Database = {
           slug: string
           sort_order?: number
           status?: Database["public"]["Enums"]["product_status"]
+          subcategory_id?: string | null
+          suboptions_required?: boolean
           updated_at?: string
         }
         Update: {
@@ -489,8 +751,9 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string | null
-          game_id?: string
+          game_id?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           player_id_label?: string
           player_id_required?: boolean
@@ -503,6 +766,8 @@ export type Database = {
           slug?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["product_status"]
+          subcategory_id?: string | null
+          suboptions_required?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -511,6 +776,13 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]
@@ -548,7 +820,11 @@ export type Database = {
           id?: string
           is_active?: boolean
           phone?: string | null
+          privacy_accepted_at?: string | null
+          privacy_version?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          terms_accepted_at?: string | null
+          terms_version?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -588,11 +864,65 @@ export type Database = {
           },
         ]
       }
+      subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_popular_products_server: {
+        Args: { p_limit?: number }
+        Returns: {
+          product_id: string
+          total_quantity: number
+        }[]
+      }
       admin_progress_order: {
         Args: {
           p_admin_id: string
