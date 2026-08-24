@@ -5,16 +5,16 @@ import { BoltIcon, OrdersIcon, ShieldCheckIcon } from "@/src/components/auth/aut
 const errorMessages: Record<string, string> = {
   missing_credentials: "أدخل البريد الإلكتروني وكلمة المرور للمتابعة.",
   invalid_credentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-  email_not_confirmed: "أكد بريدك الإلكتروني أولًا ثم حاول تسجيل الدخول مرة أخرى.",
+  email_not_confirmed: "أكد بريدك الإلكتروني أولًا باستخدام رمز التحقق المرسل إليك.",
   auth_failed: "تعذر تسجيل الدخول الآن. حاول مرة أخرى بعد قليل.",
   google_failed: "تعذر إكمال تسجيل الدخول عبر Google. حاول مرة أخرى.",
-  confirmation_failed: "رابط التأكيد غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.",
+  confirmation_failed: "تعذر التحقق من البريد. اطلب رمز تحقق جديدًا وحاول مرة أخرى.",
+  verification_expired: "انتهت جلسة التحقق. ابدأ طلبًا جديدًا ليصلك رمز جديد.",
   account_inactive: "هذا الحساب غير متاح حاليًا. تواصل مع دعم المتجر.",
   session_required: "انتهت الجلسة. سجّل الدخول من جديد للمتابعة.",
 };
 
 const successMessages: Record<string, string> = {
-  check_email: "تم إنشاء الحساب. افتح بريدك الإلكتروني واضغط رابط التأكيد ثم سجّل الدخول.",
   password_updated: "تم تحديث كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.",
   login_required: "سجّل الدخول للمتابعة إلى حسابك وطلباتك.",
 };
