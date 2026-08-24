@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BadgeCheck, Gamepad2, LifeBuoy, Send, UserRound, Zap } from "lucide-react";
 import { BrandLogo } from "@/src/components/brand-logo";
+import { IconBox } from "@/src/components/ui/icon-box";
 
 const games = [
   { short: "PUBG", name: "PUBG MOBILE", subtitle: "شحن شدات بسرعة وأمان" },
@@ -9,15 +11,15 @@ const games = [
 ];
 
 const benefits = [
-  { icon: "01", title: "تنفيذ سريع", text: "تجربة طلب واضحة ومتابعة للحالة من لحظة الإرسال وحتى اكتمال التنفيذ." },
-  { icon: "02", title: "أسعار موثوقة", text: "التسعير يُدار من النظام ولا يعتمد على قيم يرسلها المتصفح أو العميل." },
-  { icon: "03", title: "دعم عند الحاجة", text: "قنوات دعم واضحة للطلبات والاستفسارات ومراجعة التحويلات يدويًا عند الحاجة." },
+  { icon: Zap, title: "تنفيذ سريع", text: "تجربة طلب واضحة ومتابعة للحالة من لحظة الإرسال وحتى اكتمال التنفيذ." },
+  { icon: BadgeCheck, title: "أسعار موثوقة", text: "التسعير يُدار من النظام ولا يعتمد على قيم يرسلها المتصفح أو العميل." },
+  { icon: LifeBuoy, title: "دعم عند الحاجة", text: "قنوات دعم واضحة للطلبات والاستفسارات ومراجعة التحويلات يدويًا عند الحاجة." },
 ];
 
 const steps = [
-  { number: "1", title: "اختر لعبتك", text: "ادخل على اللعبة أو الخدمة وحدد العرض المناسب لك." },
-  { number: "2", title: "أدخل بياناتك", text: "أدخل معرف اللاعب والبيانات المطلوبة لكل منتج بصورة واضحة." },
-  { number: "3", title: "أرسل الطلب", text: "اختر طريقة الدفع وأكمل الطلب ثم تابع حالته من حسابك." },
+  { number: "1", icon: Gamepad2, title: "اختر لعبتك", text: "ادخل على اللعبة أو الخدمة وحدد العرض المناسب لك." },
+  { number: "2", icon: UserRound, title: "أدخل بياناتك", text: "أدخل معرف اللاعب والبيانات المطلوبة لكل منتج بصورة واضحة." },
+  { number: "3", icon: Send, title: "أرسل الطلب", text: "اختر طريقة الدفع وأكمل الطلب ثم تابع حالته من حسابك." },
 ];
 
 export default function HomePage() {
@@ -116,7 +118,7 @@ export default function HomePage() {
           <div className="info-grid">
             {benefits.map((item) => (
               <article className="info-card" key={item.title}>
-                <div className="icon-box" aria-hidden="true">{item.icon}</div>
+                <IconBox icon={item.icon} />
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </article>
@@ -136,13 +138,19 @@ export default function HomePage() {
           </div>
 
           <div className="steps-grid">
-            {steps.map((step) => (
-              <article className="step-card" key={step.number}>
-                <div className="step-number" aria-hidden="true">{step.number}</div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </article>
-            ))}
+            {steps.map((step) => {
+              const StepIcon = step.icon;
+              return (
+                <article className="step-card" key={step.number}>
+                  <div className="step-number step-number--with-icon" aria-hidden="true">
+                    <StepIcon size={18} strokeWidth={2} />
+                    <span>{step.number}</span>
+                  </div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
