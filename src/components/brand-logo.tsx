@@ -1,57 +1,102 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 
+type BrandLogoVariant = "full" | "compact" | "footer";
+
 type BrandLogoProps = {
-  /** Visual scale of the lockup. */
+  /** Visual scale of the official asset. */
   size?: "sm" | "md" | "lg";
-  /** Renders the wordmark next to the glyph. */
+  /** Legacy compatibility: false renders the official compact R mark only. */
   withWordmark?: boolean;
-  /** Shared navbar/header variant. */
+  /** Legacy compatibility for constrained navbar/header spaces. */
   compact?: boolean;
+  /** Explicit official asset variant. */
+  variant?: BrandLogoVariant;
   className?: string;
   style?: CSSProperties;
+  /** Use only when the same visible RAIZEY STORE name is already adjacent. */
+  decorative?: boolean;
 };
 
+const FULL_DIMENSIONS = {
+  sm: { width: 126, height: 36 },
+  md: { width: 154, height: 44 },
+  lg: { width: 210, height: 60 },
+} as const;
+
+const COMPACT_DIMENSIONS = {
+  sm: { width: 39, height: 34 },
+  md: { width: 51, height: 44 },
+  lg: { width: 69, height: 60 },
+} as const;
+
 /**
- * Official RAIZEY STORE brand lockup.
+ * Single source of truth for the RAIZEY STORE brand across the product.
  *
- * The R mark below is vectorized from the approved user-supplied logo and is
- * intentionally kept inline so it stays sharp at every density. Every page
- * uses this single component so the brand cannot drift between auth/store UI.
+ * IMPORTANT: This component renders only the brand-owner supplied official
+ * raster assets from /public/brand. It must never redraw the R mark, recreate
+ * the wordmark with text/CSS, mirror the lockup for RTL, or substitute a
+ * Lucide/general-purpose icon.
  */
 export function BrandLogo({
   size,
   withWordmark = true,
   compact = false,
+  variant,
   className,
   style,
+  decorative = false,
 }: BrandLogoProps) {
-  const resolvedSize = size ?? (compact ? "sm" : "md");
+  const resolvedVariant: BrandLogoVariant =
+    variant ?? (compact || !withWordmark ? "compact" : "full");
+  const resolvedSize = size ?? (resolvedVariant === "footer" ? "sm" : compact ? "sm" : "md");
+  const isCompact = resolvedVariant === "compact";
+  const dimensions = isCompact ? COMPACT_DIMENSIONS[resolvedSize] : FULL_DIMENSIONS[resolvedSize];
+  const src = isCompact
+    ? "/brand/raizey-store-mark.png"
+    : "/brand/raizey-store-logo.png";
   const classes = [
     "brand-lockup",
     `brand-lockup--${resolvedSize}`,
-    compact ? "brand-lockup--compact" : null,
+    `brand-lockup--${resolvedVariant}`,
     className,
   ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <span className={classes} style={style} role="img" aria-label="RAIZEY STORE">
-      <span className="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 391 327" focusable="false" aria-hidden="true">
-          <path d="M0 0L53 72H227L238 75L246 80L256 92L261 107L259 127L252 139L246 145L238 150L228 153L165 154L301 327H391L294 201L311 184L326 159L333 138L336 115L335 95L328 67L314 42L297 24L270 8L237 0Z" />
-          <path d="M3 153L143 327H232L96 153Z" />
-        </svg>
-      </span>
-
-      {withWordmark ? (
-        <span className="brand-wordmark" aria-hidden="true">
-          <strong>RAIZEY</strong>
-          <small style={{ color: "var(--brand)" }}>STORE</small>
-        </span>
-      ) : null}
+    <span
+      className={classes}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        direction: "ltr",
+        lineHeight: 0,
+        maxWidth: "100%",
+        ...style,
+      }}
+    >
+      <Image
+        src={src}
+        alt={decorative ? "" : "RAIZEY STORE"}
+        aria-hidden={decorative ? "true" : undefined}
+        width={dimensions.width}
+        height={dimensions.height}
+        sizes={isCompact ? `${dimensions.width}px` : `(max-width: 480px) ${dimensions.width}px, ${dimensions.width}px`}
+        priority={resolvedVariant === "full" && resolvedSize === "lg"}
+        style={{
+          display: "block",
+          width: "auto",
+          maxWidth: "100%",
+          height: `${dimensions.height}px`,
+          objectFit: "contain",
+          objectPosition: "center",
+        }}
+      />
     </span>
   );
 }
 
+export const OfficialBrandLogo = BrandLogo;
 export default BrandLogo;
