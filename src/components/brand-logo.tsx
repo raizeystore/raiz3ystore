@@ -5,23 +5,18 @@ type BrandLogoProps = {
   size?: "sm" | "md" | "lg";
   /** Renders the wordmark next to the glyph. */
   withWordmark?: boolean;
-  /**
-   * Navbar / header variant: smaller mark, tighter wordmark.
-   * Equivalent to `size="sm"` and kept as a separate prop because it is the
-   * shared header treatment used across the store.
-   */
+  /** Shared navbar/header variant. */
   compact?: boolean;
   className?: string;
   style?: CSSProperties;
 };
 
 /**
- * RAIZEY STORE brand lockup.
+ * Official RAIZEY STORE brand lockup.
  *
- * The mark is a single angular "R" built from straight cuts: an italic stem,
- * a notched bowl and a detached diagonal leg, matching the approved identity.
- * Rendered as inline SVG so it stays sharp at every density and can inherit
- * brand colour from CSS.
+ * The R mark below is vectorized from the approved user-supplied logo and is
+ * intentionally kept inline so it stays sharp at every density. Every page
+ * uses this single component so the brand cannot drift between auth/store UI.
  */
 export function BrandLogo({
   size,
@@ -43,20 +38,16 @@ export function BrandLogo({
   return (
     <span className={classes} style={style} role="img" aria-label="RAIZEY STORE">
       <span className="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 124 104" focusable="false" aria-hidden="true">
-          {/* Italic stem */}
-          <path d="M14 0h30l-6 104H8L14 0Z" />
-          {/* Notched bowl */}
-          <path d="M40 0h44l24 24v17l-19 15H38l1.4-24h35l6-5v-8l-10-8H38.6L40 0Z" />
-          {/* Detached diagonal leg */}
-          <path d="M62 62h29l28 42H88L62 62Z" />
+        <svg viewBox="0 0 391 327" focusable="false" aria-hidden="true">
+          <path d="M0 0L53 72H227L238 75L246 80L256 92L261 107L259 127L252 139L246 145L238 150L228 153L165 154L301 327H391L294 201L311 184L326 159L333 138L336 115L335 95L328 67L314 42L297 24L270 8L237 0Z" />
+          <path d="M3 153L143 327H232L96 153Z" />
         </svg>
       </span>
 
       {withWordmark ? (
         <span className="brand-wordmark" aria-hidden="true">
           <strong>RAIZEY</strong>
-          <small>STORE</small>
+          <small style={{ color: "var(--brand)" }}>STORE</small>
         </span>
       ) : null}
     </span>
