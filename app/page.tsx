@@ -167,7 +167,7 @@ export default function HomePage() {
 
       <footer className="site-footer">
         <div className="container footer-row">
-          <BrandLogo />
+          <BrandLogo variant="footer" />
           <span>© 2026 RAIZEY STORE — جميع الحقوق محفوظة.</span>
         </div>
       </footer>
