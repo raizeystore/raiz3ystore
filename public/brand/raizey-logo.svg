@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 327" role="img" aria-labelledby="title desc">
+  <title id="title">RAIZEY STORE</title>
+  <desc id="desc">Official RAIZEY STORE orange R mark with white RAIZEY wordmark and orange STORE label.</desc>
+  <g fill="#ff6a00" transform="translate(0 0)">
+    <path d="M0 0L53 72H227L238 75L246 80L256 92L261 107L259 127L252 139L246 145L238 150L228 153L165 154L301 327H391L294 201L311 184L326 159L333 138L336 115L335 95L328 67L314 42L297 24L270 8L237 0Z"/>
+    <path d="M3 153L143 327H232L96 153Z"/>
+  </g>
+  <g font-family="Arial Black, Arial, Helvetica, sans-serif" text-anchor="start">
+    <text x="445" y="170" fill="#ffffff" font-size="128" font-weight="900" letter-spacing="4">RAIZEY</text>
+    <text x="452" y="262" fill="#ff6a00" font-size="70" font-weight="800" letter-spacing="28">STORE</text>
+  </g>
+</svg>
