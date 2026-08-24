@@ -142,10 +142,10 @@ export default function HomePage() {
               const StepIcon = step.icon;
               return (
                 <article className="step-card" key={step.number}>
-                  <div className="step-number step-number--with-icon" aria-hidden="true">
-                    <StepIcon size={18} strokeWidth={2} />
-                    <span>{step.number}</span>
+                  <div className="step-number" aria-hidden="true">
+                    <StepIcon size={20} strokeWidth={2} />
                   </div>
+                  <span className="card-kicker">الخطوة {step.number}</span>
                   <h3>{step.title}</h3>
                   <p>{step.text}</p>
                 </article>
