@@ -27,9 +27,28 @@ test("email registration validates profile, password and policy consent on the s
   assert.match(actions, /termsAccepted/);
   assert.match(actions, /privacy_accepted:\s*true/);
   assert.match(actions, /terms_accepted:\s*true/);
-  assert.match(actions, /emailRedirectTo/);
+  assert.match(actions, /setPendingVerification\(email,\s*["']signup["']\)/);
+  assert.doesNotMatch(actions, /signUp\([\s\S]*emailRedirectTo/);
   assert.match(migration, /privacy_accepted_at/);
   assert.match(migration, /terms_accepted_at/);
+});
+
+test("email confirmation and password recovery use native six-digit Supabase OTP", () => {
+  const actions = read("app/auth/actions.ts");
+  const verifyPage = read("app/verify-code/page.tsx");
+  const otpDocs = read("docs/SUPABASE_EMAIL_OTP.md");
+
+  assert.match(actions, /OTP_RE\s*=\s*\/\^\\d\{6\}\$\//);
+  assert.match(actions, /verifyOtp\(/);
+  assert.match(actions, /type:\s*otpType/);
+  assert.match(actions, /resetPasswordForEmail\(email\)/);
+  assert.match(actions, /auth\.resend\(\{\s*type:\s*["']signup["']/);
+  assert.match(actions, /httpOnly:\s*true/);
+  assert.match(actions, /sameSite:\s*["']lax["']/);
+  assert.match(verifyPage, /autoComplete=["']one-time-code["']/);
+  assert.match(verifyPage, /pattern=["']\[0-9\]\{6\}["']/);
+  assert.match(otpDocs, /\{\{ \.Token \}\}/);
+  assert.doesNotMatch(otpDocs, /href=["'][^"']*ConfirmationURL/);
 });
 
 test("Google OAuth uses a server redirect and a PKCE callback before creating a session", () => {
@@ -105,7 +124,19 @@ test("sensitive routes use no-store and baseline security headers", () => {
   assert.match(config, /X-Content-Type-Options/);
   assert.match(config, /frame-ancestors 'none'/);
   assert.match(config, /private, no-store, max-age=0/);
-  for (const route of ["/account", "/orders/:path*", "/admin/:path*", "/checkout/:path*", "/auth/:path*", "/register", "/complete-profile"]) {
+  for (const route of [
+    "/account",
+    "/orders/:path*",
+    "/admin/:path*",
+    "/checkout/:path*",
+    "/auth/:path*",
+    "/login",
+    "/register",
+    "/complete-profile",
+    "/forgot-password",
+    "/verify-code",
+    "/reset-password",
+  ]) {
     assert.ok(config.includes(route), `missing no-store route: ${route}`);
   }
 });
