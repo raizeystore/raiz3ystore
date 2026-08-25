@@ -63,6 +63,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
   const [paused, setPaused] = useState(false);
   const touchStart = useRef<number | null>(null);
   const multiple = slides.length > 1;
+  const visibleIndex = activeIndex % slides.length;
 
   useEffect(() => {
     if (!multiple || paused) return;
@@ -76,13 +77,12 @@ export function BannerSlider({ banners }: BannerSliderProps) {
     return () => window.clearTimeout(timer);
   }, [activeIndex, multiple, paused, slides.length]);
 
-  useEffect(() => {
-    if (activeIndex >= slides.length) setActiveIndex(0);
-  }, [activeIndex, slides.length]);
-
   const showPrevious = () => {
     setPaused(true);
-    setActiveIndex((current) => (current === 0 ? slides.length - 1 : current - 1));
+    setActiveIndex((current) => {
+      const safeCurrent = current % slides.length;
+      return safeCurrent === 0 ? slides.length - 1 : safeCurrent - 1;
+    });
   };
 
   const showNext = () => {
@@ -114,7 +114,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
     >
       <div className="container banner-stage">
         {slides.map((banner, index) => {
-          const active = index === activeIndex;
+          const active = index === visibleIndex;
           const GraphicIcon = bannerIcon(banner.id);
           const hasImage = Boolean(banner.desktopImage || banner.mobileImage);
 
@@ -176,10 +176,10 @@ export function BannerSlider({ banners }: BannerSliderProps) {
             <div className="banner-dots" aria-label="اختيار البنر">
               {slides.map((banner, index) => (
                 <button
-                  className={index === activeIndex ? "is-active" : ""}
+                  className={index === visibleIndex ? "is-active" : ""}
                   type="button"
                   aria-label={`عرض البنر ${index + 1}: ${banner.title}`}
-                  aria-current={index === activeIndex ? "true" : undefined}
+                  aria-current={index === visibleIndex ? "true" : undefined}
                   onClick={() => {
                     setPaused(true);
                     setActiveIndex(index);
