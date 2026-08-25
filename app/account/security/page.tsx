@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requestEmailChange, requestPasswordChangeCode } from "@/app/account/security/actions";
+import styles from "@/app/account/security/security.module.css";
 import { BrandLogo } from "@/src/components/brand-logo";
 import { LockIcon, MailIcon, ShieldCheckIcon } from "@/src/components/auth/auth-icons";
 import { createClient } from "@/src/lib/supabase/server";
@@ -34,10 +35,10 @@ export default async function AccountSecurityPage({
   const emailError = params.email_error ? emailErrors[params.email_error] ?? emailErrors.send_failed : null;
 
   return (
-    <main className="site-shell">
+    <main className={`site-shell ${styles.page}`}>
       <header className="site-header">
         <div className="container navbar">
-          <Link href="/" aria-label="RAIZEY STORE الرئيسية"><BrandLogo compact /></Link>
+          <Link href="/" aria-label="RAIZEY STORE الرئيسية"><BrandLogo size="sm" /></Link>
           <nav className="nav-links" aria-label="تنقل الحساب">
             <Link href="/account">حسابي</Link>
             <Link href="/orders">طلباتي</Link>
@@ -47,33 +48,33 @@ export default async function AccountSecurityPage({
       </header>
 
       <section className="section">
-        <div className="container" style={{ maxWidth: 900 }}>
-          <div className="section-heading">
+        <div className={`container ${styles.container}`}>
+          <div className={`section-heading ${styles.heading}`}>
             <div>
               <span className="eyebrow"><span className="eyebrow-dot" />حماية الحساب</span>
               <h1>مركز الأمان</h1>
-              <p>العمليات الحساسة في RAIZEY STORE محمية برمز تحقق مكوّن من 6 أرقام يُرسل إلى بريدك.</p>
+              <p>تغيير كلمة المرور أو البريد يتطلب كود تحقق من 6 أرقام يُرسل إلى بريد الحساب.</p>
             </div>
           </div>
 
-          <div className="info-grid" style={{ marginBottom: 24 }}>
-            <article className="info-card">
+          <div className={styles.summaryGrid}>
+            <article className={`info-card ${styles.summaryCard}`}>
               <div className="icon-box" aria-hidden="true"><ShieldCheckIcon /></div>
-              <h3>حسابك محمي</h3>
-              <p>لا يتم تغيير بيانات الدخول الحساسة من المتصفح مباشرة دون تحقق إضافي.</p>
+              <h3>حساب محمي</h3>
+              <p>لا يتم تغيير بيانات الدخول الحساسة مباشرة من المتصفح.</p>
             </article>
-            <article className="info-card">
+            <article className={`info-card ${styles.summaryCard}`}>
               <div className="icon-box" aria-hidden="true"><MailIcon /></div>
               <h3>بريد الحساب</h3>
               <p dir="ltr" style={{ overflowWrap: "anywhere" }}>{data.user.email ?? "—"}</p>
             </article>
           </div>
 
-          <div className="auth-card" style={{ maxWidth: 760, marginBottom: 24 }}>
+          <div className={`auth-card ${styles.actionCard}`}>
             <div className="auth-card-header">
               <div className="icon-box" aria-hidden="true"><LockIcon /></div>
               <h2>تغيير كلمة المرور</h2>
-              <p>سنرسل رمز تحقق من 6 أرقام إلى بريدك الحالي. بعد إدخال الرمز يمكنك تعيين كلمة مرور جديدة.</p>
+              <p>أرسل الكود إلى بريدك الحالي ثم عيّن كلمة مرور جديدة.</p>
             </div>
             {passwordError ? <div className="notice notice-error" role="alert">{passwordError}</div> : null}
             <form action={requestPasswordChangeCode}>
@@ -81,11 +82,11 @@ export default async function AccountSecurityPage({
             </form>
           </div>
 
-          <div className="auth-card" style={{ maxWidth: 760 }}>
+          <div className={`auth-card ${styles.actionCard}`}>
             <div className="auth-card-header">
               <div className="icon-box" aria-hidden="true"><MailIcon /></div>
               <h2>تغيير البريد الإلكتروني</h2>
-              <p>لحماية الحساب، سيطلب النظام تأكيد البريد الحالي ثم البريد الجديد باستخدام كود 6 أرقام لكل بريد.</p>
+              <p>أدخل البريد الجديد، ثم أكمل التحقق من البريد الحالي والجديد.</p>
             </div>
             {emailError ? <div className="notice notice-error" role="alert">{emailError}</div> : null}
             <form className="auth-form" action={requestEmailChange}>

@@ -6,11 +6,11 @@ type BrandLogoVariant = "full" | "compact" | "footer";
 type BrandLogoProps = {
   /** Visual scale of the official asset. */
   size?: "sm" | "md" | "lg";
-  /** Legacy compatibility: false renders the official compact R mark only. */
+  /** Kept for compatibility. The official full logo is always rendered. */
   withWordmark?: boolean;
-  /** Legacy compatibility for constrained navbar/header spaces. */
+  /** Kept for constrained headers. Changes scale only, never the asset. */
   compact?: boolean;
-  /** Explicit official asset variant. */
+  /** Visual placement variant. All variants use the same official full logo. */
   variant?: BrandLogoVariant;
   className?: string;
   style?: CSSProperties;
@@ -24,37 +24,25 @@ const FULL_DIMENSIONS = {
   lg: { width: 210, height: 60 },
 } as const;
 
-const COMPACT_DIMENSIONS = {
-  sm: { width: 39, height: 34 },
-  md: { width: 51, height: 44 },
-  lg: { width: 69, height: 60 },
-} as const;
-
 /**
  * Single source of truth for the RAIZEY STORE brand across the product.
  *
- * IMPORTANT: This component renders only the brand-owner supplied official
- * raster assets from /public/brand. It must never redraw the R mark, recreate
- * the wordmark with text/CSS, mirror the lockup for RTL, or substitute a
- * Lucide/general-purpose icon.
+ * IMPORTANT: Every placement renders only /public/brand/raizey-store-logo.png.
+ * The logo is never redrawn, mirrored for RTL, shortened to an R mark, or
+ * replaced with a general-purpose icon.
  */
 export function BrandLogo({
   size,
-  withWordmark = true,
+  withWordmark: _withWordmark = true,
   compact = false,
   variant,
   className,
   style,
   decorative = false,
 }: BrandLogoProps) {
-  const resolvedVariant: BrandLogoVariant =
-    variant ?? (compact || !withWordmark ? "compact" : "full");
-  const resolvedSize = size ?? (resolvedVariant === "footer" ? "sm" : compact ? "sm" : "md");
-  const isCompact = resolvedVariant === "compact";
-  const dimensions = isCompact ? COMPACT_DIMENSIONS[resolvedSize] : FULL_DIMENSIONS[resolvedSize];
-  const src = isCompact
-    ? "/brand/raizey-store-mark.png"
-    : "/brand/raizey-store-logo.png";
+  const resolvedVariant: BrandLogoVariant = variant ?? (compact ? "compact" : "full");
+  const resolvedSize = size ?? (resolvedVariant === "footer" || compact ? "sm" : "md");
+  const dimensions = FULL_DIMENSIONS[resolvedSize];
   const classes = [
     "brand-lockup",
     `brand-lockup--${resolvedSize}`,
@@ -80,12 +68,12 @@ export function BrandLogo({
       }}
     >
       <Image
-        src={src}
+        src="/brand/raizey-store-logo.png"
         alt={decorative ? "" : "RAIZEY STORE"}
         aria-hidden={decorative ? "true" : undefined}
         width={dimensions.width}
         height={dimensions.height}
-        sizes={isCompact ? `${dimensions.width}px` : `(max-width: 480px) ${dimensions.width}px, ${dimensions.width}px`}
+        sizes={`${dimensions.width}px`}
         priority={resolvedVariant === "full" && resolvedSize === "lg"}
         style={{
           display: "block",

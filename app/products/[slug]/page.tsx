@@ -48,14 +48,11 @@ export default async function ProductPage({
                   <span className="eyebrow-dot" /> {catalogProduct.subcategory.name}
                 </span>
                 <h1>{catalogProduct.name}</h1>
-                <p>
-                  {catalogProduct.description ||
-                    "حدد الخيار المناسب وأدخل البيانات المطلوبة قبل المتابعة."}
-                </p>
+                <p>{catalogProduct.description || "اختر العرض المناسب وأدخل بيانات الطلب."}</p>
                 <div className="trust-row">
-                  <span className="trust-chip">سعر مطلق لآخر خيار</span>
-                  <span className="trust-chip">خيارات من قاعدة البيانات</span>
-                  <span className="trust-chip">إعادة تسعير خادمية قبل الطلب</span>
+                  <span className="trust-chip">سعر واضح</span>
+                  <span className="trust-chip">اختيار آمن</span>
+                  <span className="trust-chip">حماية الطلب</span>
                 </div>
                 <div className="product-detail-media">
                   {catalogProduct.imageUrl ? (
@@ -77,6 +74,7 @@ export default async function ProductPage({
                 baseCustomerPrice={catalogProduct.baseCustomerPrice}
                 currency={catalogProduct.currency}
                 variants={catalogProduct.variants}
+                directSuboptions={catalogProduct.directSuboptions}
                 inputFields={catalogProduct.inputFields}
                 suboptionsRequired={catalogProduct.suboptionsRequired}
               />
@@ -100,11 +98,7 @@ export default async function ProductPage({
   if (!product?.game_id) notFound();
 
   const [{ data: game }, { data: claimsData }] = await Promise.all([
-    supabase
-      .from("games")
-      .select("name, slug")
-      .eq("id", product.game_id)
-      .maybeSingle(),
+    supabase.from("games").select("name, slug").eq("id", product.game_id).maybeSingle(),
     supabase.auth.getClaims(),
   ]);
   const isSignedIn = Boolean(claimsData?.claims?.sub);
@@ -124,9 +118,9 @@ export default async function ProductPage({
               {product.description || "عرض شحن رقمي متاح عبر RAIZEY STORE."}
             </p>
             <div className="trust-row">
-              <span className="trust-chip">السعر من قاعدة البيانات</span>
-              <span className="trust-chip">لا يمكن للمتصفح تغيير السعر النهائي</span>
-              <span className="trust-chip">طلب مرتبط بالحساب</span>
+              <span className="trust-chip">سعر واضح</span>
+              <span className="trust-chip">طلب محمي</span>
+              <span className="trust-chip">مرتبط بحسابك</span>
             </div>
             <div className="hero-actions">
               {isSignedIn ? (
@@ -138,10 +132,7 @@ export default async function ProductPage({
                   سجّل الدخول للمتابعة
                 </Link>
               )}
-              <Link
-                className="btn btn-secondary"
-                href={game?.slug ? `/games/${game.slug}` : "/games"}
-              >
+              <Link className="btn btn-secondary" href={game?.slug ? `/games/${game.slug}` : "/games"}>
                 العودة للعروض
               </Link>
             </div>
@@ -151,7 +142,6 @@ export default async function ProductPage({
             <div className="featured-card featured-card--main">
               <span className="card-kicker">السعر الحالي</span>
               <h2>{product.name}</h2>
-              <p>هذا عرض من الكتالوج المتوافق السابق.</p>
               <div className="price-line">
                 <strong>{formatPrice(product.price, product.currency)}</strong>
               </div>
@@ -159,8 +149,8 @@ export default async function ProductPage({
             <div className="featured-card featured-card--float">
               <ShieldCheck aria-hidden="true" size={24} />
               <span className="card-kicker">حماية الطلب</span>
-              <h3>السعر والتنفيذ من السيرفر</h3>
-              <p>يبقى مسار الطلب القديم متاحًا أثناء الانتقال التدريجي.</p>
+              <h3>تنفيذ موثوق</h3>
+              <p>يتم التحقق من الطلب قبل التنفيذ.</p>
             </div>
           </article>
         </div>

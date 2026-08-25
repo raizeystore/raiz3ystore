@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, LockKeyhole, ShoppingCart, Zap } from "lucide-react";
+import { Check, ShoppingCart, Zap } from "lucide-react";
 import { useState } from "react";
 import type {
   StorefrontInputField,
+  StorefrontSuboption,
   StorefrontVariant,
 } from "@/src/lib/catalog/storefront";
 
@@ -12,9 +13,12 @@ type ProductConfiguratorProps = {
   baseCustomerPrice: number;
   currency: string;
   variants: StorefrontVariant[];
+  directSuboptions: StorefrontSuboption[];
   inputFields: StorefrontInputField[];
   suboptionsRequired: boolean;
 };
+
+const PRODUCT_BASE = "__product_base__";
 
 function formatPrice(value: number, currency: string) {
   return `${new Intl.NumberFormat("ar-SD", {
@@ -27,38 +31,69 @@ export function ProductConfigurator({
   baseCustomerPrice,
   currency,
   variants,
+  directSuboptions,
   inputFields,
   suboptionsRequired,
 }: ProductConfiguratorProps) {
-  const [variantId, setVariantId] = useState(variants[0]?.id ?? "");
+  const hasBasePath = directSuboptions.length > 0;
+  const initialChoice = variants[0]?.id ?? (hasBasePath ? PRODUCT_BASE : "");
+  const [variantId, setVariantId] = useState(initialChoice);
   const [suboptionId, setSuboptionId] = useState("");
-  const selectedVariant =
-    variants.find((variant) => variant.id === variantId) ?? null;
-  const selectedSuboption = selectedVariant?.suboptions.find(
+
+  const isBasePath = variantId === PRODUCT_BASE || (!variantId && hasBasePath);
+  const selectedVariant = isBasePath
+    ? null
+    : variants.find((variant) => variant.id === variantId) ?? null;
+  const availableSuboptions = isBasePath
+    ? directSuboptions
+    : selectedVariant?.suboptions ?? [];
+  const selectedSuboption = availableSuboptions.find(
     (suboption) => suboption.id === suboptionId,
   );
+
   const displayedPrice =
     selectedSuboption?.customerPrice ??
     selectedVariant?.customerPrice ??
     baseCustomerPrice;
   const needsSuboption = suboptionsRequired;
-  const selectionReady = !needsSuboption || Boolean(selectedSuboption);
+  const selectionReady =
+    !needsSuboption ||
+    (availableSuboptions.length > 0 && Boolean(selectedSuboption));
+  const showMainChoice = variants.length > 1 || (variants.length > 0 && hasBasePath);
+
+  function chooseMainOption(id: string) {
+    setVariantId(id);
+    setSuboptionId("");
+  }
 
   return (
     <div className="product-configurator">
       <div className="product-price-card" aria-live="polite">
-        <span>السعر الحالي</span>
+        <span>السعر</span>
         <strong>{formatPrice(displayedPrice, currency)}</strong>
-        <small>
-          السعر يتبدل فورًا حسب آخر خيار محدد، ويُعاد احتسابه من السيرفر عند
-          الدفع.
-        </small>
+        <small>يتغير السعر تلقائيًا حسب اختيارك.</small>
       </div>
 
-      {variants.length > 0 && (
+      {showMainChoice && (
         <fieldset className="product-choice-group">
-          <legend>اختر الباقة</legend>
+          <legend>اختر العرض</legend>
           <div className="product-choice-grid">
+            {hasBasePath && (
+              <label className={`product-choice${isBasePath ? " is-selected" : ""}`}>
+                <input
+                  type="radio"
+                  name="catalogVariant"
+                  value={PRODUCT_BASE}
+                  checked={isBasePath}
+                  onChange={() => chooseMainOption(PRODUCT_BASE)}
+                />
+                <span>
+                  <strong>{productName}</strong>
+                  <small>{formatPrice(baseCustomerPrice, currency)}</small>
+                </span>
+                {isBasePath && <Check aria-hidden="true" size={18} strokeWidth={2.5} />}
+              </label>
+            )}
             {variants.map((variant) => (
               <label
                 className={`product-choice${variant.id === variantId ? " is-selected" : ""}`}
@@ -69,31 +104,26 @@ export function ProductConfigurator({
                   name="catalogVariant"
                   value={variant.id}
                   checked={variant.id === variantId}
-                  onChange={() => {
-                    setVariantId(variant.id);
-                    setSuboptionId("");
-                  }}
+                  onChange={() => chooseMainOption(variant.id)}
                 />
                 <span>
                   <strong>{variant.name}</strong>
                   <small>{formatPrice(variant.customerPrice, currency)}</small>
                 </span>
-                {variant.id === variantId && (
-                  <Check aria-hidden="true" size={18} strokeWidth={2.5} />
-                )}
+                {variant.id === variantId && <Check aria-hidden="true" size={18} strokeWidth={2.5} />}
               </label>
             ))}
           </div>
         </fieldset>
       )}
 
-      {selectedVariant && selectedVariant.suboptions.length > 0 && (
+      {availableSuboptions.length > 0 && (
         <fieldset className="product-choice-group">
           <legend>
-            اختر الخيار الفرعي {needsSuboption && <span>مطلوب</span>}
+            اختر النوع {needsSuboption && <span>مطلوب</span>}
           </legend>
           <div className="product-choice-grid">
-            {selectedVariant.suboptions.map((suboption) => (
+            {availableSuboptions.map((suboption) => (
               <label
                 className={`product-choice${suboption.id === suboptionId ? " is-selected" : ""}`}
                 key={suboption.id}
@@ -110,9 +140,7 @@ export function ProductConfigurator({
                   <strong>{suboption.name}</strong>
                   <small>{formatPrice(suboption.customerPrice, currency)}</small>
                 </span>
-                {suboption.id === suboptionId && (
-                  <Check aria-hidden="true" size={18} strokeWidth={2.5} />
-                )}
+                {suboption.id === suboptionId && <Check aria-hidden="true" size={18} strokeWidth={2.5} />}
               </label>
             ))}
           </div>
@@ -121,7 +149,7 @@ export function ProductConfigurator({
 
       {inputFields.length > 0 && (
         <fieldset className="product-input-preview">
-          <legend>بيانات العميل المطلوبة</legend>
+          <legend>بيانات الطلب</legend>
           <div className="product-input-grid">
             {inputFields.map((field) => (
               <label className="field" key={field.id}>
@@ -146,11 +174,11 @@ export function ProductConfigurator({
 
       {!selectionReady && (
         <p className="configurator-warning" role="status">
-          اختر الخيار الفرعي المطلوب قبل المتابعة.
+          اختر أحد الخيارات المتاحة للمتابعة.
         </p>
       )}
 
-      <div className="product-purchase-actions" aria-label="خيارات الشراء القادمة">
+      <div className="product-purchase-actions" aria-label="إجراءات الشراء">
         <button className="btn btn-primary" type="button" disabled>
           <ShoppingCart aria-hidden="true" size={18} />
           إضافة إلى السلة
@@ -159,13 +187,6 @@ export function ProductConfigurator({
           <Zap aria-hidden="true" size={18} />
           شراء الآن
         </button>
-      </div>
-      <div className="phase-note">
-        <LockKeyhole aria-hidden="true" size={17} />
-        <span>
-          اختيار {productName} جاهز. تفعيل السلة والشراء الآمن سيتم ضمن مرحلة
-          Cart &amp; Checkout بدون إنشاء طلب مالي من المتصفح.
-        </span>
       </div>
     </div>
   );

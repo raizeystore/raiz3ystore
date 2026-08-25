@@ -1,0 +1,316 @@
+.intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.intro h1 {
+  margin: 0 0 5px;
+  font-size: clamp(28px, 8vw, 40px);
+  line-height: 1.2;
+}
+
+.intro p {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.flow {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.step {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.018);
+  overflow: hidden;
+}
+
+.step[open] {
+  border-color: rgba(255, 106, 0, 0.34);
+}
+
+.stepSummary {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.stepSummary::-webkit-details-marker {
+  display: none;
+}
+
+.stepNumber {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-strong);
+  font-weight: 900;
+}
+
+.stepCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.stepCopy strong,
+.stepCopy span {
+  display: block;
+}
+
+.stepCopy strong {
+  font-size: 17px;
+}
+
+.stepCopy span {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.stepCount {
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: #d8d4d0;
+  font-size: 12px;
+}
+
+.stepBody {
+  padding: 0 16px 16px;
+}
+
+.form {
+  display: grid;
+  gap: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fileField {
+  display: grid;
+  gap: 7px;
+}
+
+.fileLabel {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ece9e6;
+}
+
+.fileInput {
+  width: 100%;
+  min-height: 48px;
+  padding: 7px;
+  border: 1px dashed #454547;
+  border-radius: 12px;
+  background: #0e0e0f;
+  color: var(--text-muted);
+}
+
+.fileInput::file-selector-button {
+  min-height: 34px;
+  margin-inline-end: 10px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--brand);
+  color: #17110d;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fileHint {
+  color: #77736f;
+  font-size: 11px;
+}
+
+.advanced {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 9px;
+}
+
+.advanced summary {
+  width: fit-content;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #d2cfcc;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.advancedBody {
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 54px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.toggle input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: var(--brand);
+}
+
+.toggle strong,
+.toggle small {
+  display: block;
+}
+
+.toggle strong {
+  font-size: 13px;
+}
+
+.toggle small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.current {
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.014);
+}
+
+.currentHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.currentHead h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.tree {
+  display: grid;
+  gap: 9px;
+}
+
+.treeItem {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
+  padding: 12px;
+  background: #0d0d0e;
+}
+
+.treeTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.treeTitle strong {
+  font-size: 14px;
+}
+
+.treeChildren {
+  display: grid;
+  gap: 7px;
+  margin-top: 8px;
+  padding-inline-start: 14px;
+  border-inline-start: 2px solid rgba(255, 106, 0, 0.18);
+}
+
+.treeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.treeRow span {
+  min-width: 0;
+  font-size: 13px;
+}
+
+.treeLink {
+  flex: none;
+  color: #ff9b52;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.editForm {
+  display: grid;
+  gap: 12px;
+  padding-top: 13px;
+}
+
+.compactCard {
+  padding: 16px !important;
+}
+
+@media (max-width: 640px) {
+  .intro {
+    display: block;
+  }
+
+  .intro > :global(.btn) {
+    margin-top: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepSummary {
+    min-height: 66px;
+    padding: 12px;
+  }
+
+  .stepBody {
+    padding: 0 12px 12px;
+  }
+
+  .current {
+    padding: 12px;
+  }
+}
