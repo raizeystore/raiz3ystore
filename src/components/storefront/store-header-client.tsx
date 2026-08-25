@@ -33,17 +33,8 @@ type DrawerItem = {
   icon: typeof House;
   disabled?: boolean;
   adminOnly?: boolean;
+  badge?: number;
 };
-
-const drawerItems: DrawerItem[] = [
-  { label: "الرئيسية", href: "/", icon: House },
-  { label: "سلة المشتريات", icon: ShoppingCart, disabled: true },
-  { label: "شحن المحفظة", href: "/wallet", icon: WalletCards },
-  { label: "طلباتي", href: "/orders", icon: ShoppingBag },
-  { label: "إحالاتي وأرباحي", icon: Gift, disabled: true },
-  { label: "إعدادات الحساب", href: "/account/security", icon: Settings },
-  { label: "لوحة الإدارة", href: "/admin", icon: ShieldCheck, adminOnly: true },
-];
 
 function formatWalletAmount(amount: number, currency: string) {
   const formatted = new Intl.NumberFormat("ar-SD", {
@@ -53,11 +44,14 @@ function formatWalletAmount(amount: number, currency: string) {
   return { formatted, unit };
 }
 
+function countLabel(count: number) {
+  return count > 99 ? "99+" : String(count);
+}
+
 export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const wallet = formatWalletAmount(context.walletBalance, context.walletCurrency);
-  const unreadLabel = context.unreadNotifications > 99 ? "99+" : String(context.unreadNotifications);
 
   useEffect(() => {
     if (!open) return;
@@ -80,20 +74,39 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
   };
 
   const accountHref = (path: string) => (context.signedIn ? path : `/login?next=${encodeURIComponent(path)}`);
+  const drawerItems: DrawerItem[] = [
+    { label: "الرئيسية", href: "/", icon: House },
+    { label: "سلة المشتريات", href: "/cart", icon: ShoppingCart, badge: context.cartItemCount },
+    { label: "شحن المحفظة", href: "/wallet", icon: WalletCards },
+    { label: "طلباتي", href: "/orders", icon: ShoppingBag },
+    { label: "إحالاتي وأرباحي", icon: Gift, disabled: true },
+    { label: "إعدادات الحساب", href: "/account/security", icon: Settings },
+    { label: "لوحة الإدارة", href: "/admin", icon: ShieldCheck, adminOnly: true },
+  ];
 
   return (
     <header className={styles.header}>
       <div className={`container ${styles.bar}`}>
-        <button
-          className={styles.iconButton}
-          type="button"
-          aria-label="فتح القائمة"
-          aria-expanded={open}
-          aria-controls="store-navigation-drawer"
-          onClick={() => setOpen(true)}
-        >
-          <Menu aria-hidden="true" size={22} />
-        </button>
+        <div className={styles.rightTools}>
+          <button
+            className={styles.iconButton}
+            type="button"
+            aria-label="فتح القائمة"
+            aria-expanded={open}
+            aria-controls="store-navigation-drawer"
+            onClick={() => setOpen(true)}
+          >
+            <Menu aria-hidden="true" size={22} />
+          </button>
+          <Link
+            className={styles.cartButton}
+            href={accountHref("/cart")}
+            aria-label={context.cartItemCount ? `سلة المشتريات، ${context.cartItemCount} عنصر` : "سلة المشتريات"}
+          >
+            <ShoppingCart aria-hidden="true" size={19} />
+            {context.cartItemCount > 0 && <span className={styles.notificationBadge}>{countLabel(context.cartItemCount)}</span>}
+          </Link>
+        </div>
 
         <Link className={styles.logo} href="/" aria-label="RAIZEY STORE الرئيسية">
           <BrandLogo size="sm" />
@@ -110,7 +123,7 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
             aria-label={context.unreadNotifications ? `الإشعارات، ${context.unreadNotifications} غير مقروء` : "الإشعارات"}
           >
             <Bell aria-hidden="true" size={19} />
-            {context.unreadNotifications > 0 && <span className={styles.notificationBadge}>{unreadLabel}</span>}
+            {context.unreadNotifications > 0 && <span className={styles.notificationBadge}>{countLabel(context.unreadNotifications)}</span>}
           </Link>
 
           <Link
@@ -164,6 +177,7 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
                     <Link className={activeClass(item.href)} href={href} key={item.label} onClick={() => setOpen(false)}>
                       <Icon aria-hidden="true" size={20} />
                       <span>{item.label}</span>
+                      {Boolean(item.badge) && <small className={styles.drawerBadge}>{countLabel(item.badge!)}</small>}
                     </Link>
                   );
                 })}
