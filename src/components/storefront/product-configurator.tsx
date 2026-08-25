@@ -2,7 +2,7 @@
 
 import { Check, Info, Minus, Plus, ShoppingCart, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { addCartItem } from "@/app/cart/actions";
 import styles from "@/src/components/storefront/product-configurator.module.css";
 import type {
@@ -56,10 +56,7 @@ export function ProductConfigurator({
     ? null
     : variants.find((variant) => variant.id === variantId) ?? null;
   const specificSuboptions = isBasePath ? directSuboptions : selectedVariant?.suboptions ?? [];
-  const availableSuboptions = useMemo(
-    () => [...specificSuboptions, ...globalSuboptions],
-    [specificSuboptions, globalSuboptions],
-  );
+  const availableSuboptions = [...specificSuboptions, ...globalSuboptions];
   const selectedSuboption = availableSuboptions.find((suboption) => suboption.id === suboptionId) ?? null;
   const baseUnitPrice = selectedVariant?.customerPrice ?? baseCustomerPrice;
   const unitPrice = selectedSuboption
