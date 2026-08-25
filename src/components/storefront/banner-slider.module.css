@@ -1,0 +1,92 @@
+.builtIn {
+  background:
+    radial-gradient(circle at 15% 30%, rgba(255, 106, 0, .22), transparent 28rem),
+    radial-gradient(circle at 88% 72%, rgba(255, 122, 26, .09), transparent 24rem),
+    linear-gradient(145deg, #15100d 0%, #0c0c0d 58%, #090909 100%);
+}
+
+.graphic {
+  position: absolute;
+  z-index: 1;
+  left: clamp(28px, 7vw, 86px);
+  top: 50%;
+  width: min(34%, 330px);
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  color: var(--brand-strong);
+  pointer-events: none;
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 106, 0, .25);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 55px rgba(255, 106, 0, .07),
+    0 0 80px rgba(255, 106, 0, .05);
+}
+
+.orbit::before,
+.orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .07);
+}
+
+.orbit::before {
+  inset: 16%;
+}
+
+.orbit::after {
+  inset: 31%;
+  border-color: rgba(255, 106, 0, .18);
+}
+
+.icon {
+  position: relative;
+  z-index: 2;
+  width: 106px;
+  height: 106px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 106, 0, .28);
+  border-radius: 28px;
+  background: rgba(10, 10, 10, .72);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, .34);
+}
+
+.wordmark {
+  position: absolute;
+  right: -14px;
+  bottom: 8%;
+  color: rgba(255, 255, 255, .045);
+  font-size: clamp(52px, 8vw, 92px);
+  font-weight: 1000;
+  letter-spacing: -.06em;
+  direction: ltr;
+}
+
+@media (max-width: 680px) {
+  .graphic {
+    left: 50%;
+    top: 31%;
+    width: min(58vw, 235px);
+    transform: translate(-50%, -50%);
+  }
+
+  .icon {
+    width: 82px;
+    height: 82px;
+    border-radius: 22px;
+  }
+
+  .wordmark {
+    right: auto;
+    bottom: -26px;
+    font-size: 54px;
+  }
+}
