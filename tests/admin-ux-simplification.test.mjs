@@ -52,16 +52,16 @@ test("catalog admin is separated into sections and hides technical fields", () =
 test("public catalog policies never require the private admin helper", () => {
   const productsPolicy = read("supabase/migrations/20260825095126_fix_public_catalog_product_read_policy.sql");
   const gamesPolicy = read("supabase/migrations/20260825095150_fix_public_games_read_policy.sql");
-
   assert.doesNotMatch(productsPolicy, /private\.is_admin/);
   assert.doesNotMatch(gamesPolicy, /private\.is_admin/);
   assert.match(productsPolicy, /to anon, authenticated/);
   assert.match(gamesPolicy, /status = 'active'/);
 });
 
-test("storefront header centers branding and exposes account-aware tools", () => {
+test("storefront header centers branding and exposes account-aware tools including cart", () => {
   const wrapper = read("src/components/storefront/store-header.tsx");
   const header = read("src/components/storefront/store-header-client.tsx");
+  const shell = read("src/lib/storefront/shell.ts");
   const css = read("src/components/storefront/store-header.module.css");
   const searchPage = read("app/search/page.tsx");
   const searchLib = read("src/lib/catalog/search.ts");
@@ -71,13 +71,16 @@ test("storefront header centers branding and exposes account-aware tools", () =>
   assert.match(header, /href="\/search"/);
   assert.match(header, /Bell/);
   assert.match(header, /WalletCards/);
-  assert.match(header, /سلة المشتريات/);
+  assert.match(header, /href: "\/cart"/);
+  assert.match(header, /context\.cartItemCount/);
   assert.match(header, /شحن المحفظة/);
   assert.match(header, /طلباتي/);
   assert.match(header, /إحالاتي وأرباحي/);
   assert.match(header, /إعدادات الحساب/);
   assert.match(header, /adminOnly: true/);
   assert.match(header, /signOut/);
+  assert.match(shell, /cartItemCount/);
+  assert.match(shell, /from\("cart_items"\)/);
   assert.match(css, /left: 50%/);
   assert.match(css, /right: 0/);
   assert.match(searchPage, /البحث عن المنتجات/);
@@ -106,23 +109,23 @@ test("storefront shell foundations keep wallet writes server-only and alerts sco
   assert.match(bannerAdmin, /saveTickerMessage/);
 });
 
-test("direct product suboptions use an internal base variant and absolute price", () => {
-  const actions = read("app/admin/catalog/v2-actions.ts");
+test("unified product admin keeps variants and global or specific suboptions in one product", () => {
+  const actions = read("app/admin/catalog/product-option-actions.ts");
   const detail = read("app/admin/catalog/products/[id]/page.tsx");
-  const storefront = read("src/lib/catalog/storefront.ts");
+  const reader = read("src/lib/catalog/product-detail-v2.ts");
   const configurator = read("src/components/storefront/product-configurator.tsx");
 
   assert.match(actions, /DIRECT_PRODUCT_VARIANT = "__product_base__"/);
   assert.match(actions, /SYSTEM_BASE_VARIANT_SKU = "__BASE__"/);
-  assert.match(detail, /المنتج مباشرة/);
-  assert.match(detail, /حساب موثق \+ فيزا/);
-  assert.match(storefront, /directSuboptions/);
-  assert.match(storefront, /variant\.sku !== SYSTEM_BASE_VARIANT_SKU/);
-  assert.match(
-    configurator,
-    /selectedSuboption\?\.customerPrice \?\?[\s\S]*selectedVariant\?\.customerPrice \?\?[\s\S]*baseCustomerPrice/,
-  );
-  assert.match(configurator, /required=\{needsSuboption\}/);
+  assert.match(detail, /60 UC/);
+  assert.match(detail, /325 UC/);
+  assert.match(detail, /660 UC/);
+  assert.match(detail, /تطبيق على جميع عروض المنتج/);
+  assert.match(reader, /directSuboptions/);
+  assert.match(reader, /globalSuboptions/);
+  assert.match(reader, /variant\.sku !== SYSTEM_BASE_VARIANT_SKU/);
+  assert.match(configurator, /baseUnitPrice \+ selectedSuboption\.customerPrice/);
+  assert.match(configurator, /selectedSuboption\.customerPrice/);
 });
 
 test("banner editor uploads from device and keeps mobile image optional", () => {
