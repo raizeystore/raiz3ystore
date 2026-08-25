@@ -12,12 +12,13 @@ test("home page renders the mobile-first storefront shell", async ({ page }) => 
   await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
 
   await page.getByRole("button", { name: "فتح القائمة" }).click();
-  await expect(page.getByRole("link", { name: "سلة المشتريات", exact: true })).toHaveAttribute("href", "/login?next=%2Fcart");
-  await expect(page.getByRole("link", { name: "شحن المحفظة", exact: true })).toHaveAttribute("href", "/login?next=%2Fwallet");
-  await expect(page.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/login?next=%2Forders");
-  await expect(page.getByText("إحالاتي وأرباحي", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "إعدادات الحساب" })).toHaveAttribute("href", "/login?next=%2Faccount%2Fsecurity");
-  await expect(page.getByRole("link", { name: "لوحة الإدارة" })).toHaveCount(0);
+  const drawer = page.getByRole("navigation", { name: "التنقل الرئيسي" });
+  await expect(drawer.getByRole("link", { name: "سلة المشتريات", exact: true })).toHaveAttribute("href", "/login?next=%2Fcart");
+  await expect(drawer.getByRole("link", { name: "شحن المحفظة", exact: true })).toHaveAttribute("href", "/login?next=%2Fwallet");
+  await expect(drawer.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/login?next=%2Forders");
+  await expect(drawer.getByText("إحالاتي وأرباحي", { exact: true })).toBeVisible();
+  await expect(drawer.getByRole("link", { name: "إعدادات الحساب" })).toHaveAttribute("href", "/login?next=%2Faccount%2Fsecurity");
+  await expect(drawer.getByRole("link", { name: "لوحة الإدارة" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "تسجيل الدخول", exact: true })).toHaveAttribute("href", "/login");
   await expect(page.getByText(/PUBG MOBILE|FREE FIRE|CALL OF DUTY/)).toHaveCount(0);
 });
