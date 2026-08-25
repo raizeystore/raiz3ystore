@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import styles from "@/src/components/storefront/store-ticker.module.css";
 
 const DEFAULT_MESSAGES = [
   "الأسعار تُحدّث حسب سعر الصرف المعتمد في المتجر",
@@ -15,9 +16,9 @@ export function StoreTicker({ messages }: StoreTickerProps) {
   const items = messages.length ? messages : DEFAULT_MESSAGES;
 
   const group = (hidden = false) => (
-    <div className="store-ticker-group" aria-hidden={hidden || undefined}>
+    <div className={styles.group} aria-hidden={hidden || undefined}>
       {items.map((message, index) => (
-        <span className="store-ticker-item" key={`${hidden ? "copy" : "main"}-${index}-${message}`}>
+        <span className={styles.item} key={`${hidden ? "copy" : "main"}-${index}-${message}`}>
           <i aria-hidden="true" />
           {message}
         </span>
@@ -26,13 +27,13 @@ export function StoreTicker({ messages }: StoreTickerProps) {
   );
 
   return (
-    <section className="store-ticker" aria-label="إعلانات المتجر">
-      <div className="store-ticker-label">
+    <section className={styles.ticker} aria-label="إعلانات المتجر">
+      <div className={styles.label}>
         <Sparkles aria-hidden="true" size={15} />
         <span>RAIZEY الآن</span>
       </div>
-      <div className="store-ticker-window">
-        <div className="store-ticker-track">
+      <div className={styles.window}>
+        <div className={styles.track}>
           {group()}
           {group(true)}
         </div>
