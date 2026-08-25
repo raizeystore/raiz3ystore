@@ -5,7 +5,11 @@ test("home page renders the mobile-first storefront entry points", async ({ page
 
   await expect(page.getByRole("heading", { name: "ابدأ من القسم الصحيح" })).toBeVisible();
   await expect(page.getByRole("link", { name: "تصفح الكتالوج" })).toHaveAttribute("href", "#catalog");
-  await expect(page.getByRole("link", { name: "دخول", exact: true })).toHaveAttribute("href", "/login");
+  await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
+  await page.getByRole("button", { name: "فتح القائمة" }).click();
+  await expect(page.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/orders");
+  await expect(page.getByRole("link", { name: "إعدادات وأمان الحساب" })).toHaveAttribute("href", "/account/security");
+  await expect(page.getByRole("link", { name: "تسجيل الدخول", exact: true })).toHaveAttribute("href", "/login");
   await expect(page.getByText("خيارات من الكتالوج الفعلي", { exact: true })).toBeVisible();
   await expect(page.getByText(/PUBG MOBILE|FREE FIRE|CALL OF DUTY/)).toHaveCount(0);
 });
