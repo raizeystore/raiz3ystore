@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  BadgeCheck,
   Boxes,
   ChevronLeft,
   ClipboardCheck,
@@ -14,7 +13,9 @@ import {
 import { BannerSlider } from "@/src/components/storefront/banner-slider";
 import { StoreFooter } from "@/src/components/storefront/store-footer";
 import { StoreHeader } from "@/src/components/storefront/store-header";
+import { StoreTicker } from "@/src/components/storefront/store-ticker";
 import { getStorefrontHome } from "@/src/lib/catalog/storefront";
+import { getTickerMessages } from "@/src/lib/storefront/shell";
 
 export const revalidate = 60;
 
@@ -55,20 +56,16 @@ const steps = [
 ];
 
 export default async function HomePage() {
-  const { banners, categories, popularProducts } = await getStorefrontHome();
+  const [{ banners, categories, popularProducts }, tickerMessages] = await Promise.all([
+    getStorefrontHome(),
+    getTickerMessages(),
+  ]);
 
   return (
     <main className="site-shell">
       <StoreHeader />
       <BannerSlider banners={banners} />
-
-      <section className="trust-strip" aria-label="ضمانات تجربة RAIZEY">
-        <div className="container trust-strip-grid">
-          <span><BadgeCheck aria-hidden="true" size={18} /> خيارات من الكتالوج الفعلي</span>
-          <span><ShieldCheck aria-hidden="true" size={18} /> تحقق خادمي من السعر</span>
-          <span><Gauge aria-hidden="true" size={18} /> تجربة سريعة وواضحة</span>
-        </div>
-      </section>
+      <StoreTicker messages={tickerMessages} />
 
       {popularProducts.length > 0 && (
         <section className="section" id="most-purchased">
