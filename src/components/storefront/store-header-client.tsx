@@ -60,10 +60,6 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
   const unreadLabel = context.unreadNotifications > 99 ? "99+" : String(context.unreadNotifications);
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
