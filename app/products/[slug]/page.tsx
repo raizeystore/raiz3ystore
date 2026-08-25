@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ProductConfigurator } from "@/src/components/storefront/product-configurator";
 import { StoreFooter } from "@/src/components/storefront/store-footer";
 import { StoreHeader } from "@/src/components/storefront/store-header";
-import { getCatalogProductBySlug } from "@/src/lib/catalog/storefront";
+import { getCatalogProductDetailV2 } from "@/src/lib/catalog/product-detail-v2";
 import { createClient } from "@/src/lib/supabase/server";
 
 function formatPrice(value: number, currency: string) {
@@ -20,7 +20,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const catalogProduct = await getCatalogProductBySlug(slug);
+  const catalogProduct = await getCatalogProductDetailV2(slug);
 
   if (catalogProduct) {
     return (
@@ -48,11 +48,11 @@ export default async function ProductPage({
                   <span className="eyebrow-dot" /> {catalogProduct.subcategory.name}
                 </span>
                 <h1>{catalogProduct.name}</h1>
-                <p>{catalogProduct.description || "اختر العرض المناسب وأدخل بيانات الطلب."}</p>
+                <p>{catalogProduct.description || "اختر العرض والكمية، ثم أكمل بيانات التنفيذ في خطوة الدفع."}</p>
                 <div className="trust-row">
-                  <span className="trust-chip">سعر واضح</span>
-                  <span className="trust-chip">اختيار آمن</span>
-                  <span className="trust-chip">حماية الطلب</span>
+                  <span className="trust-chip">السعر يتحدث لحظيًا</span>
+                  <span className="trust-chip">التحقق النهائي من السيرفر</span>
+                  <span className="trust-chip">حتى 100 وحدة في الاختيار</span>
                 </div>
                 <div className="product-detail-media">
                   {catalogProduct.imageUrl ? (
@@ -70,13 +70,16 @@ export default async function ProductPage({
               </div>
 
               <ProductConfigurator
+                productId={catalogProduct.id}
+                productSlug={catalogProduct.slug}
                 productName={catalogProduct.name}
                 baseCustomerPrice={catalogProduct.baseCustomerPrice}
                 currency={catalogProduct.currency}
                 variants={catalogProduct.variants}
                 directSuboptions={catalogProduct.directSuboptions}
-                inputFields={catalogProduct.inputFields}
-                suboptionsRequired={catalogProduct.suboptionsRequired}
+                globalSuboptions={catalogProduct.globalSuboptions}
+                baseSuboptionsRequired={catalogProduct.baseSuboptionsRequired}
+                inputFieldCount={catalogProduct.inputFields.length}
               />
             </div>
           </div>
