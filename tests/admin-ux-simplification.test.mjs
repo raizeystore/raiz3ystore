@@ -28,19 +28,50 @@ test("catalog media uploads are restricted and server-side", () => {
   assert.match(actions, /resolveCatalogImage/);
 });
 
-test("admin catalog hides technical slug and sku fields from normal forms", () => {
-  for (const path of [
-    "app/admin/catalog/page.tsx",
-    "app/admin/catalog/categories/page.tsx",
-    "app/admin/catalog/subcategories/page.tsx",
-    "app/admin/catalog/products/page.tsx",
-  ]) {
-    const source = read(path);
+test("catalog admin is separated into sections and hides technical fields", () => {
+  const hub = read("app/admin/catalog/page.tsx");
+  const categories = read("app/admin/catalog/categories/page.tsx");
+  const subcategories = read("app/admin/catalog/subcategories/page.tsx");
+  const products = read("app/admin/catalog/products/page.tsx");
+
+  assert.match(hub, /الأقسام/);
+  assert.match(hub, /التصنيفات/);
+  assert.match(hub, /المنتجات/);
+  assert.doesNotMatch(categories, /type="file"/);
+  assert.match(subcategories, /name="imageFile" type="file"[^>]*required/);
+  assert.match(products, /name="imageFile" type="file"[^>]*required/);
+  assert.match(products, /name="q"/);
+
+  for (const source of [categories, subcategories, products]) {
     assert.doesNotMatch(source, /field-label">Slug/);
     assert.doesNotMatch(source, /field-label">SKU/);
     assert.doesNotMatch(source, /field-label">رابط الصورة/);
-    assert.match(source, /type="file"/);
   }
+});
+
+test("public catalog policies never require the private admin helper", () => {
+  const productsPolicy = read("supabase/migrations/20260825095126_fix_public_catalog_product_read_policy.sql");
+  const gamesPolicy = read("supabase/migrations/20260825095150_fix_public_games_read_policy.sql");
+
+  assert.doesNotMatch(productsPolicy, /private\.is_admin/);
+  assert.doesNotMatch(gamesPolicy, /private\.is_admin/);
+  assert.match(productsPolicy, /to anon, authenticated/);
+  assert.match(gamesPolicy, /status = 'active'/);
+});
+
+test("storefront header centers the official logo and exposes search plus drawer navigation", () => {
+  const header = read("src/components/storefront/store-header.tsx");
+  const css = read("src/components/storefront/store-header.module.css");
+  const searchPage = read("app/search/page.tsx");
+  const searchLib = read("src/lib/catalog/search.ts");
+
+  assert.match(header, /Menu/);
+  assert.match(header, /href="\/search"/);
+  assert.match(header, /إعدادات وأمان الحساب/);
+  assert.match(css, /left: 50%/);
+  assert.match(css, /right: 0/);
+  assert.match(searchPage, /البحث عن المنتجات/);
+  assert.match(searchLib, /searchCatalogProducts/);
 });
 
 test("direct product suboptions use an internal base variant and absolute price", () => {
