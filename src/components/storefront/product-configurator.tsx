@@ -179,11 +179,11 @@ export function ProductConfigurator({
       )}
 
       <div className="product-purchase-actions" aria-label="إجراءات الشراء">
-        <button className="btn btn-primary" type="button" disabled={!selectionReady || true}>
+        <button className="btn btn-primary" type="button" disabled>
           <ShoppingCart aria-hidden="true" size={18} />
           إضافة إلى السلة
         </button>
-        <button className="btn btn-secondary" type="button" disabled={!selectionReady || true}>
+        <button className="btn btn-secondary" type="button" disabled>
           <Zap aria-hidden="true" size={18} />
           شراء الآن
         </button>
