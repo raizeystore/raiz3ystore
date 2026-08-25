@@ -3,13 +3,13 @@
   top: 0;
   z-index: 60;
   border-bottom: 1px solid rgba(255,255,255,.07);
-  background: rgba(8,8,8,.92);
+  background: rgba(8,8,8,.94);
   backdrop-filter: blur(18px);
 }
 
 .bar {
   position: relative;
-  min-height: 68px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,48 +23,120 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  max-width: calc(100% - 128px);
+  max-width: calc(100% - 290px);
+  transform-origin: center;
 }
 
 .iconButton,
-.searchButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+.searchButton,
+.notificationButton {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
   display: grid;
   place-items: center;
   border: 1px solid var(--border);
-  border-radius: 13px;
+  border-radius: 12px;
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
 }
 
 .iconButton {
+  position: absolute;
   right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-.searchButton {
+.headerTools {
+  position: absolute;
   left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  direction: ltr;
+}
+
+.searchButton,
+.notificationButton {
+  position: relative;
+  flex: 0 0 auto;
 }
 
 .iconButton:hover,
-.searchButton:hover {
+.searchButton:hover,
+.notificationButton:hover,
+.walletChip:hover {
   border-color: rgba(255,106,0,.45);
   color: var(--brand-strong);
 }
 
-.desktopLinks {
-  display: none;
+.notificationBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding-inline: 4px;
+  border: 2px solid #080808;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #160d07;
+  font-size: 9px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.walletChip {
+  min-width: 82px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 9px;
+  border: 1px solid rgba(255,106,0,.28);
+  border-radius: 12px;
+  background: rgba(255,106,0,.07);
+  color: #f6f1ed;
+  direction: rtl;
+}
+
+.walletChip > span:not(.walletGuest) {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.walletChip strong {
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.walletChip small {
+  color: #ff9d58;
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.walletGuest {
+  font-size: 10px;
+  font-weight: 850;
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(0,0,0,.66);
+  min-height: 0;
+  background: rgba(0,0,0,.7);
   border: 0;
   padding: 0;
 }
@@ -73,67 +145,47 @@
   position: fixed;
   z-index: 81;
   inset: 0 0 0 auto;
-  width: min(86vw, 360px);
+  width: min(88vw, 370px);
   min-height: 100dvh;
+  max-height: 100dvh;
   overflow-y: auto;
   border-left: 1px solid var(--border);
   background: #0b0b0c;
-  box-shadow: -20px 0 60px rgba(0,0,0,.45);
+  box-shadow: -20px 0 60px rgba(0,0,0,.48);
   padding: 18px;
 }
 
 .panelHead {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+}
+
+.accountGreeting {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
 }
 
 .closeButton {
   width: 42px;
   height: 42px;
+  min-height: 42px;
+  flex: 0 0 auto;
   display: grid;
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
   color: var(--text);
-  cursor: pointer;
-}
-
-.searchForm {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-
-.searchInput {
-  min-width: 0;
-  flex: 1;
-  min-height: 46px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
-  padding: 0 12px;
-}
-
-.searchSubmit {
-  width: 46px;
-  min-height: 46px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--brand);
-  color: #1a1008;
-  display: grid;
-  place-items: center;
   cursor: pointer;
 }
 
 .links {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .link {
@@ -154,15 +206,136 @@
   color: var(--brand-strong);
 }
 
-.link span {
+.link > span {
+  min-width: 0;
+  flex: 1;
   font-weight: 800;
 }
 
-.groupTitle {
-  margin: 20px 4px 8px;
-  color: var(--text-muted);
-  font-size: 12px;
+.link > small {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: rgba(255,255,255,.05);
+  color: #888582;
+  font-size: 9px;
   font-weight: 800;
+}
+
+.linkDisabled {
+  cursor: default;
+  color: #77736f;
+  opacity: .72;
+}
+
+.linkDisabled:hover {
+  border-color: transparent;
+  background: transparent;
+  color: #77736f;
+}
+
+.drawerFooter {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.drawerFooter form {
+  margin: 0;
+}
+
+.logoutButton,
+.loginButton {
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  color: #f0ece8;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.logoutButton:hover,
+.loginButton:hover {
+  border-color: rgba(255,106,0,.35);
+  color: var(--brand-strong);
+}
+
+@media (max-width: 520px) {
+  .bar {
+    min-height: 66px;
+  }
+
+  .logo {
+    max-width: none;
+    transform: translate(-50%, -50%) scale(.72);
+  }
+
+  .iconButton,
+  .searchButton,
+  .notificationButton {
+    width: 34px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 10px;
+  }
+
+  .headerTools {
+    gap: 4px;
+  }
+
+  .walletChip {
+    min-width: 50px;
+    width: 50px;
+    height: 36px;
+    padding: 0 4px;
+    gap: 2px;
+    border-radius: 10px;
+  }
+
+  .walletChip > svg {
+    display: none;
+  }
+
+  .walletChip > span:not(.walletGuest) {
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+  }
+
+  .walletChip strong {
+    max-width: 45px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+  }
+
+  .walletChip small {
+    font-size: 7px;
+  }
+
+  .walletGuest {
+    font-size: 8px;
+  }
+
+  .notificationBadge {
+    top: -6px;
+    right: -6px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 8px;
+  }
+
+  .panel {
+    width: min(91vw, 360px);
+    padding: 16px;
+  }
 }
 
 @media (min-width: 900px) {
@@ -170,25 +343,11 @@
     min-height: 74px;
   }
 
-  .iconButton {
-    right: 0;
+  .logo {
+    max-width: none;
   }
 
-  .searchButton {
-    left: 0;
-  }
-
-  .desktopLinks {
-    display: flex;
-    position: absolute;
-    right: 60px;
-    align-items: center;
-    gap: 18px;
-    color: var(--text-muted);
-    font-size: 13px;
-  }
-
-  .desktopLinks a:hover {
-    color: var(--brand-strong);
+  .walletChip {
+    min-width: 104px;
   }
 }
