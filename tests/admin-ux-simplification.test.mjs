@@ -13,7 +13,7 @@ test("all brand logo variants use the official full logo", () => {
 });
 
 test("catalog media uploads are restricted and server-side", () => {
-  const migration = read("supabase/migrations/20260825001400_add_catalog_media_bucket.sql");
+  const migration = read("supabase/migrations/20260825001943_add_catalog_media_bucket.sql");
   const media = read("src/lib/catalog/media.ts");
   const actions = read("app/admin/catalog/v2-actions.ts");
 
