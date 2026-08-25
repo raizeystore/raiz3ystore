@@ -2,77 +2,92 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Gamepad2,
+  Headphones,
+  Pause,
+  Play,
+  WalletCards,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import artwork from "@/src/components/storefront/banner-slider.module.css";
 import type { StorefrontBanner } from "@/src/lib/catalog/storefront";
 
 type BannerSliderProps = {
   banners: StorefrontBanner[];
 };
 
+const BUILTIN_BANNERS: StorefrontBanner[] = [
+  {
+    id: "builtin-catalog",
+    title: "خدماتك الرقمية في مكان واحد",
+    subtitle: "اختر القسم ثم الباقة والمنتج، والأسعار تُحسب بالسعر المعتمد في المتجر.",
+    desktopImage: null,
+    mobileImage: null,
+    linkUrl: "#catalog",
+    buttonText: "استعرض الكتالوج",
+  },
+  {
+    id: "builtin-wallet",
+    title: "محفظة واحدة لطلباتك القادمة",
+    subtitle: "رصيد حسابك أصبح له بنية مستقلة، وشحن المحفظة سيُفعّل ضمن المرحلة المالية القادمة.",
+    desktopImage: null,
+    mobileImage: null,
+    linkUrl: "/wallet",
+    buttonText: "عرض المحفظة",
+  },
+  {
+    id: "builtin-support",
+    title: "كل تحديث في طلبك يصل إلى حسابك",
+    subtitle: "راجع التنبيهات وحالة الطلب من داخل RAIZEY، مع سبب الرفض عند وجوده.",
+    desktopImage: null,
+    mobileImage: null,
+    linkUrl: "/notifications",
+    buttonText: "فتح الإشعارات",
+  },
+];
+
+function bannerIcon(id: string) {
+  if (id === "builtin-wallet") return WalletCards;
+  if (id === "builtin-support") return Headphones;
+  return Gamepad2;
+}
+
 export function BannerSlider({ banners }: BannerSliderProps) {
+  const slides = banners.length >= 3
+    ? banners
+    : [...banners, ...BUILTIN_BANNERS.filter((item) => !banners.some((banner) => banner.id === item.id))].slice(0, 3);
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStart = useRef<number | null>(null);
-  const multiple = banners.length > 1;
+  const multiple = slides.length > 1;
+  const visibleIndex = activeIndex % slides.length;
 
   useEffect(() => {
     if (!multiple || paused) return;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
     const timer = window.setTimeout(() => {
-      setActiveIndex((current) => (current + 1) % banners.length);
-    }, 6500);
+      setActiveIndex((current) => (current + 1) % slides.length);
+    }, 7000);
 
     return () => window.clearTimeout(timer);
-  }, [activeIndex, banners.length, multiple, paused]);
-
-  if (!banners.length) {
-    return (
-      <section className="store-hero" aria-labelledby="store-hero-title">
-        <div className="container store-hero-inner">
-          <div className="store-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" /> خدمات رقمية موثوقة
-            </span>
-            <h1 id="store-hero-title">
-              اختر خدمتك.<br />
-              <span>والباقي علينا.</span>
-            </h1>
-            <p>
-              كتالوج مرتب وأسعار واضحة وتجربة مصممة للموبايل أولًا.
-            </p>
-            <div className="hero-actions">
-              <Link className="btn btn-primary" href="#catalog">
-                استعرض الكتالوج
-              </Link>
-              <Link className="btn btn-secondary" href="/account">
-                متابعة طلباتي
-              </Link>
-            </div>
-          </div>
-          <div className="store-hero-signal" aria-hidden="true">
-            <span>RAIZEY</span>
-            <strong>STORE</strong>
-            <small>سريع · واضح · آمن</small>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  }, [activeIndex, multiple, paused, slides.length]);
 
   const showPrevious = () => {
     setPaused(true);
-    setActiveIndex((current) =>
-      current === 0 ? banners.length - 1 : current - 1,
-    );
+    setActiveIndex((current) => {
+      const safeCurrent = current % slides.length;
+      return safeCurrent === 0 ? slides.length - 1 : safeCurrent - 1;
+    });
   };
+
   const showNext = () => {
     setPaused(true);
-    setActiveIndex((current) => (current + 1) % banners.length);
+    setActiveIndex((current) => (current + 1) % slides.length);
   };
 
   return (
@@ -92,19 +107,20 @@ export function BannerSlider({ banners }: BannerSliderProps) {
         const start = touchStart.current;
         const end = event.changedTouches[0]?.clientX;
         touchStart.current = null;
-        if (start === null || end === undefined || Math.abs(end - start) < 45) {
-          return;
-        }
+        if (start === null || end === undefined || Math.abs(end - start) < 45) return;
         if (end > start) showPrevious();
         else showNext();
       }}
     >
       <div className="container banner-stage">
-        {banners.map((banner, index) => {
-          const active = index === activeIndex;
+        {slides.map((banner, index) => {
+          const active = index === visibleIndex;
+          const GraphicIcon = bannerIcon(banner.id);
+          const hasImage = Boolean(banner.desktopImage || banner.mobileImage);
+
           return (
             <article
-              className={`banner-slide${active ? " is-active" : ""}`}
+              className={`banner-slide${active ? " is-active" : ""}${hasImage ? " has-image" : ` ${artwork.builtIn}`}`}
               aria-hidden={!active}
               key={banner.id}
             >
@@ -128,17 +144,22 @@ export function BannerSlider({ banners }: BannerSliderProps) {
                   sizes="100vw"
                 />
               )}
+
+              {!hasImage && (
+                <div className={artwork.graphic} aria-hidden="true">
+                  <span className={artwork.orbit} />
+                  <span className={artwork.icon}><GraphicIcon size={68} strokeWidth={1.35} /></span>
+                  <strong className={artwork.wordmark}>RAIZEY</strong>
+                </div>
+              )}
+
               <div className="banner-overlay" />
               <div className="banner-content">
-                <span className="banner-kicker">عرض مميز</span>
+                <span className="banner-kicker">{banner.id.startsWith("builtin-") ? "RAIZEY STORE" : "عرض مميز"}</span>
                 <h1>{banner.title}</h1>
                 {banner.subtitle && <p>{banner.subtitle}</p>}
                 {banner.linkUrl && (
-                  <Link
-                    className="btn btn-primary"
-                    href={banner.linkUrl}
-                    tabIndex={active ? undefined : -1}
-                  >
+                  <Link className="btn btn-primary" href={banner.linkUrl} tabIndex={active ? undefined : -1}>
                     {banner.buttonText || "اكتشف العرض"}
                   </Link>
                 )}
@@ -153,12 +174,12 @@ export function BannerSlider({ banners }: BannerSliderProps) {
               <ChevronRight aria-hidden="true" size={20} />
             </button>
             <div className="banner-dots" aria-label="اختيار البنر">
-              {banners.map((banner, index) => (
+              {slides.map((banner, index) => (
                 <button
-                  className={index === activeIndex ? "is-active" : ""}
+                  className={index === visibleIndex ? "is-active" : ""}
                   type="button"
                   aria-label={`عرض البنر ${index + 1}: ${banner.title}`}
-                  aria-current={index === activeIndex ? "true" : undefined}
+                  aria-current={index === visibleIndex ? "true" : undefined}
                   onClick={() => {
                     setPaused(true);
                     setActiveIndex(index);
@@ -172,11 +193,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
               onClick={() => setPaused((value) => !value)}
               aria-label={paused ? "تشغيل البنرات تلقائيًا" : "إيقاف البنرات مؤقتًا"}
             >
-              {paused ? (
-                <Play aria-hidden="true" size={18} />
-              ) : (
-                <Pause aria-hidden="true" size={18} />
-              )}
+              {paused ? <Play aria-hidden="true" size={18} /> : <Pause aria-hidden="true" size={18} />}
             </button>
             <button type="button" onClick={showNext} aria-label="البنر التالي">
               <ChevronLeft aria-hidden="true" size={20} />

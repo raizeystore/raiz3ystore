@@ -1,16 +1,23 @@
 import { expect, test } from "@playwright/test";
 
-test("home page renders the mobile-first storefront entry points", async ({ page }) => {
+test("home page renders the mobile-first storefront shell", async ({ page }) => {
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "ابدأ من القسم الصحيح" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "تصفح الكتالوج" })).toHaveAttribute("href", "#catalog");
+  await expect(page.getByRole("link", { name: "استعرض الكتالوج" })).toHaveAttribute("href", "#catalog");
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
+  await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
+  await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
+  await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
+
   await page.getByRole("button", { name: "فتح القائمة" }).click();
-  await expect(page.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/orders");
-  await expect(page.getByRole("link", { name: "إعدادات وأمان الحساب" })).toHaveAttribute("href", "/account/security");
+  await expect(page.getByText("سلة المشتريات", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "شحن المحفظة", exact: true })).toHaveAttribute("href", "/login?next=%2Fwallet");
+  await expect(page.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/login?next=%2Forders");
+  await expect(page.getByText("إحالاتي وأرباحي", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "إعدادات الحساب" })).toHaveAttribute("href", "/login?next=%2Faccount%2Fsecurity");
+  await expect(page.getByRole("link", { name: "لوحة الإدارة" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "تسجيل الدخول", exact: true })).toHaveAttribute("href", "/login");
-  await expect(page.getByText("خيارات من الكتالوج الفعلي", { exact: true })).toBeVisible();
   await expect(page.getByText(/PUBG MOBILE|FREE FIRE|CALL OF DUTY/)).toHaveCount(0);
 });
 
@@ -25,6 +32,14 @@ test("home page has no horizontal overflow at the target 393px width", async ({ 
 
 test("anonymous visitors cannot access Catalog V2 administration", async ({ page }) => {
   await page.goto("/admin/catalog/categories");
+  await expect(page).toHaveURL(/\/login/);
+});
+
+test("wallet and notification centers require an authenticated account", async ({ page }) => {
+  await page.goto("/wallet");
+  await expect(page).toHaveURL(/\/login/);
+
+  await page.goto("/notifications");
   await expect(page).toHaveURL(/\/login/);
 });
 
