@@ -1,0 +1,115 @@
+.page :global(.section) {
+  padding: 40px 0 56px;
+}
+
+.container {
+  max-width: 760px;
+}
+
+.heading {
+  margin-bottom: 18px;
+}
+
+.heading h1 {
+  margin: 10px 0 6px;
+  font-size: clamp(28px, 8vw, 38px);
+  line-height: 1.2;
+}
+
+.heading p {
+  max-width: 58ch;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summaryCard {
+  padding: 17px;
+}
+
+.summaryCard :global(.icon-box) {
+  width: 38px;
+  height: 38px;
+}
+
+.summaryCard h3 {
+  margin: 12px 0 4px;
+  font-size: 16px;
+}
+
+.summaryCard p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.actionCard {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 14px;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.actionCard:last-child {
+  margin-bottom: 0;
+}
+
+.actionCard :global(.auth-card-header) {
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.actionCard :global(.auth-card-header) h2 {
+  margin: 4px 0 0;
+  font-size: clamp(23px, 6vw, 30px);
+  line-height: 1.25;
+}
+
+.actionCard :global(.auth-card-header) p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.actionCard :global(.icon-box) {
+  width: 40px;
+  height: 40px;
+}
+
+.actionCard :global(.btn) {
+  min-height: 48px;
+}
+
+@media (max-width: 640px) {
+  .page :global(.section) {
+    padding-top: 28px;
+  }
+
+  .container {
+    width: min(calc(100% - 24px), 760px);
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    padding: 15px;
+  }
+
+  .actionCard {
+    padding: 17px;
+    border-radius: 16px;
+  }
+
+  .actionCard :global(.auth-card-header) h2 {
+    font-size: 24px;
+  }
+}
