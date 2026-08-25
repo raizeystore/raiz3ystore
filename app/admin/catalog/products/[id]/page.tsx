@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ChevronDown, ChevronLeft, ListChecks, Plus, Save, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, ListChecks, Plus, Save, SlidersHorizontal } from "lucide-react";
 import { notFound } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import styles from "@/app/admin/catalog/catalog-simple.module.css";
 import { CatalogNav } from "@/app/admin/catalog/_components/catalog-nav";
-import { saveInputField, saveSuboption, saveVariant } from "@/app/admin/catalog/v2-actions";
+import { saveInputField } from "@/app/admin/catalog/v2-actions";
+import { saveSuboptionV2, saveVariantV2 } from "@/app/admin/catalog/product-option-actions";
 import { requireAdmin } from "@/src/lib/auth/require-admin";
 import { createAdminClient } from "@/src/lib/supabase/admin";
 
@@ -18,8 +20,8 @@ function statusLabel(status: string) {
 }
 
 function notice(message?: string) {
-  if (message === "variant_saved") return "تم حفظ خيار السعر";
-  if (message === "suboption_saved") return "تم حفظ النوع الإضافي";
+  if (message === "variant_saved") return "تم حفظ العرض";
+  if (message === "suboption_saved") return "تم حفظ الخيار الفرعي";
   if (message === "input_field_saved") return "تم حفظ حقل بيانات العميل";
   return null;
 }
@@ -34,7 +36,7 @@ export default async function AdminProductDetailPage({
   const [{ id }, query] = await Promise.all([params, searchParams]);
   if (!UUID_RE.test(id)) notFound();
   await requireAdmin();
-  const admin = createAdminClient();
+  const admin = createAdminClient() as unknown as SupabaseClient;
 
   const { data: product } = await admin
     .from("products")
@@ -45,8 +47,18 @@ export default async function AdminProductDetailPage({
 
   const [subcategoryResult, variantsResult, fieldsResult] = await Promise.all([
     admin.from("subcategories").select("name").eq("id", product.subcategory_id).maybeSingle(),
-    admin.from("product_variants").select("id, name, sku, price_usd, status, sort_order").eq("product_id", id).order("sort_order").order("name"),
-    admin.from("product_input_fields").select("id, field_key, label, input_type, placeholder, is_required, min_length, max_length, status, sort_order").eq("product_id", id).order("sort_order").order("label"),
+    admin
+      .from("product_variants")
+      .select("id, name, sku, price_usd, suboptions_required, status, sort_order")
+      .eq("product_id", id)
+      .order("sort_order")
+      .order("name"),
+    admin
+      .from("product_input_fields")
+      .select("id, field_key, label, input_type, placeholder, is_required, min_length, max_length, status, sort_order")
+      .eq("product_id", id)
+      .order("sort_order")
+      .order("label"),
   ]);
 
   const allVariants = variantsResult.data ?? [];
@@ -54,14 +66,21 @@ export default async function AdminProductDetailPage({
   const systemVariant = allVariants.find((variant) => variant.sku === SYSTEM_BASE_VARIANT_SKU) ?? null;
   const fields = fieldsResult.data ?? [];
   const variantIds = allVariants.map((variant) => variant.id);
-  const suboptions = variantIds.length
-    ? (await admin.from("product_suboptions").select("id, variant_id, name, price_usd, status, sort_order").in("variant_id", variantIds).order("sort_order").order("name")).data ?? []
-    : [];
+  const { data: suboptionRows } = variantIds.length
+    ? await admin
+        .from("product_suboptions")
+        .select("id, variant_id, name, price_usd, applies_to_all_variants, price_mode, status, sort_order")
+        .in("variant_id", variantIds)
+        .order("sort_order")
+        .order("name")
+    : { data: [] };
+  const suboptions = suboptionRows ?? [];
   const success = notice(query.message);
 
-  function parentLabel(variantId: string) {
-    if (systemVariant?.id === variantId) return "المنتج مباشرة";
-    return visibleVariants.find((variant) => variant.id === variantId)?.name ?? "خيار غير معروف";
+  function parentLabel(suboption: (typeof suboptions)[number]) {
+    if (suboption.applies_to_all_variants) return "كل العروض";
+    if (systemVariant?.id === suboption.variant_id) return "المنتج الأساسي";
+    return visibleVariants.find((variant) => variant.id === suboption.variant_id)?.name ?? "عرض غير معروف";
   }
 
   return (
@@ -70,60 +89,67 @@ export default async function AdminProductDetailPage({
         <div className={styles.intro}>
           <div>
             <h1>{product.name}</h1>
-            <p>{subcategoryResult.data?.name ?? "باقة"} · السعر الأساسي {Number(product.base_price_usd ?? 0).toLocaleString("ar", { maximumFractionDigits: 4 })} USD</p>
+            <p>{subcategoryResult.data?.name ?? "تصنيف"} · هنا تضيف 60 و325 و660 وغيرها داخل منتج واحد.</p>
           </div>
           <div className="catalog-form-actions">
             <Link className="btn btn-secondary" href="/admin/catalog/products">المنتجات</Link>
-            <Link className="btn btn-secondary" href={`/products/${product.slug}`}>معاينة</Link>
+            <Link className="btn btn-secondary" href={`/products/${product.slug}`}>معاينة صفحة العميل</Link>
           </div>
         </div>
         <CatalogNav />
 
         {success && <div className="notice" role="status">{success}</div>}
-        {query.error && <div className="notice notice-error" role="alert">تعذر حفظ التعديل. تحقق من الاسم والسعر والحقول المطلوبة.</div>}
+        {query.error && <div className="notice notice-error" role="alert">تعذر حفظ التعديل. تحقق من العرض والسعر والخيارات المطلوبة.</div>}
 
         <section className="catalog-product-summary">
           <span className={`admin-status${product.status === "active" ? " is-success" : ""}`}>{statusLabel(product.status)}</span>
-          <span>{visibleVariants.length.toLocaleString("ar")} خيار سعر</span>
-          <span>{suboptions.length.toLocaleString("ar")} نوع إضافي</span>
-          <span>{fields.length.toLocaleString("ar")} حقل بيانات</span>
-          <span>{product.suboptions_required ? "اختيار النوع إجباري" : "اختيار النوع اختياري"}</span>
+          <span>{visibleVariants.length.toLocaleString("ar")} عرض</span>
+          <span>{suboptions.length.toLocaleString("ar")} خيار فرعي</span>
+          <span>{fields.length.toLocaleString("ar")} حقل تنفيذ</span>
         </section>
 
         <div className="product-config-admin-grid">
           <section className="admin-panel">
             <div className="admin-panel-head">
-              <div><h2>خيارات السعر</h2><p>اختياري. استخدمه عندما يكون للمنتج أحجام مثل 60 UC و660 UC.</p></div>
+              <div><h2>العروض والأسعار</h2><p>مثال: 60 UC و325 UC و660 UC. كل عرض له سعره وشرط الخيار الفرعي الخاص به.</p></div>
               <span className="admin-link-icon"><SlidersHorizontal aria-hidden="true" size={20} /></span>
             </div>
-            <form className="catalog-inline-create" action={saveVariant}>
+            <form className="catalog-inline-create" action={saveVariantV2}>
               <input type="hidden" name="productId" value={product.id} />
-              <label className="field"><span className="field-label">اسم الخيار</span><input name="name" required maxLength={120} placeholder="60 UC" /></label>
+              <label className="field"><span className="field-label">اسم العرض</span><input name="name" required maxLength={120} placeholder="60 UC" /></label>
               <label className="field"><span className="field-label">السعر بالدولار (USD)</span><input name="priceUsd" type="number" min="0" step="0.0001" required inputMode="decimal" /></label>
+              <label className={styles.toggle}>
+                <input type="checkbox" name="suboptionsRequired" />
+                <span><strong>الخيار الفرعي إجباري لهذا العرض</strong><small>فعّله مثلًا لـ60 UC فقط واترك 660 UC بدون تفعيل إذا أردت.</small></span>
+              </label>
               <input type="hidden" name="sortOrder" value={visibleVariants.length} />
               <input type="hidden" name="status" value="active" />
-              <button className="btn btn-primary" type="submit"><Plus aria-hidden="true" size={18} /> إضافة الخيار</button>
+              <button className="btn btn-primary" type="submit"><Plus aria-hidden="true" size={18} /> إضافة العرض</button>
             </form>
 
             {!visibleVariants.length ? (
-              <div className="admin-empty admin-section-gap"><strong>لا توجد خيارات سعر</strong><span>هذا طبيعي إذا كان المنتج له سعر أساسي واحد.</span></div>
+              <div className="admin-empty admin-section-gap"><strong>لا توجد عروض بعد</strong><span>أضف أول عرض مثل 60 UC من النموذج أعلاه.</span></div>
             ) : (
               <div className="catalog-edit-list admin-section-gap">
                 {visibleVariants.map((variant) => (
                   <details className="catalog-edit-item" key={variant.id}>
                     <summary>
-                      <span className="catalog-edit-main"><strong>{variant.name}</strong><small>{Number(variant.price_usd).toLocaleString("ar", { maximumFractionDigits: 4 })} USD</small></span>
+                      <span className="catalog-edit-main"><strong>{variant.name}</strong><small>{Number(variant.price_usd).toLocaleString("ar", { maximumFractionDigits: 4 })} USD · {variant.suboptions_required ? "الخيار الفرعي مطلوب" : "بدون شرط فرعي"}</small></span>
                       <span className={`admin-status${variant.status === "active" ? " is-success" : ""}`}>{statusLabel(variant.status)}</span>
                       <ChevronDown aria-hidden="true" size={18} />
                     </summary>
-                    <form className={`${styles.editForm} catalog-edit-form`} action={saveVariant}>
+                    <form className={`${styles.editForm} catalog-edit-form`} action={saveVariantV2}>
                       <input type="hidden" name="productId" value={product.id} />
                       <input type="hidden" name="variantId" value={variant.id} />
                       <input type="hidden" name="sku" value={variant.sku ?? ""} />
-                      <label className="field"><span className="field-label">اسم الخيار</span><input name="name" required maxLength={120} defaultValue={variant.name} /></label>
+                      <label className="field"><span className="field-label">اسم العرض</span><input name="name" required maxLength={120} defaultValue={variant.name} /></label>
                       <label className="field"><span className="field-label">السعر بالدولار (USD)</span><input name="priceUsd" type="number" min="0" step="0.0001" required defaultValue={variant.price_usd} /></label>
+                      <label className={styles.toggle}>
+                        <input type="checkbox" name="suboptionsRequired" defaultChecked={Boolean(variant.suboptions_required)} />
+                        <span><strong>الخيار الفرعي إجباري لهذا العرض</strong><small>يمنع العميل من المتابعة حتى يختار النوع المربوط بهذا العرض أو خيارًا عامًا.</small></span>
+                      </label>
                       <details className={styles.advanced}>
-                        <summary>تفاصيل إضافية</summary>
+                        <summary>الترتيب والحالة</summary>
                         <div className={styles.advancedBody}>
                           <div className={styles.grid}>
                             <label className="field"><span className="field-label">الترتيب</span><input name="sortOrder" type="number" min="0" step="1" defaultValue={variant.sort_order} /></label>
@@ -131,7 +157,7 @@ export default async function AdminProductDetailPage({
                           </div>
                         </div>
                       </details>
-                      <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ</button>
+                      <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ العرض</button>
                     </form>
                   </details>
                 ))}
@@ -141,52 +167,57 @@ export default async function AdminProductDetailPage({
 
           <section className="admin-panel">
             <div className="admin-panel-head">
-              <div><h2>الأنواع الإضافية</h2><p>اكتب الاسم والسعر مباشرة. مثال: حساب موثق فقط أو حساب موثق + فيزا.</p></div>
+              <div><h2>الخيارات الفرعية</h2><p>للخيار الخاص بعرض واحد: السعر المكتوب هو السعر النهائي. للخيار العام: السعر المكتوب زيادة USD تُضاف لأي عرض.</p></div>
               <span className="admin-link-icon"><ListChecks aria-hidden="true" size={20} /></span>
             </div>
-            <form className="catalog-inline-create" action={saveSuboption}>
+            <form className="catalog-inline-create" action={saveSuboptionV2}>
               <input type="hidden" name="productId" value={product.id} />
-              <label className="field"><span className="field-label">يظهر بعد</span><select className="admin-select" name="variantId" required defaultValue={DIRECT_PRODUCT_VARIANT}><option value={DIRECT_PRODUCT_VARIANT}>المنتج مباشرة</option>{visibleVariants.map((variant) => <option value={variant.id} key={variant.id}>{variant.name}</option>)}</select></label>
-              <label className="field"><span className="field-label">اسم النوع</span><input name="name" required maxLength={120} placeholder="حساب موثق + فيزا" /></label>
-              <label className="field"><span className="field-label">سعر هذا النوع بالدولار (USD)</span><input name="priceUsd" type="number" min="0" step="0.0001" required inputMode="decimal" /></label>
+              <label className="field"><span className="field-label">يظهر بعد</span><select className="admin-select" name="variantId" required defaultValue={DIRECT_PRODUCT_VARIANT}><option value={DIRECT_PRODUCT_VARIANT}>المنتج الأساسي</option>{visibleVariants.map((variant) => <option value={variant.id} key={variant.id}>{variant.name}</option>)}</select></label>
+              <label className="field"><span className="field-label">اسم الخيار</span><input name="name" required maxLength={120} placeholder="حساب موثق + فيزا" /></label>
+              <label className="field"><span className="field-label">السعر / الزيادة بالدولار</span><input name="priceUsd" type="number" min="0" step="0.0001" required inputMode="decimal" /></label>
+              <label className={styles.toggle}>
+                <input type="checkbox" name="applyToAllVariants" />
+                <span><strong>تطبيق على جميع عروض المنتج</strong><small>عند تفعيله يتم تجاهل اختيار «يظهر بعد» ويُعامل السعر كزيادة فوق سعر كل عرض.</small></span>
+              </label>
               <input type="hidden" name="sortOrder" value={suboptions.length} />
               <input type="hidden" name="status" value="active" />
-              <button className="btn btn-primary" type="submit"><Plus aria-hidden="true" size={18} /> إضافة النوع</button>
+              <button className="btn btn-primary" type="submit"><Plus aria-hidden="true" size={18} /> إضافة الخيار</button>
             </form>
 
             {!suboptions.length ? (
-              <div className="admin-empty admin-section-gap"><strong>لا توجد أنواع إضافية</strong><span>اتركها فارغة إذا لم يحتج المنتج إلى اختيار إضافي.</span></div>
+              <div className="admin-empty admin-section-gap"><strong>لا توجد خيارات فرعية</strong><span>أضفها فقط للمنتجات التي تحتاج نوعًا إضافيًا.</span></div>
             ) : (
               <div className="catalog-edit-list admin-section-gap">
-                {suboptions.map((suboption) => {
-                  const direct = systemVariant?.id === suboption.variant_id;
-                  return (
-                    <details className="catalog-edit-item" key={suboption.id}>
-                      <summary>
-                        <span className="catalog-edit-main"><strong>{suboption.name}</strong><small>{parentLabel(suboption.variant_id)} · {Number(suboption.price_usd).toLocaleString("ar", { maximumFractionDigits: 4 })} USD</small></span>
-                        <span className={`admin-status${suboption.status === "active" ? " is-success" : ""}`}>{statusLabel(suboption.status)}</span>
-                        <ChevronDown aria-hidden="true" size={18} />
-                      </summary>
-                      <form className={`${styles.editForm} catalog-edit-form`} action={saveSuboption}>
-                        <input type="hidden" name="productId" value={product.id} />
-                        <input type="hidden" name="suboptionId" value={suboption.id} />
-                        <label className="field"><span className="field-label">يظهر بعد</span><select className="admin-select" name="variantId" required defaultValue={direct ? DIRECT_PRODUCT_VARIANT : suboption.variant_id}><option value={DIRECT_PRODUCT_VARIANT}>المنتج مباشرة</option>{visibleVariants.map((variant) => <option value={variant.id} key={variant.id}>{variant.name}</option>)}</select></label>
-                        <label className="field"><span className="field-label">اسم النوع</span><input name="name" required maxLength={120} defaultValue={suboption.name} /></label>
-                        <label className="field"><span className="field-label">السعر بالدولار (USD)</span><input name="priceUsd" type="number" min="0" step="0.0001" required defaultValue={suboption.price_usd} /></label>
-                        <details className={styles.advanced}>
-                          <summary>تفاصيل إضافية</summary>
-                          <div className={styles.advancedBody}>
-                            <div className={styles.grid}>
-                              <label className="field"><span className="field-label">الترتيب</span><input name="sortOrder" type="number" min="0" step="1" defaultValue={suboption.sort_order} /></label>
-                              <label className="field"><span className="field-label">الحالة</span><select className="admin-select" name="status" defaultValue={suboption.status}><option value="active">نشط</option><option value="inactive">متوقف</option><option value="archived">مؤرشف</option></select></label>
-                            </div>
+                {suboptions.map((suboption) => (
+                  <details className="catalog-edit-item" key={suboption.id}>
+                    <summary>
+                      <span className="catalog-edit-main"><strong>{suboption.name}</strong><small>{parentLabel(suboption)} · {Number(suboption.price_usd).toLocaleString("ar", { maximumFractionDigits: 4 })} USD · {suboption.price_mode === "delta" ? "زيادة" : "سعر نهائي"}</small></span>
+                      <span className={`admin-status${suboption.status === "active" ? " is-success" : ""}`}>{statusLabel(suboption.status)}</span>
+                      <ChevronDown aria-hidden="true" size={18} />
+                    </summary>
+                    <form className={`${styles.editForm} catalog-edit-form`} action={saveSuboptionV2}>
+                      <input type="hidden" name="productId" value={product.id} />
+                      <input type="hidden" name="suboptionId" value={suboption.id} />
+                      <label className="field"><span className="field-label">يظهر بعد</span><select className="admin-select" name="variantId" required defaultValue={systemVariant?.id === suboption.variant_id ? DIRECT_PRODUCT_VARIANT : suboption.variant_id}><option value={DIRECT_PRODUCT_VARIANT}>المنتج الأساسي</option>{visibleVariants.map((variant) => <option value={variant.id} key={variant.id}>{variant.name}</option>)}</select></label>
+                      <label className="field"><span className="field-label">اسم الخيار</span><input name="name" required maxLength={120} defaultValue={suboption.name} /></label>
+                      <label className="field"><span className="field-label">السعر / الزيادة بالدولار</span><input name="priceUsd" type="number" min="0" step="0.0001" required defaultValue={suboption.price_usd} /></label>
+                      <label className={styles.toggle}>
+                        <input type="checkbox" name="applyToAllVariants" defaultChecked={Boolean(suboption.applies_to_all_variants)} />
+                        <span><strong>تطبيق على جميع عروض المنتج</strong><small>الخيار العام يُضاف سعره إلى العرض المختار؛ الخيار الخاص يستبدل السعر بسعرك النهائي المكتوب.</small></span>
+                      </label>
+                      <details className={styles.advanced}>
+                        <summary>الترتيب والحالة</summary>
+                        <div className={styles.advancedBody}>
+                          <div className={styles.grid}>
+                            <label className="field"><span className="field-label">الترتيب</span><input name="sortOrder" type="number" min="0" step="1" defaultValue={suboption.sort_order} /></label>
+                            <label className="field"><span className="field-label">الحالة</span><select className="admin-select" name="status" defaultValue={suboption.status}><option value="active">نشط</option><option value="inactive">متوقف</option><option value="archived">مؤرشف</option></select></label>
                           </div>
-                        </details>
-                        <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ</button>
-                      </form>
-                    </details>
-                  );
-                })}
+                        </div>
+                      </details>
+                      <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ الخيار</button>
+                    </form>
+                  </details>
+                ))}
               </div>
             )}
           </section>
@@ -194,28 +225,26 @@ export default async function AdminProductDetailPage({
 
         <section className="admin-panel admin-section-gap">
           <div className="admin-panel-head">
-            <div><h2>بيانات العميل</h2><p>أضف فقط المعلومات التي يحتاجها تنفيذ الطلب، مثل Player ID أو رقم الحساب.</p></div>
+            <div><h2>بيانات التنفيذ</h2><p>هذه الحقول تظهر في Checkout بعد أن يختار العميل العرض والكمية.</p></div>
             <span className="admin-link-icon"><ListChecks aria-hidden="true" size={20} /></span>
           </div>
           <form className="catalog-inline-create catalog-inline-create--fields" action={saveInputField}>
             <input type="hidden" name="productId" value={product.id} />
             <label className="field"><span className="field-label">اسم الحقل</span><input name="label" required maxLength={80} placeholder="Player ID" /></label>
-            <label className="field"><span className="field-label">نوع البيانات</span><select className="admin-select" name="inputType" defaultValue="text"><option value="text">نص</option><option value="number">رقم</option><option value="email">بريد إلكتروني</option><option value="tel">رقم هاتف</option></select></label>
-            <label className="field"><span className="field-label">نص إرشادي داخل الحقل</span><input name="placeholder" maxLength={120} placeholder="اكتب الرقم هنا" /></label>
-            <label className={styles.toggle}><input type="checkbox" name="isRequired" /><span><strong>هذا الحقل مطلوب</strong><small>لن يستطيع العميل المتابعة بدونه.</small></span></label>
+            <label className="field"><span className="field-label">نوع البيانات</span><select className="admin-select" name="inputType" defaultValue="text"><option value="text">نص</option><option value="number">رقم</option><option value="email">بريد</option><option value="tel">هاتف</option></select></label>
+            <label className="field"><span className="field-label">النص الإرشادي</span><input name="placeholder" maxLength={120} placeholder="أدخل معرف اللاعب" /></label>
+            <label className={styles.toggle}><input type="checkbox" name="isRequired" defaultChecked /><span><strong>الحقل إجباري</strong><small>لن ينشئ السيرفر الطلب إذا تُرك الحقل المطلوب فارغًا.</small></span></label>
             <input type="hidden" name="sortOrder" value={fields.length} />
             <input type="hidden" name="status" value="active" />
             <button className="btn btn-primary" type="submit"><Plus aria-hidden="true" size={18} /> إضافة الحقل</button>
           </form>
 
-          {!fields.length ? (
-            <div className="admin-empty admin-section-gap"><strong>لا توجد بيانات إضافية مطلوبة</strong><span>أضف حقلًا فقط إذا احتجت معلومة من العميل.</span></div>
-          ) : (
+          {fields.length > 0 && (
             <div className="catalog-edit-list admin-section-gap">
               {fields.map((field) => (
                 <details className="catalog-edit-item" key={field.id}>
                   <summary>
-                    <span className="catalog-edit-main"><strong>{field.label}</strong><small>{field.is_required ? "مطلوب" : "اختياري"}</small></span>
+                    <span className="catalog-edit-main"><strong>{field.label}</strong><small>{field.input_type} · {field.is_required ? "مطلوب" : "اختياري"}</small></span>
                     <span className={`admin-status${field.status === "active" ? " is-success" : ""}`}>{statusLabel(field.status)}</span>
                     <ChevronDown aria-hidden="true" size={18} />
                   </summary>
@@ -224,29 +253,22 @@ export default async function AdminProductDetailPage({
                     <input type="hidden" name="fieldId" value={field.id} />
                     <input type="hidden" name="fieldKey" value={field.field_key} />
                     <label className="field"><span className="field-label">اسم الحقل</span><input name="label" required maxLength={80} defaultValue={field.label} /></label>
-                    <label className="field"><span className="field-label">نوع البيانات</span><select className="admin-select" name="inputType" defaultValue={field.input_type}><option value="text">نص</option><option value="number">رقم</option><option value="email">بريد إلكتروني</option><option value="tel">رقم هاتف</option></select></label>
+                    <label className="field"><span className="field-label">نوع البيانات</span><select className="admin-select" name="inputType" defaultValue={field.input_type}><option value="text">نص</option><option value="number">رقم</option><option value="email">بريد</option><option value="tel">هاتف</option></select></label>
                     <label className="field"><span className="field-label">النص الإرشادي</span><input name="placeholder" maxLength={120} defaultValue={field.placeholder ?? ""} /></label>
-                    <label className={styles.toggle}><input type="checkbox" name="isRequired" defaultChecked={field.is_required} /><span><strong>هذا الحقل مطلوب</strong></span></label>
-                    <details className={styles.advanced}>
-                      <summary>تفاصيل إضافية</summary>
-                      <div className={styles.advancedBody}>
-                        <div className={styles.grid}>
-                          <label className="field"><span className="field-label">أقل طول</span><input name="minLength" type="number" min="0" max="500" defaultValue={field.min_length ?? ""} /></label>
-                          <label className="field"><span className="field-label">أقصى طول</span><input name="maxLength" type="number" min="0" max="500" defaultValue={field.max_length ?? ""} /></label>
-                          <label className="field"><span className="field-label">الترتيب</span><input name="sortOrder" type="number" min="0" step="1" defaultValue={field.sort_order} /></label>
-                          <label className="field"><span className="field-label">الحالة</span><select className="admin-select" name="status" defaultValue={field.status}><option value="active">نشط</option><option value="inactive">متوقف</option><option value="archived">مؤرشف</option></select></label>
-                        </div>
-                      </div>
-                    </details>
-                    <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ</button>
+                    <label className={styles.toggle}><input type="checkbox" name="isRequired" defaultChecked={Boolean(field.is_required)} /><span><strong>الحقل إجباري</strong></span></label>
+                    <div className={styles.grid}>
+                      <label className="field"><span className="field-label">أقل طول</span><input name="minLength" type="number" min="0" max="500" defaultValue={field.min_length ?? ""} /></label>
+                      <label className="field"><span className="field-label">أقصى طول</span><input name="maxLength" type="number" min="1" max="500" defaultValue={field.max_length ?? ""} /></label>
+                      <label className="field"><span className="field-label">الترتيب</span><input name="sortOrder" type="number" min="0" step="1" defaultValue={field.sort_order} /></label>
+                      <label className="field"><span className="field-label">الحالة</span><select className="admin-select" name="status" defaultValue={field.status}><option value="active">نشط</option><option value="inactive">متوقف</option><option value="archived">مؤرشف</option></select></label>
+                    </div>
+                    <button className="btn btn-primary" type="submit"><Save aria-hidden="true" size={18} /> حفظ الحقل</button>
                   </form>
                 </details>
               ))}
             </div>
           )}
         </section>
-
-        <Link className="admin-back-link" href="/admin/catalog/products">العودة للمنتجات <ChevronLeft aria-hidden="true" size={16} /></Link>
       </div>
     </main>
   );

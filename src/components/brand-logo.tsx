@@ -33,7 +33,6 @@ const FULL_DIMENSIONS = {
  */
 export function BrandLogo({
   size,
-  withWordmark: _withWordmark = true,
   compact = false,
   variant,
   className,

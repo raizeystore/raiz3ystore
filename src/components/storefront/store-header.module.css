@@ -23,16 +23,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  max-width: calc(100% - 290px);
+  max-width: calc(100% - 300px);
   transform-origin: center;
 }
 
 .iconButton,
+.cartButton,
 .searchButton,
 .notificationButton {
+  position: relative;
   width: 40px;
   height: 40px;
   min-height: 40px;
+  flex: 0 0 auto;
   display: grid;
   place-items: center;
   border: 1px solid var(--border);
@@ -42,16 +45,9 @@
   cursor: pointer;
 }
 
-.iconButton {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
+.rightTools,
 .headerTools {
   position: absolute;
-  left: 0;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -60,13 +56,16 @@
   direction: ltr;
 }
 
-.searchButton,
-.notificationButton {
-  position: relative;
-  flex: 0 0 auto;
+.rightTools {
+  right: 0;
+}
+
+.headerTools {
+  left: 0;
 }
 
 .iconButton:hover,
+.cartButton:hover,
 .searchButton:hover,
 .notificationButton:hover,
 .walletChip:hover {
@@ -222,6 +221,11 @@
   font-weight: 800;
 }
 
+.drawerBadge {
+  background: rgba(255,106,0,.12) !important;
+  color: #ffad70 !important;
+}
+
 .linkDisabled {
   cursor: default;
   color: #77736f;
@@ -274,10 +278,11 @@
 
   .logo {
     max-width: none;
-    transform: translate(-50%, -50%) scale(.72);
+    transform: translate(-50%, -50%) scale(.68);
   }
 
   .iconButton,
+  .cartButton,
   .searchButton,
   .notificationButton {
     width: 34px;
@@ -286,6 +291,7 @@
     border-radius: 10px;
   }
 
+  .rightTools,
   .headerTools {
     gap: 4px;
   }
@@ -335,6 +341,29 @@
   .panel {
     width: min(91vw, 360px);
     padding: 16px;
+  }
+}
+
+@media (max-width: 390px) {
+  .logo {
+    transform: translate(-50%, -50%) scale(.61);
+  }
+
+  .iconButton,
+  .cartButton,
+  .searchButton,
+  .notificationButton {
+    width: 32px;
+  }
+
+  .walletChip {
+    width: 44px;
+    min-width: 44px;
+  }
+
+  .walletChip strong {
+    max-width: 39px;
+    font-size: 9px;
   }
 }
 
