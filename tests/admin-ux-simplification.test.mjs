@@ -59,19 +59,51 @@ test("public catalog policies never require the private admin helper", () => {
   assert.match(gamesPolicy, /status = 'active'/);
 });
 
-test("storefront header centers the official logo and exposes search plus drawer navigation", () => {
-  const header = read("src/components/storefront/store-header.tsx");
+test("storefront header centers branding and exposes account-aware tools", () => {
+  const wrapper = read("src/components/storefront/store-header.tsx");
+  const header = read("src/components/storefront/store-header-client.tsx");
   const css = read("src/components/storefront/store-header.module.css");
   const searchPage = read("app/search/page.tsx");
   const searchLib = read("src/lib/catalog/search.ts");
 
+  assert.match(wrapper, /getStoreHeaderContext/);
   assert.match(header, /Menu/);
   assert.match(header, /href="\/search"/);
-  assert.match(header, /إعدادات وأمان الحساب/);
+  assert.match(header, /Bell/);
+  assert.match(header, /WalletCards/);
+  assert.match(header, /سلة المشتريات/);
+  assert.match(header, /شحن المحفظة/);
+  assert.match(header, /طلباتي/);
+  assert.match(header, /إحالاتي وأرباحي/);
+  assert.match(header, /إعدادات الحساب/);
+  assert.match(header, /adminOnly: true/);
+  assert.match(header, /signOut/);
   assert.match(css, /left: 50%/);
   assert.match(css, /right: 0/);
   assert.match(searchPage, /البحث عن المنتجات/);
   assert.match(searchLib, /searchCatalogProducts/);
+});
+
+test("storefront shell foundations keep wallet writes server-only and alerts scoped", () => {
+  const migration = read("supabase/migrations/20260825122247_storefront_shell_foundations.sql");
+  const notifications = read("app/notifications/page.tsx");
+  const wallet = read("app/wallet/page.tsx");
+  const ticker = read("src/components/storefront/store-ticker.tsx");
+  const banner = read("src/components/storefront/banner-slider.tsx");
+  const bannerAdmin = read("app/admin/settings/banners/page.tsx");
+
+  assert.match(migration, /create table if not exists public\.wallet_accounts/);
+  assert.match(migration, /revoke insert, update, delete on table public\.wallet_accounts from authenticated/);
+  assert.match(migration, /user_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /create table if not exists public\.ticker_messages/);
+  assert.match(migration, /v_admin_title := 'دفعة تحتاج مراجعة'/);
+  assert.match(migration, /new\.admin_note/);
+  assert.match(notifications, /markAllNotificationsRead/);
+  assert.match(wallet, /رصيدك محفوظ في حسابك/);
+  assert.match(ticker, /DEFAULT_MESSAGES/);
+  assert.match(banner, /7000/);
+  assert.match(banner, /BUILTIN_BANNERS/);
+  assert.match(bannerAdmin, /saveTickerMessage/);
 });
 
 test("direct product suboptions use an internal base variant and absolute price", () => {
