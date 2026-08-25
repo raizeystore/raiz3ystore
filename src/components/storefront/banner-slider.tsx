@@ -36,15 +36,14 @@ export function BannerSlider({ banners }: BannerSliderProps) {
         <div className="container store-hero-inner">
           <div className="store-hero-copy">
             <span className="eyebrow">
-              <span className="eyebrow-dot" /> RAIZEY DIGITAL TOP-UP
+              <span className="eyebrow-dot" /> خدمات رقمية موثوقة
             </span>
             <h1 id="store-hero-title">
               اختر خدمتك.<br />
               <span>والباقي علينا.</span>
             </h1>
             <p>
-              كتالوج رقمي منظم من القسم إلى الباقة، بأسعار محسوبة من النظام
-              وتجربة شراء مصممة للموبايل أولًا.
+              كتالوج مرتب وأسعار واضحة وتجربة مصممة للموبايل أولًا.
             </p>
             <div className="hero-actions">
               <Link className="btn btn-primary" href="#catalog">
@@ -58,7 +57,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
           <div className="store-hero-signal" aria-hidden="true">
             <span>RAIZEY</span>
             <strong>STORE</strong>
-            <small>FAST · CLEAR · SECURE</small>
+            <small>سريع · واضح · آمن</small>
           </div>
         </div>
       </section>
@@ -131,7 +130,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
               )}
               <div className="banner-overlay" />
               <div className="banner-content">
-                <span className="banner-kicker">RAIZEY FEATURED</span>
+                <span className="banner-kicker">عرض مميز</span>
                 <h1>{banner.title}</h1>
                 {banner.subtitle && <p>{banner.subtitle}</p>}
                 {banner.linkUrl && (
