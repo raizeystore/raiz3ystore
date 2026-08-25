@@ -12,6 +12,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import artwork from "@/src/components/storefront/banner-slider.module.css";
 import type { StorefrontBanner } from "@/src/lib/catalog/storefront";
 
 type BannerSliderProps = {
@@ -119,7 +120,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
 
           return (
             <article
-              className={`banner-slide${active ? " is-active" : ""}${hasImage ? " has-image" : " is-built-in"}`}
+              className={`banner-slide${active ? " is-active" : ""}${hasImage ? " has-image" : ` ${artwork.builtIn}`}`}
               aria-hidden={!active}
               key={banner.id}
             >
@@ -145,10 +146,10 @@ export function BannerSlider({ banners }: BannerSliderProps) {
               )}
 
               {!hasImage && (
-                <div className="banner-graphic" aria-hidden="true">
-                  <span className="banner-graphic-orbit" />
-                  <span className="banner-graphic-icon"><GraphicIcon size={68} strokeWidth={1.35} /></span>
-                  <strong>RAIZEY</strong>
+                <div className={artwork.graphic} aria-hidden="true">
+                  <span className={artwork.orbit} />
+                  <span className={artwork.icon}><GraphicIcon size={68} strokeWidth={1.35} /></span>
+                  <strong className={artwork.wordmark}>RAIZEY</strong>
                 </div>
               )}
 
