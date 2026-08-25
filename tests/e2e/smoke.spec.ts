@@ -8,10 +8,11 @@ test("home page renders the mobile-first storefront shell", async ({ page }) => 
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
   await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
   await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
+  await expect(page.getByRole("link", { name: "سلة المشتريات" })).toHaveAttribute("href", "/login?next=%2Fcart");
   await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
 
   await page.getByRole("button", { name: "فتح القائمة" }).click();
-  await expect(page.getByText("سلة المشتريات", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "سلة المشتريات", exact: true })).toHaveAttribute("href", "/login?next=%2Fcart");
   await expect(page.getByRole("link", { name: "شحن المحفظة", exact: true })).toHaveAttribute("href", "/login?next=%2Fwallet");
   await expect(page.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/login?next=%2Forders");
   await expect(page.getByText("إحالاتي وأرباحي", { exact: true })).toBeVisible();
@@ -35,11 +36,17 @@ test("anonymous visitors cannot access Catalog V2 administration", async ({ page
   await expect(page).toHaveURL(/\/login/);
 });
 
-test("wallet and notification centers require an authenticated account", async ({ page }) => {
+test("wallet notifications and cart require an authenticated account", async ({ page }) => {
   await page.goto("/wallet");
   await expect(page).toHaveURL(/\/login/);
 
   await page.goto("/notifications");
+  await expect(page).toHaveURL(/\/login/);
+
+  await page.goto("/cart");
+  await expect(page).toHaveURL(/\/login/);
+
+  await page.goto("/checkout/catalog?mode=cart");
   await expect(page).toHaveURL(/\/login/);
 });
 
