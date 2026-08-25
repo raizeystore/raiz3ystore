@@ -10,6 +10,7 @@ export type StoreHeaderContext = {
   walletBalance: number;
   walletCurrency: string;
   unreadNotifications: number;
+  cartItemCount: number;
 };
 
 const ANONYMOUS_HEADER: StoreHeaderContext = {
@@ -19,6 +20,7 @@ const ANONYMOUS_HEADER: StoreHeaderContext = {
   walletBalance: 0,
   walletCurrency: "SDG",
   unreadNotifications: 0,
+  cartItemCount: 0,
 };
 
 function numeric(value: unknown) {
@@ -50,11 +52,22 @@ export async function getStoreHeaderContext(): Promise<StoreHeaderContext> {
   ]);
 
   const untyped = supabase as unknown as SupabaseClient;
-  const { data: wallet } = await untyped
-    .from("wallet_accounts")
-    .select("balance, currency")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const [{ data: wallet }, { data: cartItems }] = await Promise.all([
+    untyped
+      .from("wallet_accounts")
+      .select("balance, currency")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    untyped
+      .from("cart_items")
+      .select("quantity")
+      .eq("user_id", userId),
+  ]);
+
+  const cartItemCount = (cartItems ?? []).reduce(
+    (sum, item) => sum + Math.max(0, numeric(item.quantity)),
+    0,
+  );
 
   return {
     signedIn: true,
@@ -63,6 +76,7 @@ export async function getStoreHeaderContext(): Promise<StoreHeaderContext> {
     walletBalance: numeric(wallet?.balance),
     walletCurrency: typeof wallet?.currency === "string" ? wallet.currency : "SDG",
     unreadNotifications: unreadResult.count ?? 0,
+    cartItemCount,
   };
 }
 
