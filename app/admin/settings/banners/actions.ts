@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/src/lib/auth/require-admin";
+import { CatalogMediaError, resolveCatalogImage } from "@/src/lib/catalog/media";
 import { createAdminClient } from "@/src/lib/supabase/admin";
 import type { Database } from "@/src/types/database";
 
@@ -27,22 +28,6 @@ function safeNavigationUrl(formData: FormData, key: string) {
   }
 }
 
-function safeImageUrl(formData: FormData, key: string) {
-  const value = text(formData, key, 1000);
-  if (!value) return null;
-  if (value.startsWith("/") && !value.startsWith("//")) return value;
-  try {
-    const url = new URL(value);
-    const isSupabaseObject =
-      url.protocol === "https:" &&
-      url.hostname.endsWith(".supabase.co") &&
-      url.pathname.startsWith("/storage/v1/object/");
-    return isSupabaseObject ? url.toString() : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
 function optionalDate(formData: FormData, key: string) {
   const value = text(formData, key, 40);
   if (!value) return null;
@@ -50,13 +35,29 @@ function optionalDate(formData: FormData, key: string) {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
+async function bannerImage(
+  admin: ReturnType<typeof createAdminClient>,
+  formData: FormData,
+  fileKey: string,
+  existingKey: string,
+) {
+  try {
+    return await resolveCatalogImage(admin, formData, {
+      fileKey,
+      existingKey,
+      folder: "banners",
+    });
+  } catch (error) {
+    if (error instanceof CatalogMediaError) return undefined;
+    throw error;
+  }
+}
+
 export async function saveBanner(formData: FormData) {
   const { userId } = await requireAdmin();
   const bannerId = text(formData, "bannerId", 64) || null;
   const title = text(formData, "title", 120);
   const subtitle = text(formData, "subtitle", 240);
-  const desktopImage = safeImageUrl(formData, "desktopImage");
-  const mobileImage = safeImageUrl(formData, "mobileImage");
   const linkUrl = safeNavigationUrl(formData, "linkUrl");
   const buttonText = text(formData, "buttonText", 80);
   const status = text(formData, "status", 16) as BannerStatus;
@@ -67,8 +68,6 @@ export async function saveBanner(formData: FormData) {
   if (
     (bannerId !== null && !UUID_RE.test(bannerId)) ||
     title.length < 2 ||
-    desktopImage === undefined ||
-    mobileImage === undefined ||
     linkUrl === undefined ||
     !STATUSES.has(status) ||
     !Number.isInteger(sortOrder) ||
@@ -81,6 +80,20 @@ export async function saveBanner(formData: FormData) {
   }
 
   const admin = createAdminClient();
+  if (bannerId) {
+    const { data: existing } = await admin.from("banners").select("id").eq("id", bannerId).maybeSingle();
+    if (!existing) redirect("/admin/settings/banners?error=banner_not_found");
+  }
+
+  const [desktopImage, mobileImage] = await Promise.all([
+    bannerImage(admin, formData, "desktopImageFile", "desktopExistingImageUrl"),
+    bannerImage(admin, formData, "mobileImageFile", "mobileExistingImageUrl"),
+  ]);
+  if (desktopImage === undefined || mobileImage === undefined) {
+    redirect("/admin/settings/banners?error=image_invalid");
+  }
+  if (!desktopImage) redirect("/admin/settings/banners?error=desktop_image_required");
+
   const payload = {
     title,
     subtitle: subtitle || null,
@@ -95,8 +108,6 @@ export async function saveBanner(formData: FormData) {
   };
 
   if (bannerId) {
-    const { data: existing } = await admin.from("banners").select("id").eq("id", bannerId).maybeSingle();
-    if (!existing) redirect("/admin/settings/banners?error=banner_not_found");
     const { error } = await admin.from("banners").update(payload).eq("id", bannerId);
     if (error) redirect("/admin/settings/banners?error=banner_update_failed");
     const { error: auditError } = await admin.from("audit_logs").insert({
