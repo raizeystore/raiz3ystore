@@ -2,9 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 60;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  background: rgba(8,8,8,.94);
+  border-bottom: 1px solid #eceef2;
+  background: rgba(255, 255, 255, .94);
   backdrop-filter: blur(18px);
+  box-shadow: 0 8px 24px rgba(31, 41, 55, .05);
 }
 
 .bar {
@@ -23,15 +24,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  max-width: calc(100% - 320px);
+  max-width: calc(100% - 300px);
   transform-origin: center;
 }
 
 .iconButton,
 .cartButton,
 .searchButton,
-.notificationButton,
-.accountButton {
+.notificationButton {
   position: relative;
   width: 40px;
   height: 40px;
@@ -39,11 +39,13 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid #e6e8ed;
   border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
+  background: #fff;
+  color: #242831;
+  box-shadow: 0 5px 16px rgba(31, 41, 55, .04);
   cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
 .rightTools,
@@ -53,7 +55,7 @@
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .rightTools {
@@ -70,10 +72,10 @@
 .cartButton:hover,
 .searchButton:hover,
 .notificationButton:hover,
-.accountButton:hover,
 .walletChip:hover {
-  border-color: rgba(255,106,0,.45);
+  border-color: rgba(255, 106, 0, .38);
   color: var(--brand-strong);
+  background: #fff8f2;
 }
 
 .notificationBadge {
@@ -85,28 +87,29 @@
   display: grid;
   place-items: center;
   padding-inline: 4px;
-  border: 2px solid #080808;
+  border: 2px solid #fff;
   border-radius: 999px;
   background: var(--brand);
-  color: #160d07;
+  color: #fff;
   font-size: 9px;
   font-weight: 950;
   line-height: 1;
 }
 
 .walletChip {
-  min-width: 82px;
+  min-width: 88px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 9px;
-  border: 1px solid rgba(255,106,0,.28);
+  padding: 0 10px;
+  border: 1px solid rgba(255, 106, 0, .28);
   border-radius: 12px;
-  background: rgba(255,106,0,.07);
-  color: #f6f1ed;
+  background: #fff7ef;
+  color: #2a2d34;
   direction: rtl;
+  box-shadow: 0 5px 16px rgba(255, 106, 0, .06);
 }
 
 .walletChip > span:not(.walletGuest) {
@@ -117,18 +120,20 @@
 }
 
 .walletChip strong {
+  color: #252932;
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
 }
 
 .walletChip small {
-  color: #ff9d58;
+  color: #e65c00;
   font-size: 8px;
   font-weight: 850;
 }
 
 .walletGuest {
+  color: #a3480b;
   font-size: 10px;
   font-weight: 850;
 }
@@ -138,7 +143,7 @@
   inset: 0;
   z-index: 80;
   min-height: 0;
-  background: rgba(0,0,0,.7);
+  background: rgba(21, 24, 31, .42);
   border: 0;
   padding: 0;
 }
@@ -151,9 +156,9 @@
   min-height: 100dvh;
   max-height: 100dvh;
   overflow-y: auto;
-  border-left: 1px solid var(--border);
-  background: #0b0b0c;
-  box-shadow: -20px 0 60px rgba(0,0,0,.48);
+  border-left: 1px solid #e6e8ed;
+  background: #fff;
+  box-shadow: -20px 0 60px rgba(31, 41, 55, .16);
   padding: 18px;
 }
 
@@ -167,7 +172,7 @@
 
 .accountGreeting {
   margin: 8px 0 0;
-  color: var(--text-muted);
+  color: #707784;
   font-size: 11px;
 }
 
@@ -178,10 +183,10 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid #e6e8ed;
   border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
+  background: #fff;
+  color: #252932;
   cursor: pointer;
 }
 
@@ -198,14 +203,14 @@
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #ddd9d5;
+  color: #343944;
 }
 
 .link:hover,
 .linkActive {
-  border-color: rgba(255,106,0,.25);
-  background: rgba(255,106,0,.08);
-  color: var(--brand-strong);
+  border-color: rgba(255, 106, 0, .22);
+  background: #fff5ec;
+  color: #d95600;
 }
 
 .link > span {
@@ -218,33 +223,33 @@
   flex: 0 0 auto;
   border-radius: 999px;
   padding: 3px 7px;
-  background: rgba(255,255,255,.05);
-  color: #888582;
+  background: #f2f3f5;
+  color: #868d98;
   font-size: 9px;
   font-weight: 800;
 }
 
 .drawerBadge {
-  background: rgba(255,106,0,.12) !important;
-  color: #ffad70 !important;
+  background: #fff0e2 !important;
+  color: #d95600 !important;
 }
 
 .linkDisabled {
   cursor: default;
-  color: #77736f;
-  opacity: .72;
+  color: #969ca6;
+  opacity: .78;
 }
 
 .linkDisabled:hover {
   border-color: transparent;
   background: transparent;
-  color: #77736f;
+  color: #969ca6;
 }
 
 .drawerFooter {
   margin-top: 24px;
   padding-top: 18px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #eceef2;
 }
 
 .drawerFooter form {
@@ -260,18 +265,19 @@
   justify-content: flex-start;
   gap: 11px;
   padding: 0 14px;
-  border: 1px solid var(--border);
+  border: 1px solid #e6e8ed;
   border-radius: 13px;
-  background: var(--surface);
-  color: #f0ece8;
+  background: #fff;
+  color: #303640;
   font-weight: 850;
   cursor: pointer;
 }
 
 .logoutButton:hover,
 .loginButton:hover {
-  border-color: rgba(255,106,0,.35);
-  color: var(--brand-strong);
+  border-color: rgba(255, 106, 0, .32);
+  background: #fff8f2;
+  color: #d95600;
 }
 
 @media (max-width: 520px) {
@@ -287,9 +293,8 @@
   .iconButton,
   .cartButton,
   .searchButton,
-  .notificationButton,
-  .accountButton {
-    width: 32px;
+  .notificationButton {
+    width: 33px;
     height: 36px;
     min-height: 36px;
     border-radius: 10px;
@@ -301,26 +306,27 @@
   }
 
   .walletChip {
-    min-width: 46px;
-    width: 46px;
+    min-width: 64px;
+    width: auto;
     height: 36px;
-    padding: 0 3px;
-    gap: 2px;
+    padding: 0 6px;
+    gap: 3px;
     border-radius: 10px;
   }
 
   .walletChip > svg {
-    display: none;
+    width: 13px;
+    height: 13px;
   }
 
   .walletChip > span:not(.walletGuest) {
     display: grid;
-    justify-items: center;
-    gap: 1px;
+    justify-items: start;
+    gap: 0;
   }
 
   .walletChip strong {
-    max-width: 41px;
+    max-width: 50px;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 9px;
@@ -350,14 +356,13 @@
 
 @media (max-width: 390px) {
   .logo {
-    transform: translate(-50%, -50%) scale(.55);
+    transform: translate(-50%, -50%) scale(.57);
   }
 
   .iconButton,
   .cartButton,
   .searchButton,
-  .notificationButton,
-  .accountButton {
+  .notificationButton {
     width: 30px;
   }
 
@@ -367,12 +372,12 @@
   }
 
   .walletChip {
-    width: 40px;
-    min-width: 40px;
+    min-width: 57px;
+    padding-inline: 5px;
   }
 
   .walletChip strong {
-    max-width: 35px;
+    max-width: 43px;
     font-size: 8px;
   }
 }
@@ -387,6 +392,6 @@
   }
 
   .walletChip {
-    min-width: 104px;
+    min-width: 108px;
   }
 }
