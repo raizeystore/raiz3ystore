@@ -217,10 +217,10 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  if (data.session) redirect("/account?message=welcome");
+  if (data.session) redirect("/");
 
   await setPendingVerification(email, "signup", true);
-  redirect(verificationPath("signup", "message=sent"));
+  redirect("/?signup=created");
 }
 
 export async function verifyEmailCode(formData: FormData) {
@@ -250,7 +250,7 @@ export async function verifyEmailCode(formData: FormData) {
     redirect("/reset-password?message=code_verified");
   }
 
-  redirect("/account?message=email_verified");
+  redirect("/?signup=verified");
 }
 
 export async function resendEmailCode() {
@@ -318,7 +318,7 @@ export async function completeProfile(formData: FormData) {
 
   revalidatePath("/", "layout");
   revalidatePath("/account");
-  redirect("/account?message=profile_completed");
+  redirect("/");
 }
 
 export async function requestPasswordReset(formData: FormData) {
