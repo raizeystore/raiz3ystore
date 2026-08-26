@@ -161,7 +161,7 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
           <Link
             className={styles.accountButton}
             href={accountHref("/account")}
-            aria-label={context.signedIn ? "حسابي" : "تسجيل الدخول"}
+            aria-label={context.signedIn ? "حسابي" : "فتح حسابي"}
           >
             <UserRound aria-hidden="true" size={19} />
           </Link>
