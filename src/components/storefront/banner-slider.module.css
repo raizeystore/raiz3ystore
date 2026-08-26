@@ -6,10 +6,10 @@
   position: relative;
   height: clamp(235px, 25vw, 290px);
   overflow: hidden;
-  border: 1px solid #e7cdb7;
+  border: 1px solid #e9bd9a;
   border-radius: 19px;
-  background: #fff5e9;
-  box-shadow: 0 16px 42px rgba(61, 43, 28, .10);
+  background: #fff0e3;
+  box-shadow: 0 16px 42px rgba(91, 51, 21, .12);
 }
 
 .slide {
@@ -38,7 +38,7 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(270deg, rgba(255, 250, 245, .98) 0%, rgba(255, 246, 237, .91) 47%, rgba(255, 247, 240, .34) 100%);
+  background: linear-gradient(270deg, rgba(255, 252, 248, .99) 0%, rgba(255, 239, 225, .93) 47%, rgba(255, 225, 199, .38) 100%);
 }
 
 .content {
@@ -59,31 +59,31 @@
   align-items: center;
   min-height: 26px;
   padding: 0 10px;
-  border: 1px solid #efc9aa;
+  border: 1px solid #efb88e;
   border-radius: 999px;
-  background: rgba(255, 244, 234, .92);
-  color: #d95800;
+  background: rgba(255, 235, 218, .96);
+  color: #d94b00;
   font-size: 10px;
   font-weight: 950;
-  letter-spacing: .05em;
-  box-shadow: 0 4px 12px rgba(255, 106, 0, .06);
+  letter-spacing: 0;
+  box-shadow: 0 4px 12px rgba(255, 90, 0, .09);
 }
 
 .content h1 {
   max-width: 590px;
-  margin: 11px 0 6px;
-  color: #202731;
+  margin: 12px 0 7px;
+  color: #1f2630;
   font-size: clamp(30px, 4vw, 45px);
-  line-height: 1.1;
-  letter-spacing: -.025em;
+  line-height: 1.34;
+  letter-spacing: 0;
 }
 
 .content p {
   max-width: 530px;
   margin: 0;
-  color: #5f6873;
+  color: #59636f;
   font-size: clamp(12px, 1.4vw, 15px);
-  line-height: 1.75;
+  line-height: 1.85;
 }
 
 .cta {
@@ -96,28 +96,28 @@
   padding: 0 15px;
   border: 1px solid transparent;
   border-radius: 11px;
-  background: linear-gradient(180deg, #ff7d21, #ef6200);
+  background: linear-gradient(180deg, #ff781f 0%, #ff5700 100%);
   color: #fff;
   font-size: 11px;
   font-weight: 950;
-  box-shadow: 0 10px 24px rgba(255, 106, 0, .22);
+  box-shadow: 0 10px 24px rgba(255, 87, 0, .28);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 13px 28px rgba(255, 106, 0, .28);
+  box-shadow: 0 13px 30px rgba(255, 87, 0, .34);
 }
 
 .builtIn {
   background:
-    radial-gradient(circle at 14% 24%, rgba(255, 106, 0, .18), transparent 18rem),
-    radial-gradient(circle at 72% 92%, rgba(255, 165, 92, .20), transparent 20rem),
-    linear-gradient(125deg, #fffdfb 0%, #fff4e8 53%, #ffe6cf 100%);
+    radial-gradient(circle at 14% 24%, rgba(255, 90, 0, .27), transparent 18rem),
+    radial-gradient(circle at 72% 92%, rgba(255, 145, 66, .30), transparent 20rem),
+    linear-gradient(125deg, #fffdfb 0%, #ffefe1 52%, #ffd8b8 100%);
 }
 
 .builtIn .overlay {
-  background: linear-gradient(270deg, rgba(255, 252, 249, .68) 0%, rgba(255, 246, 237, .46) 48%, rgba(255, 240, 226, .08) 100%);
+  background: linear-gradient(270deg, rgba(255, 252, 249, .74) 0%, rgba(255, 240, 226, .50) 48%, rgba(255, 220, 189, .08) 100%);
 }
 
 .graphic {
@@ -130,17 +130,17 @@
   transform: translateY(-50%);
   display: grid;
   place-items: center;
-  color: #ee6408;
+  color: #ff5a00;
   pointer-events: none;
 }
 
 .orbit {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(255, 106, 0, .20);
+  border: 1px solid rgba(255, 90, 0, .28);
   border-radius: 50%;
-  background: rgba(255, 255, 255, .22);
-  box-shadow: inset 0 0 48px rgba(255, 106, 0, .045);
+  background: rgba(255, 255, 255, .25);
+  box-shadow: inset 0 0 48px rgba(255, 90, 0, .06);
 }
 
 .orbit::before,
@@ -148,7 +148,7 @@
   content: "";
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(255, 106, 0, .11);
+  border: 1px solid rgba(255, 90, 0, .15);
 }
 
 .orbit::before {
@@ -157,7 +157,7 @@
 
 .orbit::after {
   inset: 33%;
-  border-color: rgba(255, 106, 0, .18);
+  border-color: rgba(255, 90, 0, .24);
 }
 
 .icon {
@@ -167,17 +167,17 @@
   height: 80px;
   display: grid;
   place-items: center;
-  border: 1px solid #efcfb6;
+  border: 1px solid #efb88e;
   border-radius: 22px;
-  background: rgba(255, 252, 249, .94);
-  box-shadow: 0 18px 44px rgba(79, 48, 24, .12);
+  background: rgba(255, 252, 249, .96);
+  box-shadow: 0 18px 44px rgba(91, 51, 21, .14);
 }
 
 .wordmark {
   position: absolute;
   right: -8px;
   bottom: 8%;
-  color: rgba(210, 79, 0, .065);
+  color: rgba(210, 70, 0, .085);
   font-size: clamp(38px, 6vw, 64px);
   font-weight: 1000;
   letter-spacing: -.05em;
@@ -192,10 +192,10 @@
   align-items: center;
   gap: 3px;
   padding: 3px;
-  border: 1px solid rgba(207, 168, 137, .68);
+  border: 1px solid rgba(213, 155, 111, .74);
   border-radius: 12px;
-  background: rgba(255, 255, 255, .82);
-  box-shadow: 0 7px 20px rgba(61, 43, 28, .08);
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 7px 20px rgba(61, 43, 28, .09);
   backdrop-filter: blur(12px);
 }
 
@@ -205,7 +205,7 @@
   min-height: 38px;
   border: 0;
   background: transparent;
-  color: #333a44;
+  color: #303741;
   cursor: pointer;
 }
 
@@ -218,8 +218,8 @@
 }
 
 .controls > button:hover {
-  background: #fff2e7;
-  color: #df5900;
+  background: #ffead8;
+  color: #d94b00;
 }
 
 .dots {
@@ -240,13 +240,13 @@
   height: 6px;
   margin: auto;
   border-radius: 999px;
-  background: #c7b5a8;
+  background: #c8aa93;
   transition: width 160ms ease, background 160ms ease;
 }
 
 .dots .activeDot::after {
   width: 17px;
-  background: #ff6a00;
+  background: #ff5a00;
 }
 
 @media (max-width: 680px) {
@@ -268,11 +268,11 @@
   }
 
   .overlay {
-    background: linear-gradient(180deg, rgba(255, 250, 245, .08) 0%, rgba(255, 248, 241, .74) 42%, rgba(255, 250, 246, .98) 100%);
+    background: linear-gradient(180deg, rgba(255, 250, 245, .06) 0%, rgba(255, 239, 225, .78) 42%, rgba(255, 250, 246, .99) 100%);
   }
 
   .builtIn .overlay {
-    background: linear-gradient(180deg, rgba(255, 248, 241, .10) 0%, rgba(255, 246, 237, .44) 42%, rgba(255, 249, 244, .88) 100%);
+    background: linear-gradient(180deg, rgba(255, 244, 234, .08) 0%, rgba(255, 228, 205, .48) 42%, rgba(255, 248, 241, .92) 100%);
   }
 
   .content {
@@ -289,8 +289,9 @@
 
   .content h1 {
     max-width: 95%;
-    margin: 7px 0 3px;
-    font-size: clamp(22px, 6.6vw, 27px);
+    margin: 8px 0 4px;
+    font-size: clamp(21px, 6.3vw, 26px);
+    line-height: 1.42;
   }
 
   .content p {
@@ -300,7 +301,7 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 10px;
-    line-height: 1.6;
+    line-height: 1.78;
   }
 
   .cta {
@@ -315,7 +316,7 @@
     top: 31%;
     width: 100px;
     transform: translateY(-50%);
-    opacity: .86;
+    opacity: .88;
   }
 
   .icon {
