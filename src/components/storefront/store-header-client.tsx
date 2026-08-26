@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
-  UserRound,
   WalletCards,
   X,
 } from "lucide-react";
@@ -144,7 +143,7 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
           <BrandLogo size="sm" />
         </Link>
 
-        <div className={styles.headerTools} aria-label="أدوات الحساب">
+        <div className={styles.headerTools} aria-label="البحث والإشعارات والمحفظة">
           <Link className={styles.searchButton} href="/search" aria-label="البحث عن المنتجات">
             <Search aria-hidden="true" size={19} />
           </Link>
@@ -159,19 +158,11 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
           </Link>
 
           <Link
-            className={styles.accountButton}
-            href={accountHref("/account")}
-            aria-label={context.signedIn ? "حسابي" : "فتح حسابي"}
-          >
-            <UserRound aria-hidden="true" size={19} />
-          </Link>
-
-          <Link
             className={styles.walletChip}
             href={accountHref("/wallet")}
             aria-label={context.signedIn ? `رصيد المحفظة ${wallet.formatted} ${wallet.unit}` : "المحفظة"}
           >
-            <WalletCards aria-hidden="true" size={17} />
+            <WalletCards aria-hidden="true" size={16} />
             {context.signedIn ? (
               <span><strong>{wallet.formatted}</strong><small>{wallet.unit}</small></span>
             ) : (
