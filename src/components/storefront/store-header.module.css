@@ -2,10 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 60;
-  border-bottom: 1px solid #eceef2;
-  background: rgba(255, 255, 255, .94);
+  border-bottom: 1px solid #eadfd6;
+  background: rgba(255, 252, 248, .96);
   backdrop-filter: blur(18px);
-  box-shadow: 0 8px 24px rgba(31, 41, 55, .05);
+  box-shadow: 0 8px 24px rgba(61, 43, 28, .05);
 }
 
 .bar {
@@ -25,6 +25,11 @@
   align-items: center;
   justify-content: center;
   max-width: calc(100% - 300px);
+  padding: 4px 8px;
+  border: 1px solid rgba(42, 46, 53, .10);
+  border-radius: 11px;
+  background: #b7b7b7;
+  box-shadow: 0 7px 18px rgba(31, 41, 55, .07);
   transform-origin: center;
 }
 
@@ -39,13 +44,13 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border: 1px solid #e6e8ed;
+  border: 1px solid #e7ddd4;
   border-radius: 12px;
-  background: #fff;
-  color: #242831;
-  box-shadow: 0 5px 16px rgba(31, 41, 55, .04);
+  background: rgba(255, 255, 255, .96);
+  color: #28303a;
+  box-shadow: 0 5px 16px rgba(61, 43, 28, .04);
   cursor: pointer;
-  transition: border-color 160ms ease, color 160ms ease, background 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
 .rightTools,
@@ -73,9 +78,10 @@
 .searchButton:hover,
 .notificationButton:hover,
 .walletChip:hover {
-  border-color: rgba(255, 106, 0, .38);
-  color: var(--brand-strong);
-  background: #fff8f2;
+  border-color: rgba(255, 106, 0, .40);
+  color: #d95800;
+  background: #fff7f0;
+  box-shadow: 0 7px 18px rgba(255, 106, 0, .08);
 }
 
 .notificationBadge {
@@ -87,9 +93,9 @@
   display: grid;
   place-items: center;
   padding-inline: 4px;
-  border: 2px solid #fff;
+  border: 2px solid #fffaf6;
   border-radius: 999px;
-  background: var(--brand);
+  background: #ff6a00;
   color: #fff;
   font-size: 9px;
   font-weight: 950;
@@ -97,17 +103,17 @@
 }
 
 .walletChip {
-  min-width: 88px;
+  min-width: 92px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 0 10px;
-  border: 1px solid rgba(255, 106, 0, .28);
+  border: 1px solid #efcfb6;
   border-radius: 12px;
-  background: #fff7ef;
-  color: #2a2d34;
+  background: linear-gradient(180deg, #fffaf6, #fff2e7);
+  color: #2b3139;
   direction: rtl;
   box-shadow: 0 5px 16px rgba(255, 106, 0, .06);
 }
@@ -120,22 +126,22 @@
 }
 
 .walletChip strong {
-  color: #252932;
+  color: #252b33;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 950;
   line-height: 1;
 }
 
 .walletChip small {
   color: #e65c00;
   font-size: 8px;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .walletGuest {
   color: #a3480b;
   font-size: 10px;
-  font-weight: 850;
+  font-weight: 900;
 }
 
 .backdrop {
@@ -143,7 +149,7 @@
   inset: 0;
   z-index: 80;
   min-height: 0;
-  background: rgba(21, 24, 31, .42);
+  background: rgba(31, 35, 42, .36);
   border: 0;
   padding: 0;
 }
@@ -156,9 +162,9 @@
   min-height: 100dvh;
   max-height: 100dvh;
   overflow-y: auto;
-  border-left: 1px solid #e6e8ed;
-  background: #fff;
-  box-shadow: -20px 0 60px rgba(31, 41, 55, .16);
+  border-left: 1px solid #eadfd6;
+  background: #fffdfb;
+  box-shadow: -20px 0 60px rgba(31, 41, 55, .14);
   padding: 18px;
 }
 
@@ -170,9 +176,16 @@
   margin-bottom: 22px;
 }
 
+.panelHead :global(.brand-lockup) {
+  padding: 4px 7px;
+  border: 1px solid rgba(42, 46, 53, .09);
+  border-radius: 10px;
+  background: #b7b7b7;
+}
+
 .accountGreeting {
   margin: 8px 0 0;
-  color: #707784;
+  color: #707984;
   font-size: 11px;
 }
 
@@ -183,10 +196,10 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  border: 1px solid #e6e8ed;
+  border: 1px solid #e7ddd4;
   border-radius: 12px;
   background: #fff;
-  color: #252932;
+  color: #252b33;
   cursor: pointer;
 }
 
@@ -203,30 +216,30 @@
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #343944;
+  color: #353c45;
 }
 
 .link:hover,
 .linkActive {
-  border-color: rgba(255, 106, 0, .22);
-  background: #fff5ec;
+  border-color: rgba(255, 106, 0, .23);
+  background: #fff3e9;
   color: #d95600;
 }
 
 .link > span {
   min-width: 0;
   flex: 1;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .link > small {
   flex: 0 0 auto;
   border-radius: 999px;
   padding: 3px 7px;
-  background: #f2f3f5;
-  color: #868d98;
+  background: #f2eee9;
+  color: #818994;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .drawerBadge {
@@ -249,7 +262,7 @@
 .drawerFooter {
   margin-top: 24px;
   padding-top: 18px;
-  border-top: 1px solid #eceef2;
+  border-top: 1px solid #ece3db;
 }
 
 .drawerFooter form {
@@ -265,18 +278,18 @@
   justify-content: flex-start;
   gap: 11px;
   padding: 0 14px;
-  border: 1px solid #e6e8ed;
+  border: 1px solid #e7ddd4;
   border-radius: 13px;
   background: #fff;
   color: #303640;
-  font-weight: 850;
+  font-weight: 900;
   cursor: pointer;
 }
 
 .logoutButton:hover,
 .loginButton:hover {
   border-color: rgba(255, 106, 0, .32);
-  background: #fff8f2;
+  background: #fff7f0;
   color: #d95600;
 }
 
@@ -287,7 +300,9 @@
 
   .logo {
     max-width: none;
-    transform: translate(-50%, -50%) scale(.64);
+    padding: 3px 6px;
+    border-radius: 9px;
+    transform: translate(-50%, -50%) scale(.60);
   }
 
   .iconButton,
@@ -306,7 +321,7 @@
   }
 
   .walletChip {
-    min-width: 64px;
+    min-width: 65px;
     width: auto;
     height: 36px;
     padding: 0 6px;
@@ -356,7 +371,7 @@
 
 @media (max-width: 390px) {
   .logo {
-    transform: translate(-50%, -50%) scale(.57);
+    transform: translate(-50%, -50%) scale(.55);
   }
 
   .iconButton,
