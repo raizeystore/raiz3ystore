@@ -56,16 +56,32 @@ const steps = [
   },
 ];
 
-export default async function HomePage() {
-  const [{ banners, categories, popularProducts }, tickerMessages] = await Promise.all([
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ signup?: string }>;
+}) {
+  const [{ banners, categories, popularProducts }, tickerMessages, params] = await Promise.all([
     getStorefrontHome(),
     getTickerMessages(),
+    searchParams,
   ]);
   const visibleCategories = categories.filter((category) => category.subcategories.length > 0);
+  const signupMessage = params.signup === "created"
+    ? "تم إنشاء حسابك. يمكنك تصفح المتجر الآن، وأكمل تأكيد البريد عند الحاجة لتسجيل الدخول."
+    : params.signup === "verified"
+      ? "تم تأكيد بريدك بنجاح. حسابك جاهز للاستخدام."
+      : null;
 
   return (
-    <main className={styles.home}>
+    <main className={`${styles.home} site-shell`}>
       <StoreHeader />
+      {signupMessage && (
+        <div className={`container ${styles.signupNotice}`} role="status">
+          <span>{signupMessage}</span>
+          {params.signup === "created" && <Link href="/verify-code?purpose=signup">إدخال رمز التأكيد</Link>}
+        </div>
+      )}
       <BannerSlider banners={banners} />
       <StoreTicker messages={tickerMessages} />
 
@@ -77,14 +93,14 @@ export default async function HomePage() {
                 <span className={styles.eyebrow}>من الطلبات المكتملة</span>
                 <h2 id="most-purchased-title">الأكثر شراءً</h2>
               </div>
-              <p>ترتيب فعلي يعتمد على المبيعات المكتملة فقط. إذا لم توجد بيانات كافية لا نعرض نتائج وهمية.</p>
+              <Link className={styles.inlineLink} href="#catalog">عرض الكل</Link>
             </div>
             <div className={styles.popularGrid}>
               {popularProducts.map((product, index) => (
                 <Link className={styles.popularCard} href={`/products/${product.slug}`} key={product.id}>
                   <div className={styles.popularMedia}>
                     {product.imageUrl ? (
-                      <Image src={product.imageUrl} alt="" fill sizes="(max-width: 680px) 50vw, 280px" />
+                      <Image src={product.imageUrl} alt="" fill sizes="(max-width: 680px) 34vw, 220px" />
                     ) : (
                       <Boxes aria-hidden="true" size={34} />
                     )}
@@ -92,7 +108,7 @@ export default async function HomePage() {
                   </div>
                   <small className={styles.cardMeta}>{product.subcategoryName || "RAIZEY STORE"}</small>
                   <h3>{product.name}</h3>
-                  <span className={styles.cardAction}>فتح الخدمة <ChevronLeft aria-hidden="true" size={16} /></span>
+                  <span className={styles.cardAction}>فتح الخدمة <ChevronLeft aria-hidden="true" size={15} /></span>
                 </Link>
               ))}
             </div>
@@ -104,10 +120,10 @@ export default async function HomePage() {
         <div className="container">
           <div className={styles.sectionHeading}>
             <div>
-              <span className={styles.eyebrow}>كتالوج RAIZEY</span>
-              <h2 id="catalog-title">اختر خدمتك</h2>
+              <span className={styles.eyebrow}>RAIZEY STORE</span>
+              <h2 id="catalog-title">الأقسام الرئيسية</h2>
             </div>
-            <p>الأقسام تظهر كعناوين فقط، وتحت كل قسم بطاقات الخدمات مباشرة. الضغط على البطاقة يقود إلى صفحة الخدمة بدون طبقة تصنيفات إضافية.</p>
+            <span className={styles.sectionHint}>اختر الخدمة مباشرة</span>
           </div>
 
           {visibleCategories.length === 0 ? (
@@ -127,6 +143,7 @@ export default async function HomePage() {
                       <h3 id={`category-${category.id}`}>{category.name}</h3>
                       {category.description && <p>{category.description}</p>}
                     </div>
+                    <span>{category.subcategories.length.toLocaleString("ar")} خدمات</span>
                   </div>
 
                   <div className={styles.categoryGrid}>
@@ -139,7 +156,7 @@ export default async function HomePage() {
                       >
                         <div className={styles.categoryMedia}>
                           {subcategory.imageUrl ? (
-                            <Image src={subcategory.imageUrl} alt="" fill sizes="(max-width: 680px) 50vw, 280px" />
+                            <Image src={subcategory.imageUrl} alt="" fill sizes="(max-width: 680px) 48vw, 250px" />
                           ) : (
                             <Layers3 aria-hidden="true" size={31} />
                           )}
@@ -147,7 +164,6 @@ export default async function HomePage() {
                         <div className={styles.categoryCardBody}>
                           <small className={styles.cardMeta}>{category.name}</small>
                           <h3>{subcategory.name}</h3>
-                          {subcategory.description && <p>{subcategory.description}</p>}
                           <ChevronLeft className={styles.categoryArrow} aria-hidden="true" size={18} />
                         </div>
                       </Link>
@@ -165,9 +181,8 @@ export default async function HomePage() {
           <div className={styles.sectionHeading}>
             <div>
               <span className={styles.eyebrow}>RAIZEY STANDARD</span>
-              <h2 id="why-us-title">واجهة بسيطة، قواعد صارمة في الخلفية</h2>
+              <h2 id="why-us-title">واجهة أبسط، حماية أقوى</h2>
             </div>
-            <p>سهولة الشراء لا تعني تخفيف التحقق من السعر أو ملكية الحساب أو حالة الدفع.</p>
           </div>
           <div className={styles.infoGrid}>
             {benefits.map((benefit) => {
@@ -184,14 +199,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className={styles.catalogSection} id="how-it-works" aria-labelledby="how-it-works-title">
+      <section className={styles.softSection} id="how-it-works" aria-labelledby="how-it-works-title">
         <div className="container">
           <div className={styles.sectionHeading}>
             <div>
               <span className={styles.eyebrow}>3 خطوات واضحة</span>
               <h2 id="how-it-works-title">من الخدمة إلى الدفع بدون لف ودوران</h2>
             </div>
-            <p>بيانات التنفيذ مكانها صفحة الخدمة، بينما Checkout يبقى مخصصًا للدفع فقط.</p>
           </div>
           <div className={styles.stepsGrid}>
             {steps.map((step, index) => {
@@ -214,11 +228,11 @@ export default async function HomePage() {
           <div>
             <span className={styles.eyebrow}>RAIZEY STORE</span>
             <h2>جاهز تختار خدمتك؟</h2>
-            <p>ابدأ من بطاقات الخدمات، أو افتح حسابك لمتابعة طلباتك الحالية.</p>
+            <p>ابدأ من بطاقات الخدمات مباشرة، بدون صفحات وسيطة.</p>
           </div>
           <div className={styles.ctaActions}>
             <Link className={styles.primaryAction} href="#catalog">تصفح الخدمات</Link>
-            <Link className={styles.secondaryAction} href="/account">فتح حسابي</Link>
+            <Link className={styles.secondaryAction} href="/account">حسابي</Link>
           </div>
         </div>
       </section>
