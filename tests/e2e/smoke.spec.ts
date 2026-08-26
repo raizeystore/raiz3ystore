@@ -3,12 +3,12 @@ import { expect, test } from "@playwright/test";
 test("home page renders the mobile-first storefront shell", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "اختر خدمتك", level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "الأقسام الرئيسية", level: 2 })).toBeVisible();
   await expect(page.getByRole("link", { name: "تصفح الألعاب" })).toHaveAttribute("href", "#catalog");
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
   await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
   await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
-  await expect(page.getByLabel("فتح حسابي")).toHaveAttribute("href", "/login?next=%2Faccount");
+  await expect(page.getByLabel("فتح حسابي")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "سلة المشتريات" })).toHaveAttribute("href", "/login?next=%2Fcart");
   await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
 
