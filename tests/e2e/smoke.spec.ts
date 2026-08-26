@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("home page renders the mobile-first storefront shell", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "اختر خدمتك" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "اختر خدمتك", level: 2 })).toBeVisible();
   await expect(page.getByRole("link", { name: "تصفح الألعاب" })).toHaveAttribute("href", "#catalog");
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
   await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
