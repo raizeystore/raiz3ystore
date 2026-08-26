@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -140,7 +141,15 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
         </div>
 
         <Link className={styles.logo} href="/" aria-label="RAIZEY STORE الرئيسية">
-          <BrandLogo size="sm" />
+          <Image
+            src="/images/raizey-store-logo.png"
+            alt="RAIZEY STORE"
+            width={320}
+            height={74}
+            priority
+            sizes="(max-width: 520px) 165px, 190px"
+            className={styles.headerLogoImage}
+          />
         </Link>
 
         <div className={styles.headerTools} aria-label="البحث والإشعارات والمحفظة">
