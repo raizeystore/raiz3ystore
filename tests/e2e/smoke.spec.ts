@@ -8,7 +8,7 @@ test("home page renders the mobile-first storefront shell", async ({ page }) => 
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
   await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
   await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
-  await expect(page.getByRole("link", { name: "فتح حسابي" })).toHaveAttribute("href", "/login?next=%2Faccount");
+  await expect(page.getByLabel("فتح حسابي")).toHaveAttribute("href", "/login?next=%2Faccount");
   await expect(page.getByRole("link", { name: "سلة المشتريات" })).toHaveAttribute("href", "/login?next=%2Fcart");
   await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
 
