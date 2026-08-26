@@ -29,7 +29,8 @@ const FULL_DIMENSIONS = {
  *
  * IMPORTANT: Every placement renders only /public/brand/raizey-store-logo.png.
  * The logo is never redrawn, mirrored for RTL, shortened to an R mark, or
- * replaced with a general-purpose icon.
+ * replaced with a general-purpose icon. The official transparent artwork is
+ * rendered directly with no decorative plate, border, shadow, or background.
  */
 export function BrandLogo({
   size,
@@ -62,14 +63,14 @@ export function BrandLogo({
         lineHeight: 0,
         maxWidth: "100%",
         flexShrink: 0,
-        padding: resolvedSize === "lg" ? "7px 12px" : "5px 9px",
-        border: "1px solid rgba(255,255,255,.12)",
-        borderRadius: resolvedSize === "lg" ? "14px" : "11px",
-        background: "linear-gradient(145deg, #25282e, #17191d)",
-        boxShadow: "0 8px 22px rgba(24,28,34,.16)",
-        overflow: "hidden",
-        filter: "none",
         ...style,
+        padding: 0,
+        border: 0,
+        borderRadius: 0,
+        background: "transparent",
+        boxShadow: "none",
+        overflow: "visible",
+        filter: "none",
       }}
     >
       <Image
@@ -87,6 +88,7 @@ export function BrandLogo({
           height: `${dimensions.height}px`,
           objectFit: "contain",
           objectPosition: "center",
+          background: "transparent",
         }}
       />
     </span>
