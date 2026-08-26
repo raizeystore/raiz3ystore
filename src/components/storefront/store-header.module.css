@@ -23,14 +23,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  max-width: calc(100% - 300px);
+  max-width: calc(100% - 320px);
   transform-origin: center;
 }
 
 .iconButton,
 .cartButton,
 .searchButton,
-.notificationButton {
+.notificationButton,
+.accountButton {
   position: relative;
   width: 40px;
   height: 40px;
@@ -53,21 +54,23 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  direction: ltr;
 }
 
 .rightTools {
   right: 0;
+  direction: rtl;
 }
 
 .headerTools {
   left: 0;
+  direction: ltr;
 }
 
 .iconButton:hover,
 .cartButton:hover,
 .searchButton:hover,
 .notificationButton:hover,
+.accountButton:hover,
 .walletChip:hover {
   border-color: rgba(255,106,0,.45);
   color: var(--brand-strong);
@@ -273,19 +276,20 @@
 
 @media (max-width: 520px) {
   .bar {
-    min-height: 66px;
+    min-height: 64px;
   }
 
   .logo {
     max-width: none;
-    transform: translate(-50%, -50%) scale(.68);
+    transform: translate(-50%, -50%) scale(.64);
   }
 
   .iconButton,
   .cartButton,
   .searchButton,
-  .notificationButton {
-    width: 34px;
+  .notificationButton,
+  .accountButton {
+    width: 32px;
     height: 36px;
     min-height: 36px;
     border-radius: 10px;
@@ -297,10 +301,10 @@
   }
 
   .walletChip {
-    min-width: 50px;
-    width: 50px;
+    min-width: 46px;
+    width: 46px;
     height: 36px;
-    padding: 0 4px;
+    padding: 0 3px;
     gap: 2px;
     border-radius: 10px;
   }
@@ -316,10 +320,10 @@
   }
 
   .walletChip strong {
-    max-width: 45px;
+    max-width: 41px;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .walletChip small {
@@ -346,24 +350,30 @@
 
 @media (max-width: 390px) {
   .logo {
-    transform: translate(-50%, -50%) scale(.61);
+    transform: translate(-50%, -50%) scale(.55);
   }
 
   .iconButton,
   .cartButton,
   .searchButton,
-  .notificationButton {
-    width: 32px;
+  .notificationButton,
+  .accountButton {
+    width: 30px;
+  }
+
+  .rightTools,
+  .headerTools {
+    gap: 3px;
   }
 
   .walletChip {
-    width: 44px;
-    min-width: 44px;
+    width: 40px;
+    min-width: 40px;
   }
 
   .walletChip strong {
-    max-width: 39px;
-    font-size: 9px;
+    max-width: 35px;
+    font-size: 8px;
   }
 }
 
