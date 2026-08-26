@@ -20,21 +20,28 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 142px;
+  width: 190px;
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transform-origin: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
 }
 
-.logo :global(.brand-lockup) {
+.headerLogoImage {
+  display: block;
   width: 100%;
-}
-
-.logo :global(.brand-lockup img) {
-  width: 100% !important;
-  height: auto !important;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
 }
 
 .iconButton,
@@ -300,7 +307,7 @@
   }
 
   .logo {
-    width: 116px;
+    width: 165px;
   }
 
   .iconButton,
@@ -369,7 +376,7 @@
 
 @media (max-width: 390px) {
   .logo {
-    width: 106px;
+    width: 150px;
   }
 
   .iconButton,
@@ -401,7 +408,7 @@
   }
 
   .logo {
-    width: 160px;
+    width: 190px;
   }
 
   .walletChip {
