@@ -62,6 +62,12 @@ export function BrandLogo({
         lineHeight: 0,
         maxWidth: "100%",
         flexShrink: 0,
+        padding: resolvedSize === "lg" ? "7px 12px" : "5px 9px",
+        border: "1px solid rgba(255,255,255,.12)",
+        borderRadius: resolvedSize === "lg" ? "14px" : "11px",
+        background: "linear-gradient(145deg, #25282e, #17191d)",
+        boxShadow: "0 8px 22px rgba(24,28,34,.16)",
+        overflow: "hidden",
         filter: "none",
         ...style,
       }}
