@@ -37,7 +37,7 @@
 .site-shell button,
 .site-shell .btn,
 .site-shell [role="button"] {
-  font-family: var(--font-alexandria), var(--font-cairo), "Segoe UI", Tahoma, Arial, sans-serif;
+  font-family: var(--font-alexandria), var(--font-cairo), "Segoe UI", Tahoma, Arial, sans-serif !important;
 }
 
 .site-shell h1,
@@ -45,8 +45,8 @@
 .site-shell h3,
 .site-shell h4 {
   margin-block-start: 0;
-  line-height: 1.38;
-  letter-spacing: 0;
+  line-height: 1.38 !important;
+  letter-spacing: 0 !important;
   text-wrap: balance;
   overflow-wrap: anywhere;
 }
@@ -210,13 +210,13 @@
 
 @media (max-width: 680px) {
   .site-shell h1 {
-    line-height: 1.34;
+    line-height: 1.42 !important;
   }
 
   .site-shell h2,
   .site-shell h3,
   .site-shell h4 {
-    line-height: 1.42;
+    line-height: 1.46 !important;
   }
 
   .site-shell p,
