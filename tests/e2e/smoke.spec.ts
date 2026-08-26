@@ -10,7 +10,7 @@ test("home page renders the mobile-first storefront shell", async ({ page }) => 
   await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
   await expect(page.getByLabel("فتح حسابي")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "سلة المشتريات" })).toHaveAttribute("href", "/login?next=%2Fcart");
-  await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
+  await expect(page.locator('section[aria-roledescription="carousel"][aria-label="إعلانات المتجر"]')).toBeVisible();
 
   await page.getByRole("button", { name: "فتح القائمة" }).click();
   const drawer = page.getByRole("navigation", { name: "التنقل الرئيسي" });
