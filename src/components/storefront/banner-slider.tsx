@@ -81,23 +81,23 @@ export function BannerSlider({ banners }: BannerSliderProps) {
   ];
   const slides = (banners.length >= 4 ? banners : mergedSlides).slice(0, 6);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [manualPaused, setManualPaused] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [interactionPaused, setInteractionPaused] = useState(false);
   const touchStart = useRef<number | null>(null);
   const multiple = slides.length > 1;
   const visibleIndex = activeIndex % slides.length;
 
   useEffect(() => {
-    if (!multiple || manualPaused || interactionPaused) return;
+    if (!multiple || paused || interactionPaused) return;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
     const timer = window.setTimeout(() => {
       setActiveIndex((current) => (current + 1) % slides.length);
-    }, 6500);
+    }, 7000);
 
     return () => window.clearTimeout(timer);
-  }, [activeIndex, interactionPaused, manualPaused, multiple, slides.length]);
+  }, [activeIndex, interactionPaused, multiple, paused, slides.length]);
 
   const showPrevious = () => {
     setActiveIndex((current) => {
@@ -147,7 +147,7 @@ export function BannerSlider({ banners }: BannerSliderProps) {
 
           return (
             <article
-              className={`${styles.slide}${active ? ` ${styles.active}` : ""}${hasImage ? ` ${styles.withImage}` : ` ${styles.builtIn}`}`}
+              className={`${styles.slide}${active ? ` ${styles.active}` : ""}${hasImage ? "" : ` ${styles.builtIn}`}`}
               aria-hidden={!active}
               aria-roledescription="slide"
               aria-label={`${index + 1} من ${slides.length}`}
@@ -217,10 +217,10 @@ export function BannerSlider({ banners }: BannerSliderProps) {
             </div>
             <button
               type="button"
-              onClick={() => setManualPaused((value) => !value)}
-              aria-label={manualPaused ? "تشغيل البنرات تلقائيًا" : "إيقاف البنرات مؤقتًا"}
+              onClick={() => setPaused((value) => !value)}
+              aria-label={paused ? "تشغيل البنرات تلقائيًا" : "إيقاف البنرات مؤقتًا"}
             >
-              {manualPaused ? <Play aria-hidden="true" size={17} /> : <Pause aria-hidden="true" size={17} />}
+              {paused ? <Play aria-hidden="true" size={17} /> : <Pause aria-hidden="true" size={17} />}
             </button>
             <button type="button" onClick={showNext} aria-label="البنر التالي">
               <ChevronLeft aria-hidden="true" size={19} />
