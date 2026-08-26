@@ -4,12 +4,12 @@
 
 .stage {
   position: relative;
-  height: clamp(330px, 34vw, 390px);
+  height: clamp(250px, 27vw, 320px);
   overflow: hidden;
-  border: 1px solid rgba(255, 106, 0, .2);
-  border-radius: 22px;
-  background: #0d0d0e;
-  box-shadow: 0 22px 64px rgba(0, 0, 0, .32);
+  border: 1px solid #ead7c8;
+  border-radius: 18px;
+  background: #17120f;
+  box-shadow: 0 16px 42px rgba(31, 41, 55, .10);
 }
 
 .slide {
@@ -38,101 +38,102 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(270deg, rgba(5, 5, 5, .94) 0%, rgba(5, 5, 5, .78) 45%, rgba(5, 5, 5, .24) 100%);
+  background: linear-gradient(270deg, rgba(20, 13, 9, .94) 0%, rgba(20, 13, 9, .78) 46%, rgba(20, 13, 9, .20) 100%);
 }
 
 .content {
   position: absolute;
   z-index: 2;
   inset: 0;
-  width: min(62%, 650px);
+  width: min(62%, 640px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: clamp(28px, 5vw, 62px);
+  padding: clamp(24px, 4.4vw, 50px);
   text-align: right;
 }
 
 .kicker {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0 10px;
-  border: 1px solid rgba(255, 106, 0, .25);
+  min-height: 25px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 137, 54, .32);
   border-radius: 999px;
-  background: rgba(255, 106, 0, .08);
-  color: #ffad70;
-  font-size: 11px;
+  background: rgba(255, 106, 0, .12);
+  color: #ffb37d;
+  font-size: 10px;
   font-weight: 900;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
 }
 
 .content h1 {
-  max-width: 620px;
-  margin: 14px 0 8px;
-  font-size: clamp(34px, 4.5vw, 54px);
-  line-height: 1.08;
-  letter-spacing: -.035em;
+  max-width: 590px;
+  margin: 11px 0 6px;
+  color: #fff;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -.025em;
 }
 
 .content p {
-  max-width: 560px;
+  max-width: 530px;
   margin: 0;
-  color: #c7c2bd;
-  font-size: clamp(13px, 1.5vw, 16px);
-  line-height: 1.8;
+  color: #eee5de;
+  font-size: clamp(12px, 1.4vw, 15px);
+  line-height: 1.75;
 }
 
 .cta {
-  min-height: 44px;
+  min-height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  margin-top: 20px;
-  padding: 0 16px;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 0 14px;
   border: 1px solid transparent;
-  border-radius: 12px;
-  background: linear-gradient(180deg, var(--brand-strong), var(--brand));
-  color: #17110d;
-  font-size: 13px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ff7d21, #ef6200);
+  color: #fff;
+  font-size: 11px;
   font-weight: 900;
-  box-shadow: 0 10px 30px rgba(255, 106, 0, .18);
+  box-shadow: 0 9px 22px rgba(255, 106, 0, .24);
 }
 
 .cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 13px 34px rgba(255, 106, 0, .24);
+  box-shadow: 0 12px 28px rgba(255, 106, 0, .30);
 }
 
 .builtIn {
   background:
-    radial-gradient(circle at 16% 38%, rgba(255, 106, 0, .2), transparent 25rem),
-    radial-gradient(circle at 85% 80%, rgba(255, 122, 26, .08), transparent 20rem),
-    linear-gradient(145deg, #15100d 0%, #0c0c0d 58%, #090909 100%);
+    radial-gradient(circle at 17% 32%, rgba(255, 106, 0, .28), transparent 23rem),
+    radial-gradient(circle at 78% 80%, rgba(255, 136, 57, .10), transparent 19rem),
+    linear-gradient(140deg, #25150d 0%, #16110e 55%, #0f0e0d 100%);
 }
 
 .graphic {
   position: absolute;
   z-index: 1;
-  left: clamp(26px, 7vw, 78px);
+  left: clamp(24px, 6vw, 68px);
   top: 50%;
-  width: min(28%, 260px);
+  width: min(25%, 220px);
   aspect-ratio: 1;
   transform: translateY(-50%);
   display: grid;
   place-items: center;
-  color: var(--brand-strong);
+  color: #ff7a1a;
   pointer-events: none;
 }
 
 .orbit {
   position: absolute;
   inset: 0;
-  border: 1px solid rgba(255, 106, 0, .22);
+  border: 1px solid rgba(255, 122, 26, .24);
   border-radius: 50%;
-  box-shadow: inset 0 0 45px rgba(255, 106, 0, .06);
+  box-shadow: inset 0 0 40px rgba(255, 106, 0, .06);
 }
 
 .orbit::before,
@@ -140,7 +141,7 @@
   content: "";
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .07);
 }
 
 .orbit::before {
@@ -149,106 +150,105 @@
 
 .orbit::after {
   inset: 33%;
-  border-color: rgba(255, 106, 0, .16);
+  border-color: rgba(255, 106, 0, .18);
 }
 
 .icon {
   position: relative;
   z-index: 2;
-  width: 92px;
-  height: 92px;
+  width: 78px;
+  height: 78px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 106, 0, .28);
-  border-radius: 24px;
-  background: rgba(10, 10, 10, .76);
-  box-shadow: 0 20px 55px rgba(0, 0, 0, .34);
+  border: 1px solid rgba(255, 122, 26, .30);
+  border-radius: 21px;
+  background: rgba(19, 15, 12, .78);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .26);
 }
 
 .wordmark {
   position: absolute;
-  right: -10px;
-  bottom: 7%;
-  color: rgba(255, 255, 255, .04);
-  font-size: clamp(42px, 7vw, 74px);
+  right: -8px;
+  bottom: 8%;
+  color: rgba(255, 255, 255, .045);
+  font-size: clamp(38px, 6vw, 64px);
   font-weight: 1000;
-  letter-spacing: -.06em;
+  letter-spacing: -.05em;
   direction: ltr;
 }
 
 .controls {
   position: absolute;
   z-index: 4;
-  inset: auto auto 14px 14px;
+  inset: auto auto 10px 10px;
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 13px;
-  background: rgba(8, 8, 8, .84);
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 11px;
+  background: rgba(17, 13, 11, .78);
   backdrop-filter: blur(10px);
 }
 
 .controls > button,
 .dots button {
-  height: 44px;
-  min-height: 44px;
+  height: 38px;
+  min-height: 38px;
   border: 0;
   background: transparent;
-  color: var(--text);
+  color: #fff;
   cursor: pointer;
 }
 
 .controls > button {
-  width: 44px;
-  min-width: 44px;
+  width: 38px;
+  min-width: 38px;
   display: grid;
   place-items: center;
-  border-radius: 9px;
+  border-radius: 8px;
 }
 
 .controls > button:hover {
-  background: var(--surface-strong);
-  color: var(--brand-strong);
+  background: rgba(255, 255, 255, .08);
+  color: #ff9a52;
 }
 
 .dots {
   display: flex;
   align-items: center;
-  gap: 0;
 }
 
 .dots button {
-  width: 34px;
-  min-width: 34px;
+  width: 28px;
+  min-width: 28px;
   padding: 0;
 }
 
 .dots button::after {
   content: "";
   display: block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   margin: auto;
   border-radius: 999px;
-  background: #666;
+  background: #8c8078;
   transition: width 160ms ease, background 160ms ease;
 }
 
 .dots .activeDot::after {
-  width: 18px;
-  background: var(--brand);
+  width: 16px;
+  background: #ff7a1a;
 }
 
 @media (max-width: 680px) {
   .slider {
-    padding-top: 10px;
+    padding-top: 9px;
   }
 
   .stage {
-    height: 298px;
-    border-radius: 18px;
+    height: 220px;
+    border-radius: 15px;
   }
 
   .desktopImage {
@@ -260,24 +260,24 @@
   }
 
   .overlay {
-    background: linear-gradient(180deg, rgba(6, 6, 6, .14) 0%, rgba(6, 6, 6, .54) 38%, rgba(6, 6, 6, .94) 100%);
+    background: linear-gradient(180deg, rgba(16, 11, 8, .12) 0%, rgba(16, 11, 8, .52) 40%, rgba(16, 11, 8, .94) 100%);
   }
 
   .content {
     width: 100%;
     justify-content: flex-end;
-    padding: 22px 18px 78px;
+    padding: 18px 16px 58px;
   }
 
   .kicker {
-    min-height: 25px;
-    font-size: 9px;
+    min-height: 22px;
+    font-size: 8px;
   }
 
   .content h1 {
-    max-width: 92%;
-    margin: 10px 0 4px;
-    font-size: clamp(25px, 7.6vw, 32px);
+    max-width: 94%;
+    margin: 8px 0 3px;
+    font-size: clamp(22px, 6.8vw, 28px);
   }
 
   .content p {
@@ -286,75 +286,69 @@
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    font-size: 12px;
-    line-height: 1.7;
+    font-size: 10px;
+    line-height: 1.65;
   }
 
   .cta {
-    min-height: 40px;
-    margin-top: 12px;
-    padding-inline: 13px;
-    font-size: 11px;
+    min-height: 36px;
+    margin-top: 9px;
+    padding-inline: 12px;
+    font-size: 10px;
   }
 
   .graphic {
-    left: 22px;
-    top: 34%;
-    width: 138px;
+    left: 18px;
+    top: 31%;
+    width: 105px;
     transform: translateY(-50%);
-    opacity: .72;
+    opacity: .78;
   }
 
   .icon {
-    width: 62px;
-    height: 62px;
-    border-radius: 18px;
+    width: 54px;
+    height: 54px;
+    border-radius: 15px;
   }
 
   .icon svg {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
   }
 
   .wordmark {
     right: auto;
-    bottom: -18px;
-    font-size: 38px;
+    bottom: -14px;
+    font-size: 30px;
   }
 
   .controls {
-    inset: auto 10px 10px 10px;
+    inset: auto 8px 8px 8px;
     justify-content: space-between;
   }
 
   .controls > button {
-    width: 40px;
-    min-width: 40px;
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
   }
 
   .dots button {
-    width: 30px;
-    min-width: 30px;
+    width: 24px;
+    min-width: 24px;
+    height: 34px;
+    min-height: 34px;
   }
 }
 
 @media (max-width: 390px) {
   .stage {
-    height: 286px;
+    height: 210px;
   }
 
   .content {
-    padding-inline: 15px;
-  }
-
-  .controls > button {
-    width: 38px;
-    min-width: 38px;
-  }
-
-  .dots button {
-    width: 27px;
-    min-width: 27px;
+    padding-inline: 14px;
   }
 }
 
