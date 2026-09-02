@@ -55,20 +55,24 @@
 > هذا هو القسم التشغيلي الوحيد الذي يجب تحديثه باستمرار. لا تحذف الحقول؛ استبدل قيمها وأضف التفاصيل اللازمة.
 
 ```yaml
-last_updated_utc: "2026-09-02T00:00:00Z"
-status: "RUNBOOK_CREATED"
+last_updated_utc: "2026-09-02T23:56:22Z"
+status: "READY_FOR_IMPLEMENTATION"
 base_branch: "feat/storefront-final-shell"
 base_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
 active_branch: "design/auth-suite-v3"
-head_commit: "TO_BE_UPDATED_AFTER_RUNBOOK_COMMIT"
+last_verified_code_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
+runbook_setup_commits:
+  - "efa08cc360043ebab4476a922aa35fd6d40796d6"
+  - "35887bfc880034eeb527d8addfe11ef222730505"
 production_branch: "main"
 production_commit: "e9bc3289ee0d5b6b2acde42e65399a66f3d78ce1"
 current_phase: "Phase 0 — baseline and repository verification"
 completed:
   - "Verified GitHub branches, main, PR #13, and rejected design/auth-login-v2"
   - "Verified Vercel production is main at e9bc3289 and auth-login-v2 is preview only"
-in_progress:
-  - "Create and persist this runbook on design/auth-suite-v3"
+  - "Created design/auth-suite-v3 from storefront commit 24450cf6"
+  - "Persisted the runbook and added its mandatory pointer to AGENTS.md"
+in_progress: []
 pending:
   - "Re-verify repository and environment from the implementation agent"
   - "Brand and logo repair"
@@ -80,6 +84,7 @@ pending:
   - "Draft PR and Vercel Preview for user approval"
 changed_files:
   - "docs/AUTH_SUITE_V3_RUNBOOK.md"
+  - "AGENTS.md"
 tests:
   status: "NOT_RUN_DOCUMENTATION_ONLY"
   results: []
