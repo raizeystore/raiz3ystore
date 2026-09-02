@@ -142,10 +142,10 @@ export function StoreHeaderClient({ context }: StoreHeaderClientProps) {
 
         <Link className={styles.logo} href="/" aria-label="RAIZEY STORE الرئيسية">
           <Image
-            src="/images/raizey-store-logo.png"
+            src="/brand/raizey-store-logo.png"
             alt="RAIZEY STORE"
-            width={320}
-            height={74}
+            width={640}
+            height={183}
             priority
             sizes="(max-width: 520px) 165px, 190px"
             className={styles.headerLogoImage}
