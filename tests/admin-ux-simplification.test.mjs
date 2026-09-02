@@ -8,8 +8,16 @@ function read(path) {
 
 test("all brand logo variants use the official full logo", () => {
   const brand = read("src/components/brand-logo.tsx");
+  const header = read("src/components/storefront/store-header-client.tsx");
+  const officialLogo = readFileSync(
+    new URL("../public/brand/raizey-store-logo.png", import.meta.url),
+  );
+
   assert.match(brand, /\/brand\/raizey-store-logo\.png/);
   assert.doesNotMatch(brand, /raizey-store-mark\.png/);
+  assert.match(header, /\/brand\/raizey-store-logo\.png/);
+  assert.doesNotMatch(header, /\/images\/raizey-store-logo\.png/);
+  assert.equal(officialLogo.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
 });
 
 test("catalog media uploads are restricted and server-side", () => {
