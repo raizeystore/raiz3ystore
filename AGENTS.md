@@ -22,6 +22,15 @@ Before implementing or reviewing UI/frontend work, read the relevant files in `/
 
 For Supabase work, also follow the current official Supabase skill/docs and re-check changing APIs before implementation.
 
+## Active task runbook
+
+For any authentication-page design or implementation work, read
+`docs/AUTH_SUITE_V3_RUNBOOK.md` completely before editing. Treat its stable
+requirements as authoritative, continue from its handoff state, and update the
+handoff section before every pause, credit-limit stop, or final response. Push
+the updated runbook with each meaningful checkpoint so another agent can resume
+without repeating completed work.
+
 ## Non-negotiable rules
 1. Inspect existing code before changing it.
 2. Never commit secrets, private keys, service-role keys, or production credentials.
