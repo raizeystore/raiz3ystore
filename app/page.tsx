@@ -16,81 +16,99 @@ import { StoreHeader } from "@/src/components/storefront/store-header";
 import { StoreTicker } from "@/src/components/storefront/store-ticker";
 import { getStorefrontHome } from "@/src/lib/catalog/storefront";
 import { getTickerMessages } from "@/src/lib/storefront/shell";
+import styles from "./home.module.css";
 
 export const revalidate = 60;
 
 const benefits = [
   {
     icon: ShieldCheck,
-    title: "تسعير من المصدر",
-    text: "الأسعار والخيارات تُقرأ من قاعدة البيانات، ويُعاد التحقق منها خادميًا قبل أي عملية مالية.",
+    title: "أسعار محسوبة بأمان",
+    text: "السعر النهائي يعاد حسابه من الخادم قبل السلة والطلب والدفع، ولا يعتمد على قيمة قادمة من المتصفح.",
   },
   {
     icon: Gauge,
-    title: "مصمم للموبايل",
-    text: "تدرج واضح من القسم إلى الباقة ثم الخيار، بدون قوائم مختلطة أو خطوات مبهمة.",
+    title: "مصمم للهاتف أولًا",
+    text: "الخدمة والعرض وبيانات التنفيذ تظهر بترتيب واضح يناسب شاشة 393px بدون خطوات إضافية مربكة.",
   },
   {
     icon: Headphones,
-    title: "دعم عند الحاجة",
-    text: "حالة الطلب واضحة، والحالات غير المؤكدة تنتقل للمراجعة بدل قبول دفع غير موثوق.",
+    title: "متابعة واضحة",
+    text: "حالة الطلب والتنبيهات والمراجعة تظهر من حسابك، والحالات غير المؤكدة تنتقل للمراجعة بدل قبولها عشوائيًا.",
   },
 ];
 
 const steps = [
   {
     icon: Layers3,
-    title: "اختر القسم والباقة",
-    text: "ابدأ بالقسم، ثم افتح الباقة المطلوبة بدون خلطها مع المنتجات النهائية.",
+    title: "اختر خدمتك",
+    text: "من الصفحة الرئيسية اضغط بطاقة PUBG Mobile أو Free Fire أو الاشتراك الذي تريده مباشرة.",
   },
   {
     icon: MousePointerClick,
-    title: "حدد الخيار وبياناتك",
-    text: "اختر الحجم أو الخدمة وأدخل فقط البيانات التي يحتاجها هذا المنتج.",
+    title: "حدد العرض وبيانات التنفيذ",
+    text: "اختر 60 أو 325 أو 660، ثم الخيار الفرعي إن وُجد وبيانات التنفيذ والكمية في صفحة الخدمة نفسها.",
   },
   {
     icon: ClipboardCheck,
-    title: "راجع وأكمل بأمان",
-    text: "راجع السعر والبيانات في Checkout مستقل قبل إنشاء الطلب أو بدء الدفع.",
+    title: "انتقل إلى الدفع",
+    text: "السلة أو اشتر الآن ينقلان إلى Checkout مستقل للدفع فقط بعد تثبيت كل اختياراتك.",
   },
 ];
 
-export default async function HomePage() {
-  const [{ banners, categories, popularProducts }, tickerMessages] = await Promise.all([
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ signup?: string }>;
+}) {
+  const [{ banners, categories, popularProducts }, tickerMessages, params] = await Promise.all([
     getStorefrontHome(),
     getTickerMessages(),
+    searchParams,
   ]);
+  const visibleCategories = categories.filter((category) => category.subcategories.length > 0);
+  const signupMessage = params.signup === "created"
+    ? "تم إنشاء حسابك. يمكنك تصفح المتجر الآن، وأكمل تأكيد البريد عند الحاجة لتسجيل الدخول."
+    : params.signup === "verified"
+      ? "تم تأكيد بريدك بنجاح. حسابك جاهز للاستخدام."
+      : null;
 
   return (
-    <main className="site-shell">
+    <main className={`${styles.home} site-shell`}>
       <StoreHeader />
+      {signupMessage && (
+        <div className={`container ${styles.signupNotice}`} role="status">
+          <span>{signupMessage}</span>
+          {params.signup === "created" && <Link href="/verify-code?purpose=signup">إدخال رمز التأكيد</Link>}
+        </div>
+      )}
       <BannerSlider banners={banners} />
       <StoreTicker messages={tickerMessages} />
 
       {popularProducts.length > 0 && (
-        <section className="section" id="most-purchased">
+        <section className={styles.popularSection} id="most-purchased" aria-labelledby="most-purchased-title">
           <div className="container">
-            <div className="section-heading">
+            <div className={styles.sectionHeading}>
               <div>
-                <span className="eyebrow">من الطلبات المكتملة</span>
-                <h2>الأكثر شراءً</h2>
+                <span className={styles.eyebrow}>من الطلبات المكتملة</span>
+                <h2 id="most-purchased-title">الأكثر شراءً</h2>
               </div>
-              <p>ترتيب حقيقي محسوب من كميات الطلبات المكتملة فقط، بدون اختيار يدوي أو منتجات عشوائية.</p>
+              <Link className={styles.inlineLink} href="#catalog">عرض الكل</Link>
             </div>
-            <div className="product-card-grid">
+            <div className={styles.popularGrid}>
               {popularProducts.map((product, index) => (
-                <Link className="store-product-card" href={`/products/${product.slug}`} key={product.id}>
-                  <div className="store-product-media">
+                <Link className={styles.popularCard} href={`/products/${product.slug}`} key={product.id}>
+                  <div className={styles.popularMedia}>
                     {product.imageUrl ? (
-                      <Image src={product.imageUrl} alt="" fill sizes="(max-width: 640px) 50vw, 280px" />
+                      <Image src={product.imageUrl} alt="" fill sizes="(max-width: 680px) 34vw, 220px" />
                     ) : (
-                      <Boxes aria-hidden="true" size={36} />
+                      <Boxes aria-hidden="true" size={34} />
                     )}
-                    <span>#{index + 1}</span>
+                    <span className={styles.rank}>#{index + 1}</span>
                   </div>
-                  <small>{product.subcategoryName || "RAIZEY STORE"}</small>
+                  <small className={styles.cardMeta}>{product.subcategoryName || "RAIZEY STORE"}</small>
                   <h3>{product.name}</h3>
-                  <span className="store-card-action">اختيار المنتج <ChevronLeft aria-hidden="true" size={17} /></span>
+                  <span className={styles.cardAction}>فتح الخدمة <ChevronLeft aria-hidden="true" size={15} /></span>
                 </Link>
               ))}
             </div>
@@ -98,62 +116,59 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="section section-muted catalog-home" id="catalog">
+      <section className={styles.catalogSection} id="catalog" aria-labelledby="catalog-title">
         <div className="container">
-          <div className="section-heading">
+          <div className={styles.sectionHeading}>
             <div>
-              <span className="eyebrow"><span className="eyebrow-dot" /> كتالوج RAIZEY</span>
-              <h2>ابدأ من القسم الصحيح</h2>
+              <span className={styles.eyebrow}>RAIZEY STORE</span>
+              <h2 id="catalog-title">الأقسام الرئيسية</h2>
             </div>
-            <p>الأقسام حاويات واضحة، وتحت كل قسم تظهر الباقات المرتبطة به فقط.</p>
+            <span className={styles.sectionHint}>اختر الخدمة مباشرة</span>
           </div>
 
-          {categories.length === 0 ? (
-            <div className="store-empty-state">
-              <Boxes aria-hidden="true" size={32} />
+          {visibleCategories.length === 0 ? (
+            <div className={styles.emptyState}>
+              <Boxes aria-hidden="true" size={30} />
               <div>
                 <h3>الكتالوج قيد التجهيز</h3>
-                <p>لا توجد أقسام منشورة حاليًا. ستظهر الأقسام والباقات تلقائيًا بعد نشرها من لوحة الإدارة.</p>
+                <p>ستظهر الخدمات هنا تلقائيًا بعد نشرها من لوحة الإدارة.</p>
               </div>
             </div>
           ) : (
-            <div className="category-section-list">
-              {categories.map((category) => (
-                <section className="category-section" aria-labelledby={`category-${category.id}`} key={category.id}>
-                  <div className="category-section-head">
+            <div className={styles.categoryList}>
+              {visibleCategories.map((category) => (
+                <section className={styles.categoryBlock} aria-labelledby={`category-${category.id}`} key={category.id}>
+                  <div className={styles.categoryHead}>
                     <div>
-                      <span>SECTION</span>
                       <h3 id={`category-${category.id}`}>{category.name}</h3>
                       {category.description && <p>{category.description}</p>}
                     </div>
-                    <Link className="btn btn-secondary" href={`/categories/${category.slug}`}>
-                      عرض القسم <ChevronLeft aria-hidden="true" size={17} />
-                    </Link>
+                    <span>{category.subcategories.length.toLocaleString("ar")} خدمات</span>
                   </div>
 
-                  {category.subcategories.length === 0 ? (
-                    <div className="category-inline-empty">لا توجد باقات منشورة داخل هذا القسم حتى الآن.</div>
-                  ) : (
-                    <div className="subcategory-grid">
-                      {category.subcategories.map((subcategory) => (
-                        <Link className="subcategory-card" href={`/catalog/${subcategory.slug}`} key={subcategory.id}>
-                          <div className="subcategory-media">
-                            {subcategory.imageUrl ? (
-                              <Image src={subcategory.imageUrl} alt="" fill sizes="(max-width: 640px) 50vw, 280px" />
-                            ) : (
-                              <Layers3 aria-hidden="true" size={32} />
-                            )}
-                          </div>
-                          <div>
-                            <span>{category.name}</span>
-                            <h4>{subcategory.name}</h4>
-                            <p>{subcategory.description || "استعرض المنتجات والخيارات المتاحة داخل هذه الباقة."}</p>
-                          </div>
-                          <ChevronLeft className="subcategory-arrow" aria-hidden="true" size={19} />
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  <div className={styles.categoryGrid}>
+                    {category.subcategories.map((subcategory) => (
+                      <Link
+                        className={styles.categoryCard}
+                        href={`/catalog/${subcategory.slug}`}
+                        aria-label={`فتح ${subcategory.name}`}
+                        key={subcategory.id}
+                      >
+                        <div className={styles.categoryMedia}>
+                          {subcategory.imageUrl ? (
+                            <Image src={subcategory.imageUrl} alt="" fill sizes="(max-width: 680px) 48vw, 250px" />
+                          ) : (
+                            <Layers3 aria-hidden="true" size={31} />
+                          )}
+                        </div>
+                        <div className={styles.categoryCardBody}>
+                          <small className={styles.cardMeta}>{category.name}</small>
+                          <h3>{subcategory.name}</h3>
+                          <ChevronLeft className={styles.categoryArrow} aria-hidden="true" size={18} />
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </section>
               ))}
             </div>
@@ -161,18 +176,20 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="why-us">
+      <section className={styles.section} id="why-us" aria-labelledby="why-us-title">
         <div className="container">
-          <div className="section-heading">
-            <div><span className="eyebrow">RAIZEY STANDARD</span><h2>هدوء في الواجهة. صرامة في الخلفية.</h2></div>
-            <p>تجربة شراء بسيطة لا تعني اختصار قواعد الأمان أو الاعتماد على بيانات المتصفح.</p>
+          <div className={styles.sectionHeading}>
+            <div>
+              <span className={styles.eyebrow}>RAIZEY STANDARD</span>
+              <h2 id="why-us-title">واجهة أبسط، حماية أقوى</h2>
+            </div>
           </div>
-          <div className="info-grid">
+          <div className={styles.infoGrid}>
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
               return (
-                <article className="info-card" key={benefit.title}>
-                  <span className="premium-icon-box"><Icon aria-hidden="true" size={22} /></span>
+                <article className={styles.infoCard} key={benefit.title}>
+                  <span className={styles.iconBox}><Icon aria-hidden="true" size={21} /></span>
                   <h3>{benefit.title}</h3>
                   <p>{benefit.text}</p>
                 </article>
@@ -182,19 +199,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section section-muted" id="how-it-works">
+      <section className={styles.softSection} id="how-it-works" aria-labelledby="how-it-works-title">
         <div className="container">
-          <div className="section-heading">
-            <div><span className="eyebrow">HOW IT WORKS</span><h2>من الاختيار إلى المراجعة</h2></div>
-            <p>كل خطوة لها غرض واحد واضح، خصوصًا على شاشة بعرض 393px.</p>
+          <div className={styles.sectionHeading}>
+            <div>
+              <span className={styles.eyebrow}>3 خطوات واضحة</span>
+              <h2 id="how-it-works-title">من الخدمة إلى الدفع بدون لف ودوران</h2>
+            </div>
           </div>
-          <div className="steps-grid">
+          <div className={styles.stepsGrid}>
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
-                <article className="step-card" key={step.title}>
-                  <div className="step-number"><Icon aria-hidden="true" size={20} /></div>
-                  <span className="card-kicker">0{index + 1}</span>
+                <article className={styles.stepCard} key={step.title}>
+                  <span className={styles.stepNumber}><Icon aria-hidden="true" size={20} /></span>
+                  <span className={styles.stepLabel}>0{index + 1}</span>
                   <h3>{step.title}</h3>
                   <p>{step.text}</p>
                 </article>
@@ -204,15 +223,20 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="container cta-band premium-cta">
-          <div><span className="card-kicker">YOUR NEXT TOP-UP</span><h2>جاهز تختار خدمتك؟</h2><p>ابدأ بالكتالوج، أو ادخل إلى حسابك لمتابعة طلباتك الحالية.</p></div>
-          <div className="hero-actions">
-            <Link className="btn btn-primary" href="#catalog">تصفح الكتالوج</Link>
-            <Link className="btn btn-secondary" href="/account">فتح حسابي</Link>
+      <section className={styles.section}>
+        <div className={`container ${styles.ctaBand}`}>
+          <div>
+            <span className={styles.eyebrow}>RAIZEY STORE</span>
+            <h2>جاهز تختار خدمتك؟</h2>
+            <p>ابدأ من بطاقات الخدمات مباشرة، بدون صفحات وسيطة.</p>
+          </div>
+          <div className={styles.ctaActions}>
+            <Link className={styles.primaryAction} href="#catalog">تصفح الخدمات</Link>
+            <Link className={styles.secondaryAction} href="/account">حسابي</Link>
           </div>
         </div>
       </section>
+
       <StoreFooter />
     </main>
   );

@@ -2,21 +2,21 @@
   position: sticky;
   top: 92px;
   padding: 20px;
-  border: 1px solid var(--border);
+  border: 1px solid #e3e6eb;
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)), #0d0d0e;
-  box-shadow: var(--shadow);
+  background: #fff;
+  box-shadow: 0 18px 46px rgba(31, 41, 55, .08);
 }
 
 .priceCard {
   position: relative;
   overflow: hidden;
   padding: 18px;
-  border: 1px solid rgba(255,106,0,.25);
+  border: 1px solid #f2c9a8;
   border-radius: 17px;
   background:
-    radial-gradient(circle at 90% 0, rgba(255,106,0,.18), transparent 12rem),
-    rgba(255,106,0,.055);
+    radial-gradient(circle at 90% 0, rgba(255,106,0,.12), transparent 12rem),
+    linear-gradient(135deg, #fff7ef, #fff);
 }
 
 .priceLabel {
@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: #ffad70;
+  color: #d85800;
   font-size: 11px;
   font-weight: 850;
 }
@@ -38,18 +38,22 @@
 }
 
 .total strong {
+  color: #20242c;
   font-size: clamp(28px, 6vw, 40px);
   line-height: 1.15;
 }
 
+.total small,
+.unitPrice {
+  color: #747c87;
+}
+
 .total small {
-  color: var(--text-muted);
   font-size: 11px;
 }
 
 .unitPrice {
   margin-top: 5px;
-  color: var(--text-muted);
   font-size: 10px;
 }
 
@@ -66,13 +70,13 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
-  color: var(--text);
+  color: #20242c;
   font-size: 13px;
   font-weight: 850;
 }
 
 .legend small {
-  color: #f2bc72;
+  color: #d96a1f;
   font-size: 9px;
 }
 
@@ -90,21 +94,23 @@
   align-items: center;
   gap: 9px;
   padding: 10px 11px;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e5ea;
   border-radius: 13px;
-  background: #111;
+  background: #fff;
+  color: #242831;
   cursor: pointer;
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 }
 
 .choice:hover {
   border-color: rgba(255,106,0,.32);
+  background: #fffaf6;
 }
 
 .selected {
   border-color: rgba(255,106,0,.62);
-  background: rgba(255,106,0,.075);
-  box-shadow: inset 0 0 0 1px rgba(255,106,0,.09);
+  background: #fff3e8;
+  box-shadow: inset 0 0 0 1px rgba(255,106,0,.07);
 }
 
 .choice input {
@@ -114,7 +120,7 @@
 }
 
 .choice:has(input:focus-visible) {
-  outline: 3px solid rgba(255,122,26,.72);
+  outline: 3px solid rgba(255,122,26,.48);
   outline-offset: 2px;
 }
 
@@ -130,13 +136,14 @@
 
 .choiceText strong {
   overflow: hidden;
+  color: #242831;
   text-overflow: ellipsis;
   font-size: 13px;
 }
 
 .choiceText small {
   margin-top: 2px;
-  color: var(--text-muted);
+  color: #7d8590;
   font-size: 9px;
 }
 
@@ -146,15 +153,15 @@
   margin-top: 4px !important;
   padding: 2px 6px;
   border-radius: 999px;
-  background: rgba(255,106,0,.1);
-  color: #ffad70 !important;
+  background: #fff0e3;
+  color: #d85800 !important;
   font-size: 8px !important;
   font-weight: 850;
 }
 
 .check {
   flex: 0 0 auto;
-  color: var(--brand-strong);
+  color: #ed650c;
 }
 
 .quantityRow {
@@ -164,9 +171,9 @@
   gap: 14px;
   margin-top: 21px;
   padding: 14px;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e5ea;
   border-radius: 14px;
-  background: rgba(255,255,255,.018);
+  background: #fafbfc;
 }
 
 .quantityLabel strong,
@@ -175,12 +182,13 @@
 }
 
 .quantityLabel strong {
+  color: #242831;
   font-size: 13px;
 }
 
 .quantityLabel small {
   margin-top: 2px;
-  color: var(--text-muted);
+  color: #7d8590;
   font-size: 9px;
 }
 
@@ -189,9 +197,9 @@
   grid-template-columns: 42px 50px 42px;
   align-items: center;
   overflow: hidden;
-  border: 1px solid rgba(255,106,0,.25);
+  border: 1px solid #f0c8a8;
   border-radius: 12px;
-  background: #0d0d0e;
+  background: #fff;
 }
 
 .counter button {
@@ -199,13 +207,13 @@
   min-height: 42px;
   border: 0;
   background: transparent;
-  color: var(--text);
+  color: #252932;
   cursor: pointer;
 }
 
 .counter button:hover:not(:disabled) {
-  background: var(--brand-soft);
-  color: var(--brand-strong);
+  background: #fff1e5;
+  color: #d85800;
 }
 
 .counter button:disabled {
@@ -214,6 +222,7 @@
 }
 
 .counter strong {
+  color: #242831;
   text-align: center;
   font-size: 14px;
 }
@@ -224,16 +233,17 @@
   gap: 9px;
   margin-top: 14px;
   padding: 11px 12px;
+  border: 1px solid #e8ebef;
   border-radius: 12px;
-  background: rgba(255,255,255,.025);
-  color: var(--text-muted);
+  background: #fafbfc;
+  color: #707985;
   font-size: 10px;
 }
 
 .dataNote svg {
   flex: 0 0 auto;
   margin-top: 2px;
-  color: var(--brand-strong);
+  color: #ed650c;
 }
 
 .warning,
@@ -246,21 +256,21 @@
 }
 
 .warning {
-  border: 1px solid rgba(246,183,60,.2);
-  background: rgba(246,183,60,.06);
-  color: #e8c877;
+  border: 1px solid #efd7aa;
+  background: #fffaf0;
+  color: #8a5c16;
 }
 
 .success {
-  border: 1px solid rgba(63,207,142,.22);
-  background: rgba(63,207,142,.065);
-  color: #9ee1c2;
+  border: 1px solid #cce8d8;
+  background: #f3fbf6;
+  color: #27724d;
 }
 
 .error {
-  border: 1px solid rgba(240,91,97,.22);
-  background: rgba(240,91,97,.065);
-  color: #f0aaaD;
+  border: 1px solid #efc9cc;
+  background: #fff5f5;
+  color: #ad3f46;
 }
 
 .actions {

@@ -3,13 +3,14 @@ import { expect, test } from "@playwright/test";
 test("home page renders the mobile-first storefront shell", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "ابدأ من القسم الصحيح" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "استعرض الكتالوج" })).toHaveAttribute("href", "#catalog");
+  await expect(page.getByRole("heading", { name: "الأقسام الرئيسية", level: 2 })).toBeVisible();
+  await expect(page.getByRole("link", { name: "تصفح الألعاب" })).toHaveAttribute("href", "#catalog");
   await expect(page.getByRole("link", { name: "البحث عن المنتجات" })).toHaveAttribute("href", "/search");
   await expect(page.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/login?next=%2Fnotifications");
   await expect(page.getByRole("link", { name: "المحفظة" })).toHaveAttribute("href", "/login?next=%2Fwallet");
+  await expect(page.getByLabel("فتح حسابي")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "سلة المشتريات" })).toHaveAttribute("href", "/login?next=%2Fcart");
-  await expect(page.getByRole("region", { name: "إعلانات المتجر" })).toBeVisible();
+  await expect(page.locator('section[aria-roledescription="carousel"][aria-label="إعلانات المتجر"]')).toBeVisible();
 
   await page.getByRole("button", { name: "فتح القائمة" }).click();
   const drawer = page.getByRole("navigation", { name: "التنقل الرئيسي" });
@@ -17,7 +18,7 @@ test("home page renders the mobile-first storefront shell", async ({ page }) => 
   await expect(drawer.getByRole("link", { name: "شحن المحفظة", exact: true })).toHaveAttribute("href", "/login?next=%2Fwallet");
   await expect(drawer.getByRole("link", { name: "طلباتي", exact: true })).toHaveAttribute("href", "/login?next=%2Forders");
   await expect(drawer.getByText("إحالاتي وأرباحي", { exact: true })).toBeVisible();
-  await expect(drawer.getByRole("link", { name: "إعدادات الحساب" })).toHaveAttribute("href", "/login?next=%2Faccount%2Fsecurity");
+  await expect(drawer.getByRole("link", { name: "إعدادات الحساب" })).toHaveAttribute("href", "/login?next=%2Faccount");
   await expect(drawer.getByRole("link", { name: "لوحة الإدارة" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "تسجيل الدخول", exact: true })).toHaveAttribute("href", "/login");
   await expect(page.getByText(/PUBG MOBILE|FREE FIRE|CALL OF DUTY/)).toHaveCount(0);
