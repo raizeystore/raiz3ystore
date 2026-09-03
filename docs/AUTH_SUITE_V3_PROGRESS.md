@@ -15,8 +15,8 @@
 
 ```yaml
 schema_version: 1
-last_updated_utc: "2026-09-03T07:53:00Z"
-status: "READY_FOR_IMPLEMENTATION"
+last_updated_utc: "2026-09-03T08:17:20Z"
+status: "WAITING_FOR_GITHUB_DEFAULT_BRANCH_SWITCH"
 base_branch: "feat/storefront-final-shell"
 base_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
 active_branch: "design/auth-suite-v3"
@@ -49,7 +49,9 @@ completed:
   - "Created design/auth-suite-v3 from storefront commit 24450cf6"
   - "Persisted the stable runbook and its mandatory pointer in AGENTS.md"
   - "Separated live progress from stable requirements and documented the shared USD 5 v0 cap"
-in_progress: []
+  - "Verified the existing v0/fonejoc496-2787-154ce62f branch is stale and does not contain Auth Suite V3"
+in_progress:
+  - "Bootstrap a fresh v0 chat from design/auth-suite-v3"
 pending:
   - "Re-verify repository and environment from the implementation agent"
   - "Brand and logo repair"
@@ -69,8 +71,9 @@ tests:
 browser_checks: []
 preview_url: "https://raiz3ystore-git-design-auth-suite-v3-raizeystore-5347s-projects.vercel.app"
 known_failures: []
-blockers: []
-next_exact_action: "Read AGENTS.md, the full runbook, and this progress file; then re-verify the active branch, package.json, auth files, Vercel deployment, and Supabase project without changing production."
+blockers:
+  - "The connected GitHub tool cannot change repository Default Branch settings; the repository owner must temporarily select design/auth-suite-v3 in GitHub Settings."
+next_exact_action: "Temporarily set the GitHub Default Branch to design/auth-suite-v3, import the repository into a fresh v0 chat, and verify that docs/AUTH_SUITE_V3_PROGRESS.md is visible before sending an implementation prompt."
 ```
 
 ## حالة المراحل
