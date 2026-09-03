@@ -15,13 +15,17 @@
 
 ```yaml
 schema_version: 1
-last_updated_utc: "2026-09-03T07:48:36Z"
+last_updated_utc: "2026-09-03T07:53:00Z"
 status: "READY_FOR_IMPLEMENTATION"
 base_branch: "feat/storefront-final-shell"
 base_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
 active_branch: "design/auth-suite-v3"
 last_verified_code_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
-last_checkpoint_commit: "2f83984bd6af5252f1b386c2c58a7993f1dfa7e5"
+last_checkpoint_parent_commit: "f5ae3551c7a2f319f519c4402408a4d8398034b4"
+documentation_setup_commits:
+  - "1311aaa662aa418c2b5c1814b9e2e2ee05e396ad"
+  - "439797d9ee5919a183f9c189c4cca980049b30de"
+  - "f5ae3551c7a2f319f519c4402408a4d8398034b4"
 production_branch: "main"
 production_commit: "e9bc3289ee0d5b6b2acde42e65399a66f3d78ce1"
 current_phase: "Phase 0 — baseline and repository verification"
@@ -94,6 +98,7 @@ next_exact_action: "Read AGENTS.md, the full runbook, and this progress file; th
 | UTC | Phase | Commit | ما تم | الاختبارات الفعلية | الخطوة التالية |
 |---|---|---|---|---|---|
 | 2026-09-03 | Setup | `2f83984bd6af5252f1b386c2c58a7993f1dfa7e5` | إنشاء الفرع والـRunbook وربط AGENTS | توثيق فقط؛ اختبارات الكود لم تُشغّل | إعادة التحقق ثم بدء Phase 1 |
+| 2026-09-03 | Handoff | `f5ae3551c7a2f319f519c4402408a4d8398034b4` | فصل ملف المهمة عن التقدم وإضافة ميزانية v0 المشتركة | فحص توثيق وGitHub فقط؛ اختبارات الكود لم تُشغّل | تنفيذ `next_exact_action` |
 
 ## إجراء انخفاض الرصيد
 
@@ -139,4 +144,12 @@ known_failures:
 blockers:
   - "Exact blocker or empty"
 next_exact_action: "One concrete action"
+```
+
+## رسالة الاستئناف الجاهزة
+
+انسخ هذه الرسالة فقط للوكيل التالي؛ التفاصيل موجودة في المستودع ولا تُعد كتابتها داخل المحادثة:
+
+```text
+افتح المستودع raizeystore/raiz3ystore واعمل على الفرع design/auth-suite-v3 فقط. اقرأ AGENTS.md وdocs/AUTH_SUITE_V3_RUNBOOK.md كاملين، ثم اقرأ docs/AUTH_SUITE_V3_PROGRESS.md. تحقّق سريعًا أن حالة GitHub وVercel وSupabase توافق ملف التقدم، ثم نفّذ next_exact_action مباشرة دون إعادة البحث العام أو تغيير main/Production. التزم بميزانية v0 الكلية المشتركة البالغة 5 USD، وحدّث ملف التقدم وادفع Checkpoint قبل التوقف أو تبديل الحساب.
 ```
