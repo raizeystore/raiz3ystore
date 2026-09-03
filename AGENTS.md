@@ -25,11 +25,13 @@ For Supabase work, also follow the current official Supabase skill/docs and re-c
 ## Active task runbook
 
 For any authentication-page design or implementation work, read
-`docs/AUTH_SUITE_V3_RUNBOOK.md` completely before editing. Treat its stable
-requirements as authoritative, continue from its handoff state, and update the
-handoff section before every pause, credit-limit stop, or final response. Push
-the updated runbook with each meaningful checkpoint so another agent can resume
-without repeating completed work.
+`docs/AUTH_SUITE_V3_RUNBOOK.md` completely, then read
+`docs/AUTH_SUITE_V3_PROGRESS.md` before editing. Treat the runbook's stable
+requirements as authoritative and the progress file as the only live handoff.
+Update and push the progress file after each phase and before every pause,
+credit-limit stop, account switch, or final response so another agent can resume
+without repeating completed work. The USD 5 v0 budget is shared by the whole
+Auth Suite V3 task across all agents and accounts, not renewed per session.
 
 ## Non-negotiable rules
 1. Inspect existing code before changing it.
