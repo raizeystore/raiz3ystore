@@ -1,16 +1,16 @@
 # RAIZEY STORE — Auth Suite V3 Runbook
 
-> هذا الملف هو المرجع الثابت لمهمة إعادة تصميم صفحات الحساب. يجب على أي وكيل يعمل على المهمة قراءته كاملًا قبل التعديل، ثم تحديث قسم **حالة التسليم والاستئناف** قبل نهاية كل جلسة أو عند التوقف. لا تحذف المتطلبات الثابتة ولا تستبدلها بملخص.
+> هذا الملف هو المرجع الثابت لمهمة إعادة تصميم صفحات الحساب. يجب على أي وكيل يعمل على المهمة قراءته كاملًا قبل التعديل، ثم قراءة وتحديث `docs/AUTH_SUITE_V3_PROGRESS.md` بوصفه سجل التقدم والتسليم الوحيد. لا تحذف المتطلبات الثابتة ولا تستبدلها بملخص.
 
 ## 1. طريقة استخدام هذا الملف
 
-1. اقرأ `AGENTS.md` وهذا الملف كاملين.
+1. اقرأ `AGENTS.md` وهذا الملف كاملين، ثم اقرأ `docs/AUTH_SUITE_V3_PROGRESS.md`.
 2. تحقّق من الحالة الحقيقية في GitHub وVercel وSupabase قبل الاعتماد على حالة مكتوبة قديمة.
 3. اعمل على Feature Branch فقط. لا تعدّل `main` ولا Production.
-4. نفّذ المهمة من أول بند غير مكتمل في قسم **حالة التسليم والاستئناف**.
-5. بعد كل مرحلة مكتملة: شغّل الاختبارات المرتبطة، حدّث حالة التسليم، ثم أنشئ Commit وPush.
+4. نفّذ المهمة من `next_exact_action` وأول بند غير مكتمل في ملف التقدم.
+5. بعد كل مرحلة مكتملة: شغّل الاختبارات المرتبطة، حدّث ملف التقدم، ثم أنشئ Commit وPush.
 6. إذا ظهر تحذير قرب انتهاء Credits/Tokens أو اضطررت للتوقف، أنشئ WIP checkpoint على الـFeature Branch بدل ترك العمل داخل مساحة الوكيل فقط.
-7. عند الاستئناف في حساب أو وكيل جديد، لا تبدأ من الصفر: افحص آخر Commit و`git diff` وقارنها بحالة التسليم، ثم نفّذ **الخطوة التالية الدقيقة**.
+7. عند الاستئناف في حساب أو وكيل جديد، لا تبدأ من الصفر: افحص آخر Commit و`git diff` وقارنهما بملف التقدم، ثم نفّذ **الخطوة التالية الدقيقة**.
 
 ## 2. بروتوكول منع ضياع العمل
 
@@ -19,7 +19,7 @@
 1. شغّل `git status --short --branch` وراجع `git diff --stat` و`git diff`.
 2. لا تضف Secrets أو ملفات Environment أو ملفات مؤقتة.
 3. شغّل أسرع الاختبارات المرتبطة بالتغييرات الحالية.
-4. حدّث قسم **حالة التسليم والاستئناف** في هذا الملف، بما يشمل الاختبارات الفاشلة وأسبابها دون إخفائها.
+4. حدّث `docs/AUTH_SUITE_V3_PROGRESS.md`، بما يشمل الاختبارات الفاشلة وأسبابها دون إخفائها.
 5. أنشئ Commit واضحًا وPush إلى Feature Branch.
 6. إذا كانت المرحلة غير مكتملة، استخدم رسالة مثل:
 
@@ -52,47 +52,13 @@
 
 ## 4. حالة التسليم والاستئناف
 
-> هذا هو القسم التشغيلي الوحيد الذي يجب تحديثه باستمرار. لا تحذف الحقول؛ استبدل قيمها وأضف التفاصيل اللازمة.
+الحالة التشغيلية وسجل الميزانية والاختبارات والخطوة التالية موجودة في:
 
-```yaml
-last_updated_utc: "2026-09-02T23:56:22Z"
-status: "READY_FOR_IMPLEMENTATION"
-base_branch: "feat/storefront-final-shell"
-base_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
-active_branch: "design/auth-suite-v3"
-last_verified_code_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
-runbook_setup_commits:
-  - "efa08cc360043ebab4476a922aa35fd6d40796d6"
-  - "35887bfc880034eeb527d8addfe11ef222730505"
-production_branch: "main"
-production_commit: "e9bc3289ee0d5b6b2acde42e65399a66f3d78ce1"
-current_phase: "Phase 0 — baseline and repository verification"
-completed:
-  - "Verified GitHub branches, main, PR #13, and rejected design/auth-login-v2"
-  - "Verified Vercel production is main at e9bc3289 and auth-login-v2 is preview only"
-  - "Created design/auth-suite-v3 from storefront commit 24450cf6"
-  - "Persisted the runbook and added its mandatory pointer to AGENTS.md"
-in_progress: []
-pending:
-  - "Re-verify repository and environment from the implementation agent"
-  - "Brand and logo repair"
-  - "Original responsive gaming background"
-  - "Shared AuthScene and semantic CSS tokens"
-  - "Implement all six Auth pages"
-  - "Accessibility, performance, and security review"
-  - "Automated and browser verification"
-  - "Draft PR and Vercel Preview for user approval"
-changed_files:
-  - "docs/AUTH_SUITE_V3_RUNBOOK.md"
-  - "AGENTS.md"
-tests:
-  status: "NOT_RUN_DOCUMENTATION_ONLY"
-  results: []
-preview_url: null
-known_failures: []
-blockers: []
-next_exact_action: "Read AGENTS.md and this runbook, then re-verify branch, package.json, auth files, Vercel, and Supabase without changing production."
+```text
+docs/AUTH_SUITE_V3_PROGRESS.md
 ```
+
+هذا الفصل مقصود: يبقى الـRunbook ثابتًا، بينما يكون ملف التقدم صغيرًا وسهل المراجعة والتحديث في كل Checkpoint. لا تسجّل حالة حية ثانية في Notion أو محادثة أو ملف آخر، ولا تعتبر أي ملخص خارجي أحدث من آخر نسخة منشورة على Feature Branch.
 
 ## 5. المهمة والحدود
 
@@ -502,6 +468,17 @@ public/auth-gaming-bg.webp
 
 ## 21. تقليل استهلاك Tokens/Credits
 
+### ميزانية v0 الإلزامية
+
+- الحد الأقصى الكلي للمهمة داخل v0 هو **`$5.00 USD`** عبر جميع الوكلاء والحسابات والجلسات؛ ليس `$5` لكل حساب أو لكل جلسة.
+- سجّل الرصيد قبل الجلسة وبعدها والمبلغ المستهلك في `docs/AUTH_SUITE_V3_PROGRESS.md` عندما تعرضه واجهة v0 أو يقدمه المستخدم.
+- لا تدّعِ معرفة الرصيد أو مراقبته آليًا إذا لم تعرضه الأداة فعليًا؛ استخدم `UNKNOWN` مع ذكر مصدر القياس بدل تخمين رقم.
+- احتفظ باحتياطي تسليم قدره **`$0.50`**. عند وصول الرصيد المتبقي إلى `$0.50` أو أقل، ادخل وضع `CONSERVATION`: أوقف توليد الصور والبحث الواسع والـRefactor غير الضروري والتقارير الطويلة، وأكمل فقط Checkpoint آمنًا واختبارات مستهدفة وCommit وPush.
+- عند وصول الرصيد المتبقي إلى **`$0.10` أو أقل**، ادخل وضع `EMERGENCY_HANDOFF`: لا تبدأ أي تنفيذ أو توليد أو بحث جديد. حدّث ملف التقدم فورًا بكل ما أُنجز وما هو جزئي وما تبقى، الملفات المتغيرة، آخر Commit، نتائج الاختبارات الفعلية، الأخطاء، رابط Preview، والـ`next_exact_action`، ثم Commit وPush وتوقف.
+- إذا تعذر قياس الرصيد، نفّذ Checkpoint بعد كل Phase وقبل أي عملية مكلفة، ولا تؤخر التسليم اعتمادًا على رصيد مفترض.
+- لا تستخدم الرصيد لإنشاء بدائل تصميم كثيرة. أنشئ اتجاهًا واحدًا قويًا، راجعه، ثم حسّنه ضمن النطاق المعتمد.
+- شغّل الاختبارات المستهدفة أثناء المراحل، والمجموعة الكاملة مرة واحدة في التحقق النهائي، إلا إذا تطلب إصلاح فشل إعادة اختبار متأثر.
+
 - لا تعِد شرح معلومات هذا الملف.
 - لا تبدأ بحثًا عامًا عن Framework أو مكتبة.
 - لا تقرأ كل المستودع دون سبب.
@@ -516,7 +493,7 @@ public/auth-gaming-bg.webp
 
 ## 22. مراحل التنفيذ القابلة للتتبع
 
-حدّث هذه القائمة وحالة التسليم بعد كل مرحلة:
+هذه قائمة المراحل المرجعية. حدّث حالتها الفعلية في `docs/AUTH_SUITE_V3_PROGRESS.md` بعد كل مرحلة:
 
 - [ ] Phase 0: إعادة التحقق من Base، Feature Branch، GitHub، Vercel، Supabase، وملفات المشروع.
 - [ ] Phase 1: فحص الشعار وإنتاج نسخة Versioned نظيفة والتحقق منها.
