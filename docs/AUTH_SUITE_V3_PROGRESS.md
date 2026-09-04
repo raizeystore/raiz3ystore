@@ -15,8 +15,8 @@
 
 ```yaml
 schema_version: 1
-last_updated_utc: "2026-09-03T08:17:20Z"
-status: "WAITING_FOR_GITHUB_DEFAULT_BRANCH_SWITCH"
+last_updated_utc: "2026-09-04T10:09:55Z"
+status: "READY_FOR_V0_IMPORT"
 base_branch: "feat/storefront-final-shell"
 base_commit: "24450cf67993bcd8f3d13625e9ed2dbd4f77bdac"
 active_branch: "design/auth-suite-v3"
@@ -50,6 +50,7 @@ completed:
   - "Persisted the stable runbook and its mandatory pointer in AGENTS.md"
   - "Separated live progress from stable requirements and documented the shared USD 5 v0 cap"
   - "Verified the existing v0/fonejoc496-2787-154ce62f branch is stale and does not contain Auth Suite V3"
+  - "Verified GitHub Default Branch is now design/auth-suite-v3; the previous bootstrap blocker is resolved"
 in_progress:
   - "Bootstrap a fresh v0 chat from design/auth-suite-v3"
 pending:
@@ -71,9 +72,8 @@ tests:
 browser_checks: []
 preview_url: "https://raiz3ystore-git-design-auth-suite-v3-raizeystore-5347s-projects.vercel.app"
 known_failures: []
-blockers:
-  - "The connected GitHub tool cannot change repository Default Branch settings; the repository owner must temporarily select design/auth-suite-v3 in GitHub Settings."
-next_exact_action: "Temporarily set the GitHub Default Branch to design/auth-suite-v3, import the repository into a fresh v0 chat, and verify that docs/AUTH_SUITE_V3_PROGRESS.md is visible before sending an implementation prompt."
+blockers: []
+next_exact_action: "Import raizeystore/raiz3ystore into a fresh v0 chat from the current Default Branch design/auth-suite-v3, confirm AGENTS.md and both Auth Suite V3 docs are visible, then re-verify Phase 0 and begin Phase 1 logo repair."
 ```
 
 ## حالة المراحل
